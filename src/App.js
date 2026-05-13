@@ -7,14 +7,12 @@ import Landing from './pages/Landing';
 import Auth from './pages/Auth';
 import AdvocateDirectory from './pages/AdvocateDirectory';
 import AdvocateProfile from './pages/AdvocateProfile';
-import ClientDashboard from './pages/ClientDashboard';
+import CitizenDashboard from './pages/ClientDashboard';
 import AdvocateDashboard from './pages/AdvocateDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import AILawLearning from './pages/AILawLearning';
 import Messages from './pages/Messages';
 import JusticeFeed from './pages/JusticeFeed';
-
-// Removing axios api configuration
 
 function App() {
   const [user, setUser] = useState(null);
@@ -75,7 +73,7 @@ function App() {
           <Route path="/advocates/:id" element={<AdvocateProfile user={user} logout={logout} />} />
           <Route path="/ai-learning" element={<AILawLearning user={user} logout={logout} />} />
           <Route path="/messages/:userId" element={user ? <Messages user={user} logout={logout} /> : <Navigate to="/auth" />} />
-          <Route path="/client/dashboard" element={user && user.role === 'client' ? <ClientDashboard user={user} logout={logout} /> : <Navigate to="/auth" />} />
+          <Route path="/client/dashboard" element={user && user.role === 'client' ? <CitizenDashboard user={user} logout={logout} /> : <Navigate to="/auth" />} />
           <Route path="/advocate/dashboard" element={user && user.role === 'advocate' ? <AdvocateDashboard user={user} logout={logout} /> : <Navigate to="/auth" />} />
           <Route path="/admin" element={user && user.role === 'admin' ? <AdminDashboard user={user} logout={logout} /> : <Navigate to="/auth" />} />
         </Routes>
@@ -86,5 +84,3 @@ function App() {
 }
 
 export default App;
-
-

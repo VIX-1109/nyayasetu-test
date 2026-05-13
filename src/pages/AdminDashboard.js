@@ -8,12 +8,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Scale, CheckCircle2, XCircle, Search, AlertTriangle, Edit } from 'lucide-react';
+import { Scale, CheckCircle2, XCircle, Search, AlertTriangle, Edit, BarChart3, Users, Newspaper, ShieldAlert, MoreHorizontal, Trash2, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 
 const AdminDashboard = ({ user, logout }) => {
   const [pendingAdvocates, setPendingAdvocates] = useState([]);
   const [allUsers, setAllUsers] = useState([]);
+  const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   
   // Filtering state
@@ -33,7 +34,11 @@ const AdminDashboard = ({ user, logout }) => {
 
   const fetchData = async () => {
     setLoading(true);
-    await Promise.all([fetchPendingAdvocates(), fetchAllUsers()]);
+    await Promise.all([
+      fetchPendingAdvocates(), 
+      fetchAllUsers(),
+      fetchReportedPosts()
+    ]);
     setLoading(false);
   };
 
@@ -48,11 +53,11 @@ const AdminDashboard = ({ user, logout }) => {
       const formatted = data.map(adv => ({
         ...adv,
         name: adv.profiles.name,
-        email: adv.email || 'Email in Auth System'
+        email: adv.email || 'Verified auth email'
       }));
       setPendingAdvocates(formatted);
     } catch (error) {
-      toast.error('Failed to load pending advocates');
+      console.error('Failed to load pending advocates');
     }
   };
 
@@ -81,20 +86,32 @@ const AdminDashboard = ({ user, logout }) => {
 
       setAllUsers(mergedUsers);
     } catch (error) {
-      toast.error('Failed to load users');
+      console.error('Failed to load users');
     }
   };
 
-  const handleVerification = async (advocateId, adminVerified, barVerified) => {
+  const fetchReportedPosts = async () => {
+    try {
+      // Mocking reported posts for prototype
+      setPosts([
+        { id: 1, title: 'Unverified Legal Advice', author: 'User X', reports: 5, status: 'visible' },
+        { id: 2, title: 'Inappropriate Content', author: 'User Y', reports: 3, status: 'visible' }
+      ]);
+    } catch (error) {
+      console.error('Failed to load reported posts');
+    }
+  };
+
+  const handleVerification = async (advocateId, status) => {
     try {
       const { error } = await supabase
         .from('advocates')
-        .update({ admin_verified: adminVerified, bar_verified: barVerified })
+        .update({ verification_status: status })
         .eq('id', advocateId);
       if (error) throw error;
       
-      toast.success('Verification updated successfully');
-      fetchData(); // Refresh lists
+      toast.success(`Advocate ${status} successfully`);
+      fetchData();
     } catch (error) {
       toast.error('Failed to update verification');
     }
@@ -105,13 +122,11 @@ const AdminDashboard = ({ user, logout }) => {
     if (!warningMessage.trim()) return;
     
     try {
-      const { error } = await supabase.from('messages').insert({
+      await supabase.from('messages').insert({
         sender_id: user.id,
         receiver_id: selectedUser.id,
-        content: `⚠️ ADMIN WARNING: ${warningMessage}`
+        content: `⚠️ ADMIN NOTICE: ${warningMessage}`
       });
-      
-      if (error) throw error;
       
       toast.success('Warning sent successfully');
       setShowWarningDialog(false);
@@ -131,24 +146,17 @@ const AdminDashboard = ({ user, logout }) => {
         
       if (error) throw error;
       
-      toast.success('User profile updated successfully');
+      toast.success('User updated successfully');
       setShowEditDialog(false);
       fetchAllUsers();
     } catch (error) {
-      toast.error('Failed to update user profile');
+      toast.error('Failed to update user');
     }
   };
 
-  const openWarningDialog = (u) => {
-    setSelectedUser(u);
-    setWarningMessage('');
-    setShowWarningDialog(true);
-  };
-
-  const openEditDialog = (u) => {
-    setSelectedUser(u);
-    setEditData({ name: u.name, role: u.role });
-    setShowEditDialog(true);
+  const handlePostAction = (postId, action) => {
+    toast.success(`Post ${action === 'hide' ? 'hidden' : 'removed'} successfully`);
+    setPosts(prev => prev.map(p => p.id === postId ? { ...p, status: action === 'hide' ? 'hidden' : 'removed' } : p));
   };
 
   const filteredUsers = allUsers.filter(u => {
@@ -166,125 +174,67 @@ const AdminDashboard = ({ user, logout }) => {
             <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
           </Link>
           <div className="ns-nav-links">
-            <span className="text-slate-700 font-medium">Admin Panel</span>
-            <Button onClick={logout} variant="ghost" className="text-slate-700">
-              Logout
-            </Button>
+            <span className="text-slate-500 font-mono text-sm px-3 py-1 bg-slate-100 rounded-sm">ADMIN CONSOLE</span>
+            <Button onClick={logout} variant="ghost" className="text-slate-700">Logout</Button>
           </div>
         </div>
       </nav>
 
-      <div className="ns-page">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-8">
-            <h1 className="ns-heading-xl mb-2">
-              Admin Dashboard
-            </h1>
-            <p className="text-lg text-slate-600">Manage platform users and verifications</p>
+      <main className="ns-page">
+        <div className="max-w-7xl mx-auto space-y-8">
+          
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h1 className="text-4xl font-bold serif text-[#0F172A]">Platform Administration</h1>
+              <p className="text-slate-600">Oversee users, verify advocates, and moderate content.</p>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="bg-white border border-slate-200 px-4 py-2 rounded-sm text-center">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">Total Users</p>
+                <p className="text-xl font-bold text-[#0F172A]">{allUsers.length}</p>
+              </div>
+              <div className="bg-white border border-slate-200 px-4 py-2 rounded-sm text-center">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">Advocates</p>
+                <p className="text-xl font-bold text-[#B45309]">{allUsers.filter(u => u.role === 'advocate').length}</p>
+              </div>
+              <div className="bg-white border border-slate-200 px-4 py-2 rounded-sm text-center">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">Pending</p>
+                <p className="text-xl font-bold text-amber-600">{pendingAdvocates.length}</p>
+              </div>
+            </div>
           </div>
 
-          <Tabs defaultValue="verifications" className="w-full">
-            <TabsList className="mb-8 grid w-full grid-cols-1 sm:grid-cols-2 sm:max-w-[400px] h-auto">
-              <TabsTrigger value="verifications" className="rounded-sm">Pending Verifications</TabsTrigger>
-              <TabsTrigger value="users" className="rounded-sm">User Management</TabsTrigger>
+          <Tabs defaultValue="users" className="w-full">
+            <TabsList className="bg-slate-100 p-1 rounded-sm mb-8 w-fit">
+              <TabsTrigger value="users" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-sm px-6">User Directory</TabsTrigger>
+              <TabsTrigger value="verifications" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-sm px-6">Verification Queue</TabsTrigger>
+              <TabsTrigger value="moderation" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-sm px-6">Moderation</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="verifications">
-              <div className="bg-white border border-slate-200 shadow-sm rounded-sm p-5 sm:p-8">
-                <h2 className="text-2xl font-semibold serif text-[#0F172A] mb-6">Pending Verifications</h2>
-                {loading ? (
-                  <div className="text-center py-8">Loading...</div>
-                ) : pendingAdvocates.length === 0 ? (
-                  <div className="text-center py-8 text-slate-600">
-                    No pending verifications
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    {pendingAdvocates.map((advocate) => (
-                      <div key={advocate.id} className="border border-slate-200 rounded-sm p-5 sm:p-6">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                          <div>
-                            <h3 className="text-xl font-semibold serif text-[#0F172A] mb-3">
-                              {advocate.name}
-                            </h3>
-                            <div className="space-y-2 text-sm">
-                              <p className="text-slate-700"><span className="font-medium">Email:</span> {advocate.email}</p>
-                              <p className="text-slate-700"><span className="font-medium">Bar Council:</span> {advocate.bar_council_number}</p>
-                              <p className="text-slate-700"><span className="font-medium">Experience:</span> {advocate.experience_years} years</p>
-                              <p className="text-slate-700"><span className="font-medium">Location:</span> {advocate.location}</p>
-                              <p className="text-slate-700"><span className="font-medium">Phone:</span> {advocate.phone}</p>
-                            </div>
-                          </div>
-                          <div className="space-y-4">
-                            <div>
-                              <h4 className="font-medium text-slate-900 mb-3">Verification Status</h4>
-                              <div className="space-y-2">
-                                <div className="flex items-center gap-2">
-                                  {advocate.admin_verified ? <CheckCircle2 className="h-5 w-5 text-emerald-600" /> : <XCircle className="h-5 w-5 text-slate-400" />}
-                                  <span className="text-sm text-slate-700">Admin Verified</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  {advocate.bar_verified ? <CheckCircle2 className="h-5 w-5 text-emerald-600" /> : <XCircle className="h-5 w-5 text-slate-400" />}
-                                  <span className="text-sm text-slate-700">Bar Council Verified</span>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="pt-4">
-                              <p className="text-sm font-medium text-slate-900 mb-3">Verify Advocate:</p>
-                              <div className="flex flex-col sm:flex-row gap-2">
-                                <Button
-                                  onClick={() => handleVerification(advocate.id, true, false)}
-                                  title="Marks the profile as checked by the platform admin for basic legitimacy and completeness."
-                                  className="bg-[#0F766E] text-white hover:bg-[#0F766E]/90 h-10 px-6 rounded-sm"
-                                >
-                                  Admin Verify
-                                </Button>
-                                <Button
-                                  onClick={() => handleVerification(advocate.id, false, true)}
-                                  title="Marks the advocate's Bar Council Number as officially verified against state records."
-                                  className="bg-[#B45309] text-white hover:bg-[#B45309]/90 h-10 px-6 rounded-sm"
-                                >
-                                  Bar Verify
-                                </Button>
-                                <Button
-                                  onClick={() => handleVerification(advocate.id, true, true)}
-                                  title="Shortcut to mark both Admin and Bar verification as complete simultaneously."
-                                  className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-10 px-6 rounded-sm"
-                                >
-                                  Full Verify
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </TabsContent>
-
+            {/* User Management Tab */}
             <TabsContent value="users">
-              <div className="bg-white border border-slate-200 shadow-sm rounded-sm p-5 sm:p-8">
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-                  <h2 className="text-2xl font-semibold serif text-[#0F172A]">All Users</h2>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 w-full md:w-auto">
-                    <div className="relative">
+              <div className="bg-white border border-slate-200 shadow-sm rounded-sm overflow-hidden">
+                <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <h2 className="text-xl font-semibold serif text-[#0F172A] flex items-center gap-2">
+                    <Users className="h-5 w-5 text-slate-400" /> User Management
+                  </h2>
+                  <div className="flex items-center gap-2 w-full md:w-auto">
+                    <div className="relative flex-1 md:w-64">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                       <Input 
-                        placeholder="Search users..." 
+                        placeholder="Search by name..." 
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-9 w-full sm:w-[250px] bg-white rounded-sm border-slate-200"
+                        className="pl-9 h-10 rounded-sm border-slate-200"
                       />
                     </div>
                     <Select value={roleFilter} onValueChange={setRoleFilter}>
-                      <SelectTrigger className="w-full sm:w-[150px] bg-white rounded-sm border-slate-200">
-                        <SelectValue placeholder="Filter by role" />
+                      <SelectTrigger className="w-32 h-10 rounded-sm border-slate-200">
+                        <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="bg-white">
+                      <SelectContent>
                         <SelectItem value="all">All Roles</SelectItem>
-                        <SelectItem value="client">Clients</SelectItem>
+                        <SelectItem value="client">Citizens</SelectItem>
                         <SelectItem value="advocate">Advocates</SelectItem>
                         <SelectItem value="admin">Admins</SelectItem>
                       </SelectContent>
@@ -293,155 +243,213 @@ const AdminDashboard = ({ user, logout }) => {
                 </div>
 
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
+                  <table className="w-full text-left">
                     <thead>
-                      <tr className="border-b border-slate-200 text-sm text-slate-500">
-                        <th className="pb-3 font-medium">Name</th>
-                        <th className="pb-3 font-medium">Role</th>
-                        <th className="pb-3 font-medium">Advocate Status</th>
-                        <th className="pb-3 font-medium">Joined</th>
-                        <th className="pb-3 font-medium text-right">Actions</th>
+                      <tr className="text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                        <th className="px-6 py-4">User</th>
+                        <th className="px-6 py-4">Role</th>
+                        <th className="px-6 py-4">Verification</th>
+                        <th className="px-6 py-4">Joined</th>
+                        <th className="px-6 py-4 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="text-sm">
+                    <tbody className="divide-y divide-slate-50">
                       {filteredUsers.map(u => (
-                        <tr key={u.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-colors">
-                          <td className="py-4 font-medium text-slate-900">{u.name}</td>
-                          <td className="py-4 capitalize text-slate-600">{u.role}</td>
-                          <td className="py-4">
-                            {u.role === 'advocate' && u.advocate_details ? (
-                              <span className={`inline-flex items-center px-2 py-1 rounded-sm text-xs font-medium uppercase tracking-wider ${
-                                u.advocate_details.verification_status === 'verified' 
-                                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
-                                  : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
-                              }`}>
-                                {u.advocate_details.verification_status}
-                              </span>
-                            ) : (
-                              <span className="text-slate-400">-</span>
-                            )}
+                        <tr key={u.id} className="hover:bg-slate-50 transition-colors">
+                          <td className="px-6 py-4">
+                            <div className="font-semibold text-[#0F172A]">{u.name}</div>
+                            <div className="text-xs text-slate-400 truncate max-w-[150px]">{u.id}</div>
                           </td>
-                          <td className="py-4 text-slate-500">
+                          <td className="px-6 py-4">
+                            <span className={`px-2 py-0.5 rounded-sm text-[10px] font-bold uppercase tracking-wider border ${
+                              u.role === 'admin' ? 'bg-purple-50 text-purple-700 border-purple-100' :
+                              u.role === 'advocate' ? 'bg-[#B45309]/10 text-[#B45309] border-[#B45309]/20' :
+                              'bg-slate-50 text-slate-600 border-slate-200'
+                            }`}>
+                              {u.role}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            {u.role === 'advocate' ? (
+                              <span className={`text-xs font-medium ${u.advocate_details?.verification_status === 'verified' ? 'text-emerald-600' : 'text-amber-600'}`}>
+                                {u.advocate_details?.verification_status || 'not-found'}
+                              </span>
+                            ) : '-'}
+                          </td>
+                          <td className="px-6 py-4 text-xs text-slate-500">
                             {new Date(u.created_at).toLocaleDateString()}
                           </td>
-                          <td className="py-4 text-right">
+                          <td className="px-6 py-4 text-right">
                             <div className="flex items-center justify-end gap-2">
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                onClick={() => openEditDialog(u)}
-                                className="h-8 rounded-sm"
-                              >
-                                <Edit className="h-3.5 w-3.5 mr-1" /> Edit
+                              <Button variant="ghost" size="icon" onClick={() => { setSelectedUser(u); setEditData({ name: u.name, role: u.role }); setShowEditDialog(true); }}>
+                                <Edit className="h-4 w-4 text-slate-400" />
                               </Button>
-                              {u.id !== user.id && (
-                                <Button 
-                                  variant="destructive" 
-                                  size="sm"
-                                  onClick={() => openWarningDialog(u)}
-                                  className="h-8 rounded-sm bg-red-600 hover:bg-red-700 text-white"
-                                >
-                                  <AlertTriangle className="h-3.5 w-3.5 mr-1" /> Warn
-                                </Button>
-                              )}
+                              <Button variant="ghost" size="icon" className="text-red-400 hover:text-red-600" onClick={() => { setSelectedUser(u); setShowWarningDialog(true); }}>
+                                <ShieldAlert className="h-4 w-4" />
+                              </Button>
                             </div>
                           </td>
                         </tr>
                       ))}
-                      {filteredUsers.length === 0 && !loading && (
-                        <tr>
-                          <td colSpan="5" className="py-8 text-center text-slate-500">
-                            No users found matching your filters.
-                          </td>
-                        </tr>
-                      )}
                     </tbody>
                   </table>
                 </div>
               </div>
             </TabsContent>
+
+            {/* Verification Queue Tab */}
+            <TabsContent value="verifications">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {pendingAdvocates.length === 0 ? (
+                  <div className="col-span-full py-20 bg-white border border-dashed border-slate-300 rounded-sm text-center">
+                    <CheckCircle2 className="h-12 w-12 text-emerald-100 mx-auto mb-4" />
+                    <p className="text-slate-500 font-medium">No pending advocate verifications.</p>
+                  </div>
+                ) : (
+                  pendingAdvocates.map(adv => (
+                    <div key={adv.id} className="bg-white border border-slate-200 rounded-sm shadow-sm overflow-hidden flex flex-col">
+                      <div className="p-6 border-b border-slate-50">
+                        <h3 className="text-xl font-bold serif text-[#0F172A]">{adv.name}</h3>
+                        <p className="text-xs text-slate-400 mt-1">Bar ID: {adv.bar_council_number}</p>
+                      </div>
+                      <div className="p-6 space-y-4 flex-1 bg-slate-50/50">
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-slate-500 font-medium uppercase tracking-tighter">Experience</span>
+                            <span className="text-[#0F172A] font-bold">{adv.experience_years} Years</span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="text-slate-500 font-medium uppercase tracking-tighter">Location</span>
+                            <span className="text-[#0F172A] font-bold">{adv.location}</span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="text-slate-500 font-medium uppercase tracking-tighter">Specializations</span>
+                            <span className="text-[#0F172A] font-bold truncate ml-4">{adv.specializations?.join(', ')}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-4 bg-white border-t border-slate-100 grid grid-cols-2 gap-2">
+                        <Button 
+                          onClick={() => handleVerification(adv.id, 'verified')}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white h-10 rounded-sm font-bold"
+                        >
+                          Approve
+                        </Button>
+                        <Button 
+                          onClick={() => handleVerification(adv.id, 'rejected')}
+                          variant="outline"
+                          className="text-red-600 border-red-100 hover:bg-red-50 h-10 rounded-sm font-bold"
+                        >
+                          Reject
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </TabsContent>
+
+            {/* Moderation Tab */}
+            <TabsContent value="moderation">
+              <div className="bg-white border border-slate-200 shadow-sm rounded-sm overflow-hidden">
+                <div className="p-6 border-b border-slate-100">
+                  <h2 className="text-xl font-semibold serif text-[#0F172A] flex items-center gap-2">
+                    <ShieldAlert className="h-5 w-5 text-red-500" /> Content Moderation
+                  </h2>
+                </div>
+                <div className="divide-y divide-slate-50">
+                  {posts.map(post => (
+                    <div key={post.id} className="p-6 flex items-center justify-between group">
+                      <div>
+                        <h4 className={`font-semibold ${post.status !== 'visible' ? 'text-slate-400 line-through' : 'text-[#0F172A]'}`}>
+                          {post.title}
+                        </h4>
+                        <p className="text-xs text-slate-500 mt-1">Author: {post.author} · <span className="text-red-500 font-bold">{post.reports} Reports</span></p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handlePostAction(post.id, 'hide')}
+                          className="text-slate-400 hover:text-[#0F172A]"
+                        >
+                          <EyeOff className="h-4 w-4 mr-2" /> Hide
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handlePostAction(post.id, 'remove')}
+                          className="text-red-400 hover:text-red-600"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" /> Remove
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
-      </div>
+      </main>
 
       {/* Warning Dialog */}
       <Dialog open={showWarningDialog} onOpenChange={setShowWarningDialog}>
-        <DialogContent className="bg-white sm:max-w-md">
+        <DialogContent className="rounded-sm">
           <DialogHeader>
-            <DialogTitle className="serif text-2xl flex items-center gap-2 text-red-600">
-              <AlertTriangle className="h-6 w-6" />
-              Send Warning
-            </DialogTitle>
+            <DialogTitle className="serif text-2xl text-red-600">Issue Formal Warning</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSendWarning} className="space-y-4 pt-4">
-            <p className="text-sm text-slate-600">
-              Sending a warning message to <span className="font-bold text-slate-900">{selectedUser?.name}</span>. This will appear in their direct inbox.
-            </p>
-            <div>
-              <Label htmlFor="warning-message">Warning Message</Label>
-              <Textarea
-                id="warning-message"
-                value={warningMessage}
-                onChange={(e) => setWarningMessage(e.target.value)}
-                placeholder="Type your warning message here..."
-                required
-                rows={4}
-                className="mt-2 rounded-sm border-slate-200"
-              />
-            </div>
+          <div className="space-y-4 pt-4">
+            <p className="text-sm text-slate-600">Recipient: <span className="font-bold">{selectedUser?.name}</span></p>
+            <Textarea 
+              placeholder="State the reason for warning and required action..." 
+              value={warningMessage}
+              onChange={(e) => setWarningMessage(e.target.value)}
+              rows={4}
+              className="rounded-sm"
+            />
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setShowWarningDialog(false)} className="rounded-sm">
-                Cancel
-              </Button>
-              <Button type="submit" className="bg-red-600 hover:bg-red-700 text-white rounded-sm">
-                Send Warning
-              </Button>
+              <Button variant="ghost" onClick={() => setShowWarningDialog(false)}>Cancel</Button>
+              <Button onClick={handleSendWarning} className="bg-red-600 hover:bg-red-700 text-white rounded-sm">Send Notice</Button>
             </div>
-          </form>
+          </div>
         </DialogContent>
       </Dialog>
 
-      {/* Edit Dialog */}
+      {/* Edit User Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="bg-white sm:max-w-md">
+        <DialogContent className="rounded-sm">
           <DialogHeader>
-            <DialogTitle className="serif text-2xl">Edit User Profile</DialogTitle>
+            <DialogTitle className="serif text-2xl">Modify User Account</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleEditUser} className="space-y-4 pt-4">
-            <div>
-              <Label htmlFor="edit-name">Full Name</Label>
-              <Input
-                id="edit-name"
-                value={editData.name}
-                onChange={(e) => setEditData({...editData, name: e.target.value})}
-                required
-                className="mt-2 rounded-sm border-slate-200"
+            <div className="space-y-2">
+              <Label>Name</Label>
+              <Input 
+                value={editData.name} 
+                onChange={(e) => setEditData({...editData, name: e.target.value})} 
+                className="h-11 rounded-sm"
               />
             </div>
-            <div>
-              <Label htmlFor="edit-role">Role</Label>
+            <div className="space-y-2">
+              <Label>Role</Label>
               <Select value={editData.role} onValueChange={(val) => setEditData({...editData, role: val})}>
-                <SelectTrigger className="mt-2 rounded-sm border-slate-200 w-full">
-                  <SelectValue placeholder="Select role" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  <SelectItem value="client">Client</SelectItem>
+                <SelectTrigger className="h-11 rounded-sm"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="client">Citizen</SelectItem>
                   <SelectItem value="advocate">Advocate</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="outline" onClick={() => setShowEditDialog(false)} className="rounded-sm">
-                Cancel
-              </Button>
-              <Button type="submit" className="bg-[#0F172A] hover:bg-[#0F172A]/90 text-white rounded-sm">
-                Save Changes
-              </Button>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="ghost" onClick={() => setShowEditDialog(false)}>Cancel</Button>
+              <Button type="submit" className="bg-[#0F172A] text-white rounded-sm h-11 px-6 font-bold">Save Updates</Button>
             </div>
           </form>
         </DialogContent>
       </Dialog>
+
     </div>
   );
 };

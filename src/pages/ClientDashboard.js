@@ -2,13 +2,17 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
-import { Scale, Calendar, BookOpen, Newspaper } from 'lucide-react';
+import { Scale, Calendar, BookOpen, Newspaper, Star, MessageSquare, FileText, ChevronRight, Clock, CheckCircle2, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { Inbox } from '@/components/Inbox';
 
-const ClientDashboard = ({ user, logout }) => {
+const CitizenDashboard = ({ user, logout }) => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [savedAdvocates, setSavedAdvocates] = useState([
+    { id: 'demo-1', name: 'Adv. Meera Joshi', spec: 'Family Law', location: 'Pune' },
+    { id: 'demo-2', name: 'Adv. Karan Singh', spec: 'Property Law', location: 'Delhi' }
+  ]);
 
   useEffect(() => {
     fetchAppointments();
@@ -18,14 +22,25 @@ const ClientDashboard = ({ user, logout }) => {
     try {
       const { data, error } = await supabase
         .from('appointments')
-        .select('*')
-        .eq('client_id', user.id);
+        .select('*, advocates(profiles(name))')
+        .eq('client_id', user.id)
+        .order('created_at', { ascending: false });
+      
       if (error) throw error;
       setAppointments(data);
     } catch (error) {
-      toast.error('Failed to load appointments');
+      toast.error('Failed to load consultations');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'confirmed': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+      case 'pending': return 'bg-amber-100 text-amber-800 border-amber-200';
+      case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
+      default: return 'bg-slate-100 text-slate-800 border-slate-200';
     }
   };
 
@@ -38,151 +53,184 @@ const ClientDashboard = ({ user, logout }) => {
             <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
           </Link>
           <div className="ns-nav-links">
-            <Link to="/advocates" className="text-slate-700 hover:text-[#0F172A] font-medium">
-              Find Advocates
-            </Link>
-            <Link to="/feed" className="text-slate-700 hover:text-[#0F172A] font-medium">
-              Justice Feed
-            </Link>
-            <Link to="/ai-learning" className="text-slate-700 hover:text-[#0F172A] font-medium">
-              AI Learning
-            </Link>
-            <Button data-testid="logout-dashboard-btn" onClick={logout} variant="ghost" className="text-slate-700">
-              Logout
-            </Button>
+            <Link to="/advocates" className="text-slate-700 hover:text-[#0F172A] font-medium">Find Advocates</Link>
+            <Link to="/feed" className="text-slate-700 hover:text-[#0F172A] font-medium">Justice Feed</Link>
+            <Link to="/ai-learning" className="text-slate-700 hover:text-[#0F172A] font-medium">AI Learning</Link>
+            <Button onClick={logout} variant="ghost" className="text-slate-700">Logout</Button>
           </div>
         </div>
       </nav>
 
-      <div className="ns-page">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-8">
-            <h1 className="ns-heading-xl mb-2" data-testid="client-dashboard-title">
-              Welcome, {user.name}
-            </h1>
-            <p className="text-lg text-slate-600">Manage your appointments and consultations</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div className="bg-white border border-slate-200 shadow-sm rounded-sm p-6" data-testid="total-appointments-card">
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                <div className="bg-[#0F172A] p-3 rounded-sm">
-                  <Calendar className="h-6 w-6 text-white" strokeWidth={1.5} />
-                </div>
-                <div>
-                  <p className="text-sm text-slate-600">Total Appointments</p>
-                  <p className="text-2xl font-bold serif text-[#0F172A]">{appointments.length}</p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white border border-slate-200 shadow-sm rounded-sm p-6" data-testid="pending-appointments-card">
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                <div className="bg-[#B45309] p-3 rounded-sm">
-                  <Calendar className="h-6 w-6 text-white" strokeWidth={1.5} />
-                </div>
-                <div>
-                  <p className="text-sm text-slate-600">Pending</p>
-                  <p className="text-2xl font-bold serif text-[#0F172A]">
-                    {appointments.filter(a => a.status === 'pending').length}
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white border border-slate-200 shadow-sm rounded-sm p-6" data-testid="confirmed-appointments-card">
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                <div className="bg-[#0F766E] p-3 rounded-sm">
-                  <Calendar className="h-6 w-6 text-white" strokeWidth={1.5} />
-                </div>
-                <div>
-                  <p className="text-sm text-slate-600">Confirmed</p>
-                  <p className="text-2xl font-bold serif text-[#0F172A]">
-                    {appointments.filter(a => a.status === 'confirmed').length}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <div className="bg-white border border-slate-200 shadow-sm rounded-sm p-6">
-              <div className="flex items-start gap-4">
-                <div className="bg-[#0F766E] p-3 rounded-sm">
-                  <BookOpen className="h-6 w-6 text-white" strokeWidth={1.5} />
-                </div>
-                <div>
-                  <h2 className="text-xl font-semibold serif text-[#0F172A] mb-2">Understand Your Legal Issue</h2>
-                  <p className="text-sm text-slate-600 mb-4">
-                    Ask the AI assistant for general legal information, then connect with a verified advocate for your facts.
-                  </p>
-                  <Link to="/ai-learning">
-                    <Button className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-10 px-5 rounded-sm">Ask AI</Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-            <div className="bg-white border border-slate-200 shadow-sm rounded-sm p-6">
-              <div className="flex items-start gap-4">
-                <div className="bg-[#B45309] p-3 rounded-sm">
-                  <Newspaper className="h-6 w-6 text-white" strokeWidth={1.5} />
-                </div>
-                <div>
-                  <h2 className="text-xl font-semibold serif text-[#0F172A] mb-2">Justice Feed</h2>
-                  <p className="text-sm text-slate-600 mb-4">
-                    Read legal awareness posts, justice news explainers, and safe help requests from the NyayaSetu network.
-                  </p>
-                  <Link to="/feed">
-                    <Button variant="outline" className="h-10 px-5 rounded-sm">Open Feed</Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white border border-slate-200 shadow-sm rounded-sm p-8 mb-8">
-            <h2 className="text-2xl font-semibold serif text-[#0F172A] mb-6">My Appointments</h2>
-            {loading ? (
-              <div className="text-center py-8">Loading appointments...</div>
-            ) : appointments.length === 0 ? (
-              <div className="text-center py-8" data-testid="no-appointments">
-                <p className="text-slate-600 mb-4">No appointments yet</p>
+      <main className="ns-page">
+        <div className="max-w-7xl mx-auto space-y-10">
+          
+          {/* Welcome Dashboard */}
+          <section className="bg-[#0F172A] text-white rounded-sm p-8 md:p-12 shadow-xl relative overflow-hidden">
+            <div className="relative z-10">
+              <h1 className="text-4xl md:text-5xl font-bold serif mb-4">Welcome back, {user.name}</h1>
+              <p className="text-lg text-slate-300 max-w-2xl leading-relaxed">
+                Your secure legal command center. Manage consultations, track your legal learning journey, and securely access your case materials.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-4">
+                <Link to="/ai-learning">
+                  <Button className="bg-[#B45309] hover:bg-[#B45309]/90 text-white px-6 h-12 rounded-sm font-medium">
+                    Ask AI Assistant
+                  </Button>
+                </Link>
                 <Link to="/advocates">
-                  <Button data-testid="find-advocate-dashboard-btn" className="bg-[#B45309] text-white hover:bg-[#B45309]/90 h-12 px-8 rounded-sm font-medium">
-                    Find an Advocate
+                  <Button variant="outline" className="bg-transparent border-white text-white hover:bg-white hover:text-[#0F172A] px-6 h-12 rounded-sm font-medium">
+                    New Consultation
                   </Button>
                 </Link>
               </div>
-            ) : (
-              <div className="space-y-4" data-testid="appointments-list">
-                {appointments.map((appointment) => (
-                  <div key={appointment.id} className="border border-slate-200 rounded-sm p-6 hover:shadow-md transition-shadow" data-testid={`appointment-${appointment.id}`}>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <Calendar className="h-5 w-5 text-[#B45309]" strokeWidth={1.5} />
-                          <span className="font-medium text-[#0F172A]">{appointment.date} at {appointment.time}</span>
-                        </div>
-                        <p className="text-slate-700 mb-2">{appointment.description}</p>
-                        <span className={`inline-block px-3 py-1 text-xs font-medium rounded-sm ${
-                          appointment.status === 'confirmed' ? 'bg-emerald-100 text-emerald-800' :
-                          appointment.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
-                        }`} data-testid={`status-${appointment.status}`}>
-                          {appointment.status.toUpperCase()}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+            </div>
+            <Scale className="absolute -right-20 -bottom-20 h-80 w-80 text-white/5" />
+          </section>
 
-          <Inbox emptyHint="When you message an advocate, your conversation will appear here." />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            {/* Left Column: Active Consultations & Messages */}
+            <div className="lg:col-span-8 space-y-8">
+              
+              {/* Active Consultation Request Cards */}
+              <section>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-semibold serif text-[#0F172A]">Active Consultations</h2>
+                  <Link to="/advocates" className="text-sm font-medium text-[#B45309] hover:underline">Book New</Link>
+                </div>
+                
+                {loading ? (
+                  <div className="text-center py-12 bg-white border border-slate-200 rounded-sm">Loading requests...</div>
+                ) : appointments.length === 0 ? (
+                  <div className="bg-white border border-dashed border-slate-300 rounded-sm p-12 text-center space-y-4">
+                    <Calendar className="h-12 w-12 text-slate-300 mx-auto" />
+                    <p className="text-slate-600">You have no active consultation requests.</p>
+                    <Link to="/advocates">
+                      <Button variant="outline" className="rounded-sm border-[#B45309] text-[#B45309]">Find an Advocate</Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {appointments.map((app) => (
+                      <div key={app.id} className="bg-white border border-slate-200 p-5 rounded-sm shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                        <div className={`absolute left-0 top-0 bottom-0 w-1 ${app.status === 'confirmed' ? 'bg-emerald-500' : 'bg-amber-500'}`}></div>
+                        <div className="flex justify-between items-start mb-3">
+                          <span className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border rounded-sm ${getStatusColor(app.status)}`}>
+                            {app.status}
+                          </span>
+                          <span className="text-xs text-slate-500 flex items-center gap-1">
+                            <Clock className="h-3 w-3" /> {app.date}
+                          </span>
+                        </div>
+                        <h3 className="font-semibold text-[#0F172A] mb-1">{app.advocates?.profiles?.name || 'Advocate'}</h3>
+                        <p className="text-sm text-slate-600 line-clamp-2 mb-4">{app.description}</p>
+                        <div className="flex items-center justify-between mt-auto">
+                          <span className="text-xs font-mono text-slate-400">{app.time}</span>
+                          <Button variant="ghost" size="sm" className="h-8 text-[#B45309] hover:text-[#B45309]/80 group-hover:translate-x-1 transition-transform">
+                            Details <ChevronRight className="h-3 w-3 ml-1" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+
+              {/* Recent Messages */}
+              <section className="bg-white border border-slate-200 rounded-sm shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                  <h2 className="text-2xl font-semibold serif text-[#0F172A]">Recent Messages</h2>
+                  <MessageSquare className="h-5 w-5 text-slate-400" />
+                </div>
+                <div className="p-0">
+                  <Inbox emptyHint="Your legal conversations will appear here after you message an advocate." />
+                </div>
+              </section>
+            </div>
+
+            {/* Right Column: Shortcuts, Saved, Documents */}
+            <div className="lg:col-span-4 space-y-8">
+              
+              {/* Shortcuts Grid */}
+              <div className="grid grid-cols-2 gap-4">
+                <Link to="/ai-learning" className="bg-white border border-slate-200 p-5 rounded-sm shadow-sm hover:border-[#B45309] transition-colors group text-center">
+                  <BookOpen className="h-6 w-6 text-[#B45309] mx-auto mb-3 group-hover:scale-110 transition-transform" />
+                  <span className="text-sm font-semibold text-[#0F172A]">AI Help</span>
+                </Link>
+                <Link to="/feed" className="bg-white border border-slate-200 p-5 rounded-sm shadow-sm hover:border-[#0F766E] transition-colors group text-center">
+                  <Newspaper className="h-6 w-6 text-[#0F766E] mx-auto mb-3 group-hover:scale-110 transition-transform" />
+                  <span className="text-sm font-semibold text-[#0F172A]">Legal Feed</span>
+                </Link>
+              </div>
+
+              {/* Recommended/Saved Advocates */}
+              <section className="bg-white border border-slate-200 rounded-sm shadow-sm overflow-hidden">
+                <div className="p-5 border-b border-slate-100">
+                  <h2 className="text-lg font-semibold serif text-[#0F172A] flex items-center gap-2">
+                    <Star className="h-4 w-4 text-amber-500 fill-amber-500" /> Saved Advocates
+                  </h2>
+                </div>
+                <div className="p-5 space-y-4">
+                  {savedAdvocates.map((adv) => (
+                    <div key={adv.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-sm border border-slate-100 hover:border-slate-300 transition-colors cursor-pointer group">
+                      <div className="bg-white p-2 rounded-full border border-slate-200">
+                        <User className="h-5 w-5 text-slate-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-sm font-semibold text-[#0F172A] truncate">{adv.name}</h4>
+                        <p className="text-xs text-slate-500">{adv.spec} · {adv.location}</p>
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-[#B45309] transition-colors" />
+                    </div>
+                  ))}
+                  <Link to="/advocates">
+                    <Button variant="ghost" className="w-full text-xs text-slate-500 hover:text-[#B45309]">View more in directory</Button>
+                  </Link>
+                </div>
+              </section>
+
+              {/* Document Placeholder (Legal Wallet) */}
+              <section className="bg-white border border-slate-200 rounded-sm shadow-sm overflow-hidden">
+                <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+                  <h2 className="text-lg font-semibold serif text-[#0F172A] flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-[#B45309]" /> Legal Wallet
+                  </h2>
+                  <span className="text-[10px] font-bold bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-sm uppercase tracking-tighter">BETA</span>
+                </div>
+                <div className="p-8 text-center space-y-3">
+                  <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-sm py-8 px-4">
+                    <p className="text-xs text-slate-500 leading-relaxed mb-4">
+                      Securely store and share case documents with your advocates.
+                    </p>
+                    <Button disabled variant="outline" size="sm" className="h-9 rounded-sm text-xs border-slate-300 text-slate-400">
+                      Upload Document
+                    </Button>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-400 justify-center">
+                    <CheckCircle2 className="h-3 w-3" /> Encrypted & Private
+                  </div>
+                </div>
+              </section>
+
+              {/* Latest Legal Awareness Shortcut */}
+              <section className="bg-gradient-to-br from-[#B45309] to-[#92400E] text-white rounded-sm p-6 shadow-md">
+                <h3 className="font-semibold serif text-xl mb-2">Legal Awareness</h3>
+                <p className="text-xs text-amber-100 leading-relaxed mb-4">
+                  Stay updated with the latest news on Tenant Rights, FIR processes, and Consumer Protection.
+                </p>
+                <Link to="/feed">
+                  <Button variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white hover:text-[#B45309] h-10 rounded-sm text-xs font-medium">
+                    Browse Latest Posts
+                  </Button>
+                </Link>
+              </section>
+
+            </div>
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
 
-export default ClientDashboard;
-
+export default CitizenDashboard;
