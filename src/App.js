@@ -12,6 +12,7 @@ import AdvocateDashboard from './pages/AdvocateDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import AILawLearning from './pages/AILawLearning';
 import Messages from './pages/Messages';
+import JusticeFeed from './pages/JusticeFeed';
 
 // Removing axios api configuration
 
@@ -70,6 +71,7 @@ function App() {
           <Route path="/" element={<Landing user={user} logout={logout} />} />
           <Route path="/auth" element={user ? <Navigate to={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'} /> : <Auth setUser={setUser} />} />
           <Route path="/advocates" element={<AdvocateDirectory user={user} logout={logout} />} />
+          <Route path="/feed" element={<JusticeFeed user={user} logout={logout} />} />
           <Route path="/advocates/:id" element={<AdvocateProfile user={user} logout={logout} />} />
           <Route path="/ai-learning" element={<AILawLearning user={user} logout={logout} />} />
           <Route path="/messages/:userId" element={user ? <Messages user={user} logout={logout} /> : <Navigate to="/auth" />} />

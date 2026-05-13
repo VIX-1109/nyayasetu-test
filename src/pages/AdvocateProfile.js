@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const AdvocateProfile = ({ user, logout }) => {
   const { id } = useParams();
@@ -18,6 +19,10 @@ const AdvocateProfile = ({ user, logout }) => {
   const [showBooking, setShowBooking] = useState(false);
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
+  const [category, setCategory] = useState('Property Law');
+  const [mode, setMode] = useState('Chat');
+  const [urgency, setUrgency] = useState('Normal');
+  const [city, setCity] = useState('');
   const [description, setDescription] = useState('');
   const [bookingLoading, setBookingLoading] = useState(false);
 
@@ -60,18 +65,33 @@ const AdvocateProfile = ({ user, logout }) => {
 
     setBookingLoading(true);
     try {
+      const intakeDescription = [
+        `Category: ${category}`,
+        `Mode: ${mode}`,
+        `Urgency: ${urgency}`,
+        `City/State: ${city || advocate.location || 'Not provided'}`,
+        '',
+        'Issue summary:',
+        description
+      ].join('\n');
+
       const { error } = await supabase.from('appointments').insert({
         advocate_id: id,
         client_id: user.id,
         date,
         time,
-        description
+        description: intakeDescription,
+        status: 'pending'
       });
       if (error) throw error;
-      toast.success('Appointment booked successfully!');
+      toast.success('Consultation request sent successfully!');
       setShowBooking(false);
       setDate('');
       setTime('');
+      setCategory('Property Law');
+      setMode('Chat');
+      setUrgency('Normal');
+      setCity('');
       setDescription('');
     } catch (error) {
       toast.error(error.response?.data?.detail || 'Failed to book appointment');
@@ -99,18 +119,18 @@ const AdvocateProfile = ({ user, logout }) => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      <nav className="bg-white border-b border-slate-200 px-6 md:px-12 lg:px-24 py-4">
-        <div className="flex items-center justify-between">
+      <nav className="ns-nav">
+        <div className="ns-nav-inner">
           <Link to="/" className="flex items-center gap-2">
             <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
             <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
           </Link>
-          <div className="flex items-center gap-6">
+          <div className="ns-nav-links">
             <Link to="/advocates" className="text-slate-700 hover:text-[#0F172A] font-medium">
               All Advocates
             </Link>
             {user && (
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                 <Link to={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'}>
                   <Button className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-10 px-6 rounded-sm font-medium">
                     Dashboard
@@ -125,14 +145,14 @@ const AdvocateProfile = ({ user, logout }) => {
         </div>
       </nav>
 
-      <div className="px-6 md:px-12 lg:px-24 py-12">
+      <div className="ns-page">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             <div className="lg:col-span-8">
               <div className="bg-white border border-slate-200 shadow-sm rounded-sm p-8 mb-8" data-testid="advocate-header">
                 <div className="flex items-start justify-between mb-6">
                   <div>
-                    <h1 className="text-4xl md:text-5xl font-semibold tracking-tight serif text-[#0F172A] mb-2">
+                    <h1 className="ns-heading-xl mb-2">
                       {advocate.name}
                     </h1>
                     <p className="text-base text-slate-600 mono mb-4">
@@ -209,23 +229,80 @@ const AdvocateProfile = ({ user, logout }) => {
             </div>
 
             <div className="lg:col-span-4">
-              <div className="bg-white border border-slate-200 shadow-sm rounded-sm p-6 sticky top-6">
-                <h3 className="text-xl font-semibold serif text-[#0F172A] mb-6">Book Consultation</h3>
+              <div className="bg-white border border-slate-200 shadow-sm rounded-sm p-5 sm:p-6 lg:sticky lg:top-6">
+                <h3 className="text-xl font-semibold serif text-[#0F172A] mb-6">Request Consultation</h3>
                 <div className="space-y-3">
                   <Dialog open={showBooking} onOpenChange={setShowBooking}>
                     <DialogTrigger asChild>
                       <Button data-testid="book-appointment-btn" className="w-full bg-[#B45309] text-white hover:bg-[#B45309]/90 h-12 rounded-sm font-medium">
                         <Calendar className="mr-2 h-5 w-5" />
-                        Book Appointment
+                        Request Consultation
                       </Button>
                     </DialogTrigger>
                     <DialogContent data-testid="booking-dialog">
                       <DialogHeader>
-                        <DialogTitle className="serif text-2xl">Book Appointment</DialogTitle>
+                        <DialogTitle className="serif text-2xl">Consultation Intake</DialogTitle>
                       </DialogHeader>
                       <form onSubmit={handleBookAppointment} className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label>Legal Category</Label>
+                            <Select value={category} onValueChange={setCategory}>
+                              <SelectTrigger className="h-12 rounded-sm bg-white">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Property Law">Property Law</SelectItem>
+                                <SelectItem value="Family Law">Family Law</SelectItem>
+                                <SelectItem value="Consumer Rights">Consumer Rights</SelectItem>
+                                <SelectItem value="Criminal Law">Criminal Law</SelectItem>
+                                <SelectItem value="Employment">Employment</SelectItem>
+                                <SelectItem value="Civil Litigation">Civil Litigation</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label>Preferred Mode</Label>
+                            <Select value={mode} onValueChange={setMode}>
+                              <SelectTrigger className="h-12 rounded-sm bg-white">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Chat">Chat</SelectItem>
+                                <SelectItem value="Phone">Phone</SelectItem>
+                                <SelectItem value="Video">Video</SelectItem>
+                                <SelectItem value="In-person">In-person</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label>Urgency</Label>
+                            <Select value={urgency} onValueChange={setUrgency}>
+                              <SelectTrigger className="h-12 rounded-sm bg-white">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Normal">Normal</SelectItem>
+                                <SelectItem value="This week">This week</SelectItem>
+                                <SelectItem value="Urgent">Urgent</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label htmlFor="city">City / State</Label>
+                            <Input
+                              id="city"
+                              value={city}
+                              onChange={(e) => setCity(e.target.value)}
+                              placeholder="Mumbai, Maharashtra"
+                              className="h-12 rounded-sm"
+                            />
+                          </div>
+                        </div>
                         <div>
-                          <Label htmlFor="date">Date</Label>
+                          <Label htmlFor="date">Preferred Date</Label>
                           <Input
                             id="date"
                             type="date"
@@ -237,7 +314,7 @@ const AdvocateProfile = ({ user, logout }) => {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="time">Time</Label>
+                          <Label htmlFor="time">Preferred Time</Label>
                           <Input
                             id="time"
                             type="time"
@@ -249,14 +326,14 @@ const AdvocateProfile = ({ user, logout }) => {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="description">Description</Label>
+                          <Label htmlFor="description">Issue Summary</Label>
                           <Textarea
                             id="description"
                             data-testid="appointment-description-input"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             required
-                            placeholder="Briefly describe your legal matter"
+                            placeholder="Briefly describe your legal matter. Do not include sensitive names, private addresses, or full case documents here."
                             className="rounded-sm"
                             rows={4}
                           />
@@ -267,7 +344,7 @@ const AdvocateProfile = ({ user, logout }) => {
                           data-testid="confirm-booking-btn"
                           className="w-full bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-12 rounded-sm"
                         >
-                          {bookingLoading ? 'Booking...' : 'Confirm Booking'}
+                          {bookingLoading ? 'Sending...' : 'Send Consultation Request'}
                         </Button>
                       </form>
                     </DialogContent>

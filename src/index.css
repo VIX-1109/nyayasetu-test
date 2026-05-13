@@ -20,3 +20,68 @@
   }
 }
 
+@layer components {
+  .ns-nav {
+    @apply bg-white border-b border-slate-200 px-4 sm:px-6 md:px-12 lg:px-24 py-4;
+  }
+
+  .ns-nav-inner {
+    @apply flex flex-col gap-4 md:flex-row md:items-center md:justify-between;
+  }
+
+  .ns-nav-links {
+    @apply flex flex-wrap items-center gap-3 sm:gap-4 md:gap-6;
+  }
+
+  .ns-page {
+    @apply px-4 sm:px-6 md:px-12 lg:px-24 py-8 md:py-12;
+  }
+
+  .ns-band {
+    @apply px-4 sm:px-6 md:px-12 lg:px-24;
+  }
+
+  .ns-heading-xl {
+    @apply text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight text-[#0F172A];
+    font-family: 'Playfair Display', serif;
+  }
+
+  .ns-hero-title {
+    @apply text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight leading-none;
+    font-family: 'Playfair Display', serif;
+  }
+
+  .ns-actions {
+    @apply flex flex-col sm:flex-row gap-3 sm:gap-4;
+  }
+
+  .ns-action-btn {
+    @apply w-full sm:w-auto justify-center;
+  }
+
+  .ns-actions > a,
+  .ns-actions > button {
+    @apply w-full sm:w-auto;
+  }
+
+  .ns-actions button {
+    @apply w-full sm:w-auto justify-center;
+  }
+
+  .ns-card-pad {
+    @apply p-5 sm:p-6 md:p-8;
+  }
+}
+
+@media (max-width: 640px) {
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  .radix-dialog-content,
+  [role="dialog"] {
+    max-width: calc(100vw - 2rem) !important;
+  }
+}
+

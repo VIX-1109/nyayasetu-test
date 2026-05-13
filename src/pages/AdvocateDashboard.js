@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Scale, Calendar, User, CheckCircle2, Clock } from 'lucide-react';
+import { Scale, Calendar, CheckCircle2, Clock, Newspaper, PenLine } from 'lucide-react';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Inbox } from '@/components/Inbox';
@@ -110,15 +110,18 @@ const AdvocateDashboard = ({ user, logout }) => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      <nav className="bg-white border-b border-slate-200 px-6 md:px-12 lg:px-24 py-4">
-        <div className="flex items-center justify-between">
+      <nav className="ns-nav">
+        <div className="ns-nav-inner">
           <Link to="/" className="flex items-center gap-2">
             <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
             <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
           </Link>
-          <div className="flex items-center gap-6">
+          <div className="ns-nav-links">
             <Link to="/ai-learning" className="text-slate-700 hover:text-[#0F172A] font-medium">
               AI Learning
+            </Link>
+            <Link to="/feed" className="text-slate-700 hover:text-[#0F172A] font-medium">
+              Justice Feed
             </Link>
             <Button onClick={logout} variant="ghost" className="text-slate-700">
               Logout
@@ -127,10 +130,10 @@ const AdvocateDashboard = ({ user, logout }) => {
         </div>
       </nav>
 
-      <div className="px-6 md:px-12 lg:px-24 py-12">
+      <div className="ns-page">
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight serif text-[#0F172A] mb-2" data-testid="advocate-dashboard-title">
+            <h1 className="ns-heading-xl mb-2" data-testid="advocate-dashboard-title">
               Welcome, {user.name}
             </h1>
             <p className="text-lg text-slate-600">Manage your profile and appointments</p>
@@ -138,7 +141,7 @@ const AdvocateDashboard = ({ user, logout }) => {
 
           {profile && (
             <div className="bg-white border border-slate-200 shadow-sm rounded-sm p-8 mb-8" data-testid="profile-status-card">
-              <div className="flex items-center justify-between">
+              <div className="ns-nav-inner">
                 <div>
                   <h2 className="text-2xl font-semibold serif text-[#0F172A] mb-2">Profile Status</h2>
                   <div className="flex items-center gap-2">
@@ -164,7 +167,7 @@ const AdvocateDashboard = ({ user, logout }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <div className="bg-white border border-slate-200 shadow-sm rounded-sm p-6" data-testid="total-appointments-advocate-card">
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                 <div className="bg-[#0F172A] p-3 rounded-sm">
                   <Calendar className="h-6 w-6 text-white" strokeWidth={1.5} />
                 </div>
@@ -175,7 +178,7 @@ const AdvocateDashboard = ({ user, logout }) => {
               </div>
             </div>
             <div className="bg-white border border-slate-200 shadow-sm rounded-sm p-6" data-testid="pending-appointments-advocate-card">
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                 <div className="bg-[#B45309] p-3 rounded-sm">
                   <Calendar className="h-6 w-6 text-white" strokeWidth={1.5} />
                 </div>
@@ -188,7 +191,7 @@ const AdvocateDashboard = ({ user, logout }) => {
               </div>
             </div>
             <div className="bg-white border border-slate-200 shadow-sm rounded-sm p-6" data-testid="confirmed-appointments-advocate-card">
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                 <div className="bg-[#0F766E] p-3 rounded-sm">
                   <Calendar className="h-6 w-6 text-white" strokeWidth={1.5} />
                 </div>
@@ -198,6 +201,34 @@ const AdvocateDashboard = ({ user, logout }) => {
                     {appointments.filter(a => a.status === 'confirmed').length}
                   </p>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white border border-slate-200 shadow-sm rounded-sm p-8 mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+              <div>
+                <div className="flex items-center gap-2 text-[#B45309] font-medium mb-2">
+                  <Newspaper className="h-5 w-5" />
+                  Professional visibility
+                </div>
+                <h2 className="text-2xl font-semibold serif text-[#0F172A] mb-3">Build trust through legal awareness</h2>
+                <p className="text-slate-600 leading-relaxed">
+                  Publish short explainers and justice updates so clients can understand your expertise before requesting a consultation.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3 lg:justify-end">
+                <Link to="/feed">
+                  <Button className="bg-[#B45309] text-white hover:bg-[#B45309]/90 h-11 px-6 rounded-sm">
+                    <PenLine className="mr-2 h-4 w-4" />
+                    Write on Feed
+                  </Button>
+                </Link>
+                {profile && (
+                  <Link to={`/advocates/${user.id}`}>
+                    <Button variant="outline" className="h-11 px-6 rounded-sm">View Public Profile</Button>
+                  </Link>
+                )}
               </div>
             </div>
           </div>
@@ -228,7 +259,7 @@ const AdvocateDashboard = ({ user, logout }) => {
                         </span>
                       </div>
                       {appointment.status === 'pending' && (
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                           <Button
                             onClick={() => handleUpdateAppointmentStatus(appointment.id, 'confirmed')}
                             data-testid={`confirm-btn-${appointment.id}`}

@@ -1,25 +1,28 @@
 import { Link } from 'react-router-dom';
-import { Scale, BookOpen, Users, Shield, ArrowRight, CheckCircle2, Star } from 'lucide-react';
+import { Scale, BookOpen, Users, Shield, ArrowRight, Newspaper, BadgeCheck, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Landing = ({ user, logout }) => {
   return (
     <div className="min-h-screen">
-      <nav className="bg-white border-b border-slate-200 px-6 md:px-12 lg:px-24 py-4">
-        <div className="flex items-center justify-between">
+      <nav className="ns-nav">
+        <div className="ns-nav-inner">
           <div className="flex items-center gap-2">
             <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
             <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
           </div>
-          <div className="flex items-center gap-6">
+          <div className="ns-nav-links">
             <Link to="/advocates" className="text-slate-700 hover:text-[#0F172A] font-medium">
               Find Advocates
+            </Link>
+            <Link to="/feed" className="text-slate-700 hover:text-[#0F172A] font-medium">
+              Justice Feed
             </Link>
             <Link to="/ai-learning" className="text-slate-700 hover:text-[#0F172A] font-medium">
               AI Law Learning
             </Link>
             {user ? (
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                 <Link to={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'}>
                   <Button data-testid="dashboard-btn" className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-12 px-8 rounded-sm font-medium shadow-md transition-all hover:-translate-y-0.5">
                     Dashboard
@@ -40,16 +43,16 @@ const Landing = ({ user, logout }) => {
         </div>
       </nav>
 
-      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white px-6 md:px-12 lg:px-24 py-20 md:py-32">
+      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white ns-band py-14 md:py-28">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
           <div className="space-y-6">
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-none serif" data-testid="hero-title">
+            <h1 className="ns-hero-title" data-testid="hero-title">
               Bridge to Justice
             </h1>
             <p className="text-lg md:text-xl leading-relaxed text-slate-300">
               Connect with verified advocates across India. Get expert legal consultation and learn about your rights through AI-powered law education.
             </p>
-            <div className="flex gap-4 pt-4">
+            <div className="ns-actions pt-4">
               <Link to="/advocates">
                 <Button data-testid="find-advocate-btn" className="bg-[#B45309] text-white hover:bg-[#B45309]/90 h-12 px-8 rounded-sm font-medium shadow-md transition-all hover:-translate-y-0.5">
                   Find an Advocate <ArrowRight className="ml-2 h-5 w-5" />
@@ -58,6 +61,11 @@ const Landing = ({ user, logout }) => {
               <Link to="/ai-learning">
                 <Button data-testid="learn-law-btn" variant="outline" className="bg-white border-2 border-white text-[#0F172A] hover:bg-slate-50 h-12 px-8 rounded-sm font-medium transition-all">
                   Learn Law with AI
+                </Button>
+              </Link>
+              <Link to="/feed">
+                <Button variant="outline" className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-[#0F172A] h-12 px-8 rounded-sm font-medium transition-all">
+                  Open Justice Feed
                 </Button>
               </Link>
             </div>
@@ -72,9 +80,9 @@ const Landing = ({ user, logout }) => {
         </div>
       </div>
 
-      <div className="px-6 md:px-12 lg:px-24 py-20 md:py-32">
+      <div className="ns-band py-14 md:py-28">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-semibold tracking-tight serif text-[#0F172A] text-center mb-16">
+          <h2 className="ns-heading-xl text-center mb-10 md:mb-16">
             Why Choose NyayaSetu
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
@@ -109,9 +117,60 @@ const Landing = ({ user, logout }) => {
         </div>
       </div>
 
-      <div className="bg-slate-50 px-6 md:px-12 lg:px-24 py-20 md:py-32">
+      <div className="bg-slate-50 ns-band py-14 md:py-28">
+        <div className="max-w-7xl mx-auto mb-20">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8">
+            <div>
+              <div className="flex items-center gap-2 text-[#B45309] font-medium mb-2">
+                <Newspaper className="h-5 w-5" />
+                Professional Justice Network
+              </div>
+              <h2 className="ns-heading-xl">
+                Learn, discuss, and seek help around Nyaya
+              </h2>
+            </div>
+            <Link to="/feed" className="hidden md:block">
+              <Button className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-12 px-8 rounded-sm font-medium">
+                View Feed
+              </Button>
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="bg-white border border-slate-200 p-6 rounded-sm shadow-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <BadgeCheck className="h-5 w-5 text-emerald-700" />
+                <span className="text-xs uppercase tracking-wider text-slate-500">Verified Advocate</span>
+              </div>
+              <h3 className="text-xl font-semibold serif text-[#0F172A] mb-3">Tenant Rights: Deposit Recovery</h3>
+              <p className="text-slate-700 leading-relaxed">
+                Collect agreement copies, rent receipts, chats, and handover proof before sending a formal notice or consulting an advocate.
+              </p>
+            </div>
+            <div className="bg-white border border-slate-200 p-6 rounded-sm shadow-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <BookOpen className="h-5 w-5 text-[#B45309]" />
+                <span className="text-xs uppercase tracking-wider text-slate-500">Legal Awareness</span>
+              </div>
+              <h3 className="text-xl font-semibold serif text-[#0F172A] mb-3">Consumer Complaint Checklist</h3>
+              <p className="text-slate-700 leading-relaxed">
+                Keep invoices, screenshots, delivery details, and complaint ticket IDs to make a stronger consumer grievance.
+              </p>
+            </div>
+            <div className="bg-white border border-slate-200 p-6 rounded-sm shadow-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <MessageCircle className="h-5 w-5 text-[#0F766E]" />
+                <span className="text-xs uppercase tracking-wider text-slate-500">Safe Help Request</span>
+              </div>
+              <h3 className="text-xl font-semibold serif text-[#0F172A] mb-3">Need Property Guidance</h3>
+              <p className="text-slate-700 leading-relaxed">
+                Ask general questions publicly, but keep personal names, case numbers, and documents private for consultation.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="max-w-5xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-semibold tracking-tight serif text-[#0F172A] mb-6">
+          <h2 className="ns-heading-xl mb-6">
             Justice Made Accessible
           </h2>
           <p className="text-lg md:text-xl leading-relaxed text-slate-700 mb-8">
@@ -125,7 +184,7 @@ const Landing = ({ user, logout }) => {
         </div>
       </div>
 
-      <footer className="bg-[#0F172A] text-white px-6 md:px-12 lg:px-24 py-12">
+      <footer className="bg-[#0F172A] text-white ns-band py-12">
         <div className="max-w-7xl mx-auto text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Scale className="h-6 w-6" strokeWidth={1.5} />

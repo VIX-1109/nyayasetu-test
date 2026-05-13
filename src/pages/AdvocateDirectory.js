@@ -54,18 +54,18 @@ const AdvocateDirectory = ({ user, logout }) => {
 
     return (
         <div className="min-h-screen bg-[#F8FAFC]">
-            <nav className="bg-white border-b border-slate-200 px-6 md:px-12 lg:px-24 py-4">
-                <div className="flex items-center justify-between">
+            <nav className="ns-nav">
+                <div className="ns-nav-inner">
                     <Link to="/" className="flex items-center gap-2">
                         <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
                         <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
                     </Link>
-                    <div className="flex items-center gap-6">
+                    <div className="ns-nav-links">
                         <Link to="/ai-learning" className="text-slate-700 hover:text-[#0F172A] font-medium">
                             AI Law Learning
                         </Link>
                         {user ? (
-                            <div className="flex items-center gap-4">
+                            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                                 <Link to={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'}>
                                     <Button data-testid="dashboard-nav-btn" className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-10 px-6 rounded-sm font-medium">
                                         Dashboard
@@ -86,9 +86,9 @@ const AdvocateDirectory = ({ user, logout }) => {
                 </div>
             </nav>
 
-            <div className="px-6 md:px-12 lg:px-24 py-12">
+            <div className="ns-page">
                 <div className="max-w-7xl mx-auto">
-                    <h1 className="text-4xl md:text-5xl font-semibold tracking-tight serif text-[#0F172A] mb-8" data-testid="directory-title">
+                    <h1 className="ns-heading-xl mb-8" data-testid="directory-title">
                         Find Verified Advocates
                     </h1>
 

@@ -2,10 +2,58 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 const api = axios.create({ baseURL: `${process.env.REACT_APP_BACKEND_URL}/api` });
+import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Scale, Send, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
+
+const getPrototypeLegalResponse = (question) => {
+  const text = question.toLowerCase();
+  let topic = 'general legal issue';
+  let steps = [
+    'Write down the facts in date order.',
+    'Collect documents, messages, receipts, notices, IDs, and other proof.',
+    'Avoid sharing sensitive personal details in public posts.',
+    'Consult a verified advocate before taking formal legal action.'
+  ];
+
+  if (text.includes('tenant') || text.includes('rent') || text.includes('landlord') || text.includes('deposit')) {
+    topic = 'tenant or rental dispute';
+    steps = [
+      'Review your rent agreement and deposit clause.',
+      'Collect rent receipts, handover proof, messages, and payment records.',
+      'Send a clear written request before escalation.',
+      'Speak with a property or civil advocate if the landlord still refuses.'
+    ];
+  } else if (text.includes('fir') || text.includes('police') || text.includes('crime')) {
+    topic = 'police or criminal-law process';
+    steps = [
+      'Write a clear timeline of what happened.',
+      'Preserve evidence such as screenshots, call records, photos, and witnesses.',
+      'For urgent danger, contact local police/emergency help immediately.',
+      'Consult a criminal-law advocate for case-specific guidance.'
+    ];
+  } else if (text.includes('consumer') || text.includes('refund') || text.includes('product') || text.includes('service')) {
+    topic = 'consumer complaint';
+    steps = [
+      'Keep invoices, order IDs, screenshots, delivery proof, and complaint tickets.',
+      'Raise a written complaint with the business first.',
+      'Note dates and responses carefully.',
+      'Consult an advocate if the amount or harm is significant.'
+    ];
+  } else if (text.includes('divorce') || text.includes('marriage') || text.includes('maintenance') || text.includes('custody')) {
+    topic = 'family-law concern';
+    steps = [
+      'Keep relevant marriage, identity, financial, and communication records.',
+      'Avoid public posts with names or private family details.',
+      'Prioritize safety if there is violence or threat.',
+      'Consult a family-law advocate for personal legal options.'
+    ];
+  }
+
+  return `This looks like a ${topic}.\n\nGeneral information:\n${steps.map((step, index) => `${index + 1}. ${step}`).join('\n')}\n\nThis is general legal information, not legal advice. For your exact facts, documents, location, and deadlines, please consult a qualified advocate.`;
+};
 
 const AILawLearning = ({ user, logout }) => {
   const [messages, setMessages] = useState([]);
@@ -37,17 +85,35 @@ const AILawLearning = ({ user, logout }) => {
     setLoading(true);
 
     try {
-      const response = await api.post('/ai/chat', {
-        message: userMessage,
-        session_id: sessionId
-      });
-      setMessages(prev => [...prev, { role: 'assistant', content: response.data.response }]);
-      if (!sessionId) {
-        setSessionId(response.data.session_id);
+      if (process.env.REACT_APP_BACKEND_URL) {
+        const response = await api.post('/ai/chat', {
+          message: userMessage,
+          session_id: sessionId
+        });
+        setMessages(prev => [...prev, { role: 'assistant', content: response.data.response }]);
+        if (!sessionId) {
+          setSessionId(response.data.session_id);
+        }
+      } else {
+        const response = getPrototypeLegalResponse(userMessage);
+        setMessages(prev => [...prev, { role: 'assistant', content: response }]);
+        if (user) {
+          try {
+            await supabase.from('ai_queries').insert({
+              user_id: user.id,
+              question: userMessage,
+              answer_summary: response.slice(0, 500),
+              category: 'prototype'
+            });
+          } catch (e) {
+            // The prototype works even before an ai_queries table exists.
+          }
+        }
       }
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to get response');
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }]);
+      const response = getPrototypeLegalResponse(userMessage);
+      toast.error('Live AI backend unavailable, showing prototype guidance');
+      setMessages(prev => [...prev, { role: 'assistant', content: response }]);
     } finally {
       setLoading(false);
     }
@@ -55,18 +121,18 @@ const AILawLearning = ({ user, logout }) => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      <nav className="bg-white border-b border-slate-200 px-6 md:px-12 lg:px-24 py-4">
-        <div className="flex items-center justify-between">
+      <nav className="ns-nav">
+        <div className="ns-nav-inner">
           <Link to="/" className="flex items-center gap-2">
             <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
             <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
           </Link>
-          <div className="flex items-center gap-6">
+          <div className="ns-nav-links">
             <Link to="/advocates" className="text-slate-700 hover:text-[#0F172A] font-medium">
               Find Advocates
             </Link>
             {user ? (
-              <div className="flex items-center gap-4">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                 <Link to={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'}>
                   <Button className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-10 px-6 rounded-sm font-medium">
                     Dashboard
@@ -93,11 +159,11 @@ const AILawLearning = ({ user, logout }) => {
         backgroundPosition: 'center'
       }}>
         <div className="absolute inset-0 bg-slate-900/90 backdrop-blur-sm"></div>
-        <div className="relative px-6 md:px-12 lg:px-24 py-12">
+        <div className="relative ns-page">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center gap-3 mb-6 justify-center">
               <BookOpen className="h-10 w-10 text-[#B45309]" strokeWidth={1.5} />
-              <h1 className="text-4xl md:text-5xl font-semibold tracking-tight serif text-white" data-testid="ai-learning-title">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight serif text-white" data-testid="ai-learning-title">
                 AI Law Learning
               </h1>
             </div>

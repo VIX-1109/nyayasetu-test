@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>NyayaSetu Modules Working Plan</title>
+  <style>
+    body { font-family: Calibri, Arial, sans-serif; color: #0f172a; line-height: 1.45; }
+    h1 { color: #0f172a; border-bottom: 2px solid #0f766e; padding-bottom: 6px; }
+    h2 { color: #0f766e; margin-top: 28px; }
+    h3 { color: #334155; margin-top: 18px; }
+    table { border-collapse: collapse; width: 100%; margin: 12px 0 20px; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px; vertical-align: top; }
+    th { background: #d9eaf7; }
+    .green { background: #d9ead3; }
+    .red { background: #f4cccc; }
+    .note { background: #f8fafc; border-left: 4px solid #0f766e; padding: 10px; }
+    .meta { color: #64748b; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>NyayaSetu Modules Working Plan</h1>
+  <p><b>Purpose:</b> This document explains the detailed working plan for NyayaSetu modules so different team members can understand, divide, and implement the platform in phases.</p>
+  <p><b>Product Context:</b> NyayaSetu is planned as a web platform first and later as a mobile app. The future vision is a professional justice network: part legal-services marketplace, part legal awareness platform, part advocate professional network, and part secure help-seeking system. It can borrow interaction patterns from LinkedIn and X, but the content must stay focused on Nyaya, justice, rights, legal awareness, social issues, public interest, and professional help rather than memes or casual entertainment.</p>
+
+  <h1>1. Updated Product Understanding</h1>
+  <p>NyayaSetu should not be treated as only a lawyer directory. The stronger idea is to build a trusted justice network where citizens, advocates, law students, NGOs, legal educators, and institutions can interact around legal awareness and real legal help.</p>
+  <p>The platform has four major layers:</p>
+  <ul>
+    <li><b>Access layer:</b> Citizens can ask AI questions, understand legal problems, find advocates, request consultations, message privately, and track help requests.</li>
+    <li><b>Professional layer:</b> Advocates can create verified profiles, publish useful legal content, receive qualified leads, manage requests, and build reputation.</li>
+    <li><b>Community layer:</b> Users can post justice-focused updates, legal news, articles, awareness posts, and help-seeking posts.</li>
+    <li><b>Trust layer:</b> Admins verify advocates, moderate posts, handle reports, manage disputes, and protect users from misinformation or abuse.</li>
+  </ul>
+
+  <h1>2. Major Requirement Changes After New Context</h1>
+  <p class="note">The core idea does not need to change. But the LinkedIn/X-style justice network adds some important product requirements beyond UI.</p>
+  <table>
+    <tr><th>Area</th><th>Change Needed</th><th>Reason</th></tr>
+    <tr><td>UI/UX</td><td>Moderate change</td><td>The platform should feel like a serious professional network, not only a dashboard app.</td></tr>
+    <tr><td>Justice Feed</td><td>Major addition</td><td>Posts, articles, legal news, awareness content, and help-seeking posts need their own module.</td></tr>
+    <tr><td>Moderation</td><td>Major addition</td><td>Justice-related posts can include misinformation, defamation, private data, fake legal advice, or sensitive claims.</td></tr>
+    <tr><td>Identity and Reputation</td><td>Major addition</td><td>Public posting requires verified identities, role badges, advocate badges, and profile credibility.</td></tr>
+    <tr><td>Notifications</td><td>Higher priority later</td><td>Posts, comments, follows, messages, mentions, and consultation requests all need notification flows.</td></tr>
+    <tr><td>Search</td><td>Higher priority later</td><td>Search must cover advocates, posts, articles, legal topics, cities, languages, and practice areas.</td></tr>
+    <tr><td>Mobile App Readiness</td><td>Important from start</td><td>Feed, chat, posting, directory, and dashboards must be mobile-first so a future app is easier to build.</td></tr>
+  </table>
+
+  <h1>3. Prototype Goal</h1>
+  <p>The prototype should not try to become the full company immediately. It should show the full potential clearly enough to convince mentors, early users, and investors.</p>
+  <ol>
+    <li>User lands on NyayaSetu and sees a professional justice-focused feed.</li>
+    <li>User reads useful legal awareness posts from verified advocates.</li>
+    <li>User asks the AI assistant a legal question.</li>
+    <li>AI gives safe general information and suggests speaking with an advocate.</li>
+    <li>User searches verified advocates.</li>
+    <li>User opens an advocate profile and sends a consultation request.</li>
+    <li>Advocate receives the lead in the dashboard.</li>
+    <li>Admin can verify advocates and moderate the platform.</li>
+  </ol>
+
+  <h1>4. Module-Level Working Plan</h1>
+
+  <h2>Module 1: Authentication, Identity, and Role Routing</h2>
+  <p class="meta">Owner Type: Frontend + Backend/Supabase Developer</p>
+  <h3>Purpose</h3>
+  <p>This module controls who the user is and what experience they receive. It supports clients, advocates, admins, and future public/community users. Identity is very important because the platform includes public posts, legal help, private messaging, and verified professional profiles.</p>
+  <h3 class="green">Prototype / Build Now</h3>
+  <ul class="green">
+    <li>User signup and login using Supabase Auth or equivalent.</li>
+    <li>Role selection during onboarding: Client, Advocate, Admin.</li>
+    <li>Basic profile creation with name, email, role, city, language preference, and avatar placeholder.</li>
+    <li>Redirect user to the correct dashboard after login.</li>
+    <li>Protect routes so only correct roles can access certain pages.</li>
+    <li>Logout and session persistence.</li>
+    <li>Basic profile edit screen.</li>
+  </ul>
+  <h3 class="red">Later / Full Platform</h3>
+  <ul class="red">
+    <li>Phone OTP login and Google OAuth.</li>
+    <li>Password reset and email verification.</li>
+    <li>Multi-factor authentication.</li>
+    <li>Account deletion request.</li>
+    <li>Device and session management.</li>
+    <li>Login activity history and suspicious login detection.</li>
+    <li>DPDP-aligned consent management.</li>
+    <li>Separate public profile identity and private account identity.</li>
+  </ul>
+  <h3>Working Flow</h3>
+  <ol>
+    <li>User opens signup.</li>
+    <li>User selects role.</li>
+    <li>System creates auth account and profile row.</li>
+    <li>User is redirected to the proper dashboard.</li>
+    <li>Protected routes check session and role before rendering.</li>
+  </ol>
+
+  <h2>Module 2: Public Landing Page and Pitch Experience</h2>
+  <p class="meta">Owner Type: Frontend/UI Designer</p>
+  <h3>Purpose</h3>
+  <p>The landing page must quickly explain the mission: NyayaSetu bridges people to justice using AI, verified advocates, legal awareness, and secure consultation workflows.</p>
+  <h3 class="green">Prototype / Build Now</h3>
+  <ul class="green">
+    <li>Professional landing page with trust-focused design.</li>
+    <li>Clear headline around access to justice.</li>
+    <li>CTA buttons: Ask AI Legal Assistant, Find an Advocate, Join as Advocate.</li>
+    <li>Sections for verified advocates, legal awareness, secure communication, and consultation requests.</li>
+    <li>Preview of justice feed with legal awareness posts.</li>
+    <li>Mobile responsive first screen.</li>
+    <li>Careful language that does not promise legal outcomes.</li>
+  </ul>
+  <h3 class="red">Later / Full Platform</h3>
+  <ul class="red">
+    <li>SEO pages for legal topics.</li>
+    <li>City and practice-area landing pages.</li>
+    <li>Blog and legal awareness content.</li>
+    <li>Advocate acquisition funnel.</li>
+    <li>Partnership pages, press kit, testimonials, and conversion analytics.</li>
+  </ul>
+
+  <h2>Module 3: Justice Feed, Posts, Articles, and Public Knowledge Layer</h2>
+  <p class="meta">Owner Type: Frontend + Backend Developer</p>
+  <h3>Purpose</h3>
+  <p>This is the LinkedIn/X-inspired layer. It turns NyayaSetu from a static directory into a living justice network. The content should be useful, serious, and connected to law, rights, news, civic issues, and help-seeking.</p>
+  <h3 class="green">Prototype / Build Now</h3>
+  <ul class="green">
+    <li>Feed page after login.</li>
+    <li>Post composer for short posts.</li>
+    <li>Post types: short update, article, legal news, help request.</li>
+    <li>Feed cards with author name, role badge, verification badge, timestamp, category, and content.</li>
+    <li>Support/like button.</li>
+    <li>Basic comments or comment placeholder.</li>
+    <li>Save/share placeholder.</li>
+    <li>Topic tags: Consumer Rights, Property, Family Law, Employment, Criminal Law, Women Safety, RTI, Tenant Rights.</li>
+    <li>Advocate posts show professional badge.</li>
+    <li>Help-seeking posts include warning not to reveal confidential details publicly.</li>
+  </ul>
+  <h3 class="red">Later / Full Platform</h3>
+  <ul class="red">
+    <li>Rich-text articles.</li>
+    <li>Image/document/media upload with moderation.</li>
+    <li>Mentions and hashtags.</li>
+    <li>Follow system.</li>
+    <li>Reposts and quote posts.</li>
+    <li>Bookmarks.</li>
+    <li>Advanced comments and replies.</li>
+    <li>Feed ranking algorithm.</li>
+    <li>Topic communities.</li>
+    <li>Verified legal news sources and fact-check labels.</li>
+    <li>Misinformation reporting and legal sensitivity warnings.</li>
+    <li>NGO, law school, and institution accounts.</li>
+  </ul>
+  <h3>Working Flow</h3>
+  <ol>
+    <li>User opens feed.</li>
+    <li>User reads legal updates and awareness posts.</li>
+    <li>Advocate publishes educational post.</li>
+    <li>User reacts, saves, or comments.</li>
+    <li>If user needs help, CTA routes to AI assistant or advocate discovery.</li>
+    <li>Admin can moderate posts when reported.</li>
+  </ol>
+
+  <h2>Module 4: User and Advocate Public Profiles</h2>
+  <p class="meta">Owner Type: Frontend + Backend Developer</p>
+  <h3>Purpose</h3>
+  <p>Profiles create credibility. Advocates need LinkedIn-like professional identity. Users need safe participation without exposing sensitive legal problems by default.</p>
+  <h3 class="green">Prototype / Build Now</h3>
+  <ul class="green">
+    <li>Public advocate profile with name, avatar, bio, city, languages, practice areas, experience, fee estimate, and verification badge.</li>
+    <li>Basic user profile showing name, role, city, and posts.</li>
+    <li>Advocate activity tab showing posts/articles.</li>
+    <li>Verification badge visible on profile and feed author card.</li>
+    <li>Profile completion indicator for advocates.</li>
+    <li>Edit profile flow for advocates.</li>
+  </ul>
+  <h3 class="red">Later / Full Platform</h3>
+  <ul class="red">
+    <li>Professional portfolio.</li>
+    <li>Education and certifications.</li>
+    <li>Document/certification display.</li>
+    <li>Public/private profile controls.</li>
+    <li>Followers and following.</li>
+    <li>Endorsements.</li>
+    <li>Consultation stats and profile analytics.</li>
+    <li>Institutional profiles for NGOs, legal clinics, law colleges, and public bodies.</li>
+  </ul>
+
+  <h2>Module 5: Advocate Directory / Marketplace</h2>
+  <p class="meta">Owner Type: Frontend + Backend Developer</p>
+  <h3>Purpose</h3>
+  <p>This module helps users find relevant advocates quickly and safely. It connects AI learning, feed awareness, and real consultation action.</p>
+  <h3 class="green">Prototype / Build Now</h3>
+  <ul class="green">
+    <li>Advocate listing page.</li>
+    <li>Advocate cards with name, practice area, location, experience, languages, fee, verification badge, and rating/mock rating.</li>
+    <li>Search by name and practice area.</li>
+    <li>Filters for practice area, city, experience, language, and verification status.</li>
+    <li>View Profile button.</li>
+    <li>Request Consultation button.</li>
+    <li>Seeded demo advocates.</li>
+  </ul>
+  <h3 class="red">Later / Full Platform</h3>
+  <ul class="red">
+    <li>Availability-based filtering.</li>
+    <li>Fee range filter.</li>
+    <li>Advanced ranking algorithm.</li>
+    <li>Geo-location discovery.</li>
+    <li>Recommendation engine.</li>
+    <li>Response-time sorting.</li>
+    <li>Real reviews and verified-only toggle.</li>
+    <li>Sponsored visibility only after legal compliance review.</li>
+    <li>Fake profile detection.</li>
+  </ul>
+
+  <h2>Module 6: Consultation Request and Booking Intake</h2>
+  <p class="meta">Owner Type: Full-Stack Developer</p>
+  <h3>Purpose</h3>
+  <p>Convert user interest into a structured lead for an advocate. For the prototype this should be a request flow, not a full paid booking system.</p>
+  <h3 class="green">Prototype / Build Now</h3>
+  <ul class="green">
+    <li>Consultation request form.</li>
+    <li>Fields: legal category, short problem description, city/state, urgency, preferred date/time, preferred mode, and language.</li>
+    <li>Privacy warning not to share highly sensitive details publicly.</li>
+    <li>Save request to database.</li>
+    <li>Show request in client dashboard.</li>
+    <li>Show request in advocate dashboard.</li>
+    <li>Status values: Pending, Accepted, Rejected, Completed.</li>
+  </ul>
+  <h3 class="red">Later / Full Platform</h3>
+  <ul class="red">
+    <li>Calendar slot selection.</li>
+    <li>Payments before booking.</li>
+    <li>Rescheduling and cancellation.</li>
+    <li>Refund rules.</li>
+    <li>No-show handling.</li>
+    <li>Google Calendar sync.</li>
+    <li>Email/SMS/WhatsApp reminders.</li>
+    <li>Conflict-of-interest check.</li>
+    <li>Engagement letter workflow.</li>
+  </ul>
+
+  <h2>Module 7: Client Dashboard</h2>
+  <p class="meta">Owner Type: Frontend Developer</p>
+  <h3>Purpose</h3>
+  <p>The client dashboard is the user's home base for legal help. It should show active requests, AI assistance, saved advocates, messages, documents, and feed shortcuts.</p>
+  <h3 class="green">Prototype / Build Now</h3>
+  <ul class="green">
+    <li>Welcome dashboard.</li>
+    <li>Active consultation request cards.</li>
+    <li>Recommended/saved advocates.</li>
+    <li>Recent messages.</li>
+    <li>AI assistant shortcut.</li>
+    <li>Document placeholder.</li>
+    <li>Latest legal awareness posts shortcut.</li>
+    <li>Clear navigation.</li>
+  </ul>
+  <h3 class="red">Later / Full Platform</h3>
+  <ul class="red">
+    <li>Payment history.</li>
+    <li>Consultation history.</li>
+    <li>Case timeline.</li>
+    <li>Document vault.</li>
+    <li>AI conversation history.</li>
+    <li>Court date reminders.</li>
+    <li>Refund/dispute requests.</li>
+    <li>Invoices.</li>
+    <li>Multi-language dashboard.</li>
+  </ul>
+
+  <h2>Module 8: Advocate Dashboard and Lead Management</h2>
+  <p class="meta">Owner Type: Frontend + Backend Developer</p>
+  <h3>Purpose</h3>
+  <p>Give advocates a professional control center for leads, profile, verification, messages, and legal awareness posting.</p>
+  <h3 class="green">Prototype / Build Now</h3>
+  <ul class="green">
+    <li>Dashboard homepage.</li>
+    <li>Verification status.</li>
+    <li>Profile completion.</li>
+    <li>Consultation request list.</li>
+    <li>Accept/reject requests.</li>
+    <li>Recent messages.</li>
+    <li>Basic stats: views, leads, completed consultations.</li>
+    <li>Create legal awareness post shortcut.</li>
+    <li>Edit basic profile and availability text.</li>
+  </ul>
+  <h3 class="red">Later / Full Platform</h3>
+  <ul class="red">
+    <li>Full lead pipeline.</li>
+    <li>Appointment calendar.</li>
+    <li>Earnings dashboard and payout tracking.</li>
+    <li>Client notes and intake responses.</li>
+    <li>Availability slots.</li>
+    <li>Auto-replies.</li>
+    <li>Review management.</li>
+    <li>Profile analytics.</li>
+    <li>Document request templates.</li>
+    <li>Subscription plan management.</li>
+  </ul>
+
+  <h2>Module 9: Admin Dashboard, Trust, Verification, and Moderation</h2>
+  <p class="meta">Owner Type: Full-Stack Developer</p>
+  <h3>Purpose</h3>
+  <p>The admin dashboard is the trust backbone. It manages users, verifies advocates, moderates content, handles reports, and protects the platform.</p>
+  <h3 class="green">Prototype / Build Now</h3>
+  <ul class="green">
+    <li>View all users.</li>
+    <li>Search and filter users by role.</li>
+    <li>Pending advocate verification queue.</li>
+    <li>Approve/reject advocate verification.</li>
+    <li>Edit user role/name.</li>
+    <li>Send warning message.</li>
+    <li>Basic platform stats.</li>
+    <li>Reported posts placeholder/list.</li>
+    <li>Hide/remove post action if possible.</li>
+  </ul>
+  <h3 class="red">Later / Full Platform</h3>
+  <ul class="red">
+    <li>Document verification workflow.</li>
+    <li>Advocate suspension.</li>
+    <li>Dispute management.</li>
+    <li>Refund management.</li>
+    <li>Review moderation.</li>
+    <li>AI answer audit.</li>
+    <li>Admin activity logs.</li>
+    <li>Role-based admin permissions.</li>
+    <li>Compliance dashboard.</li>
+    <li>Data deletion/export requests.</li>
+    <li>Legal escalation workflows.</li>
+  </ul>
+
+  <h2>Module 10: Advocate Verification System</h2>
+  <p class="meta">Owner Type: Backend/Supabase Developer</p>
+  <h3>Purpose</h3>
+  <p>Verification builds trust. It ensures advocates are not presented as verified without admin review.</p>
+  <h3 class="green">Prototype / Build Now</h3>
+  <ul class="green">
+    <li>Advocate submits Bar Council number.</li>
+    <li>Advocate submits practice areas, experience, location, and languages.</li>
+    <li>Verification status stored.</li>
+    <li>Admin can mark Pending, Verified, or Rejected.</li>
+    <li>Badge appears on profile, directory, and feed author card.</li>
+  </ul>
+  <h3 class="red">Later / Full Platform</h3>
+  <ul class="red">
+    <li>Document upload.</li>
+    <li>Bar Council ID upload.</li>
+    <li>Certificate of Practice upload.</li>
+    <li>Manual review notes and rejection reasons.</li>
+    <li>Annual re-verification.</li>
+    <li>Suspended/debarred tracking.</li>
+    <li>Verification audit history.</li>
+    <li>External verification partnerships.</li>
+  </ul>
+
+  <h2>Module 11: AI Legal Learning Assistant</h2>
+  <p class="meta">Owner Type: AI/Frontend Developer</p>
+  <h3>Purpose</h3>
+  <p>The AI assistant helps users understand legal issues in simple language. It must educate, not replace an advocate. Every answer should include a clear disclaimer.</p>
+  <h3 class="green">Prototype / Build Now</h3>
+  <ul class="green">
+    <li>AI Q&A page.</li>
+    <li>Simple input for legal questions.</li>
+    <li>Safe response with disclaimer.</li>
+    <li>Suggested topics.</li>
+    <li>CTA to advocate directory.</li>
+    <li>Basic query history.</li>
+    <li>Prompt guardrails against definitive legal advice.</li>
+  </ul>
+  <h3 class="red">Later / Full Platform</h3>
+  <ul class="red">
+    <li>Backend-secured OpenAI integration.</li>
+    <li>Retrieval-based Indian legal knowledge base.</li>
+    <li>Citations and state-specific guidance.</li>
+    <li>Hindi/Marathi support.</li>
+    <li>Document summarization.</li>
+    <li>AI answer audit logs.</li>
+    <li>Hallucination detection.</li>
+    <li>Urgent legal risk escalation.</li>
+    <li>Advocate recommendation based on query.</li>
+  </ul>
+
+  <h2>Module 12: Secure Messaging and Inbox</h2>
+  <p class="meta">Owner Type: Full-Stack Developer</p>
+  <h3>Purpose</h3>
+  <p>Allow private communication between clients and advocates after a consultation request or connection.</p>
+  <h3 class="green">Prototype / Build Now</h3>
+  <ul class="green">
+    <li>Inbox page.</li>
+    <li>Conversation list.</li>
+    <li>Message thread view.</li>
+    <li>Send/receive text messages using database.</li>
+    <li>Timestamps.</li>
+    <li>Basic role-based access.</li>
+    <li>Admin warning messages.</li>
+  </ul>
+  <h3 class="red">Later / Full Platform</h3>
+  <ul class="red">
+    <li>Realtime chat.</li>
+    <li>Typing indicators and read receipts.</li>
+    <li>File sharing and document previews.</li>
+    <li>Push notifications.</li>
+    <li>Message search.</li>
+    <li>Encrypted file storage.</li>
+    <li>Malware scanning.</li>
+    <li>Audit logs and retention policy.</li>
+  </ul>
+
+  <h2>Module 13: Database and Supabase Backend</h2>
+  <p class="meta">Owner Type: Backend/Supabase Developer</p>
+  <h3>Purpose</h3>
+  <p>This is the data foundation for auth, profiles, advocates, posts, consultations, messages, AI queries, reviews, documents, and admin actions.</p>
+  <h3 class="green">Prototype / Build Now</h3>
+  <ul class="green">
+    <li>Tables: profiles, advocates, posts, post_comments, post_reactions, consultation_requests, messages, ai_queries, reviews, admin_actions.</li>
+    <li>Supabase Auth.</li>
+    <li>Basic Row Level Security.</li>
+    <li>Seed demo users and advocates.</li>
+    <li>Public read access for verified advocate profiles and public posts.</li>
+    <li>Private access for messages and requests.</li>
+  </ul>
+  <h3 class="red">Later / Full Platform</h3>
+  <ul class="red">
+    <li>Strict RLS policies.</li>
+    <li>Audit logs.</li>
+    <li>Storage buckets and signed URLs.</li>
+    <li>Retention rules.</li>
+    <li>Deletion/export flows.</li>
+    <li>Backups.</li>
+    <li>Payment, dispute, notification, analytics, and consent tables.</li>
+    <li>Security monitoring.</li>
+  </ul>
+
+  <h2>Module 14: Content Moderation, Reporting, and Community Safety</h2>
+  <p class="meta">Owner Type: Full-Stack Developer + Founder/Legal Reviewer</p>
+  <h3>Purpose</h3>
+  <p>This protects the public feed from misinformation, harassment, defamation, privacy leaks, fake legal advice, and illegal content.</p>
+  <h3 class="green">Prototype / Build Now</h3>
+  <ul class="green">
+    <li>Report post button.</li>
+    <li>Report reasons: misinformation, harassment, privacy issue, fake legal advice, spam, abusive content.</li>
+    <li>Admin can view reports placeholder/list.</li>
+    <li>Admin can hide/remove a post.</li>
+    <li>Posting disclaimer: do not share confidential details publicly.</li>
+  </ul>
+  <h3 class="red">Later / Full Platform</h3>
+  <ul class="red">
+    <li>Moderation queue.</li>
+    <li>Automated toxic content detection.</li>
+    <li>Legal misinformation review.</li>
+    <li>Repeat offender system.</li>
+    <li>Appeal process.</li>
+    <li>Sensitive topic labels.</li>
+    <li>Fact-check workflow.</li>
+    <li>Defamation/privacy escalation process.</li>
+    <li>Community guidelines enforcement.</li>
+  </ul>
+
+  <h2>Module 15: Reviews and Ratings</h2>
+  <p class="meta">Owner Type: Frontend + Backend Developer</p>
+  <h3>Purpose</h3>
+  <p>Reviews build trust, but legal reviews need controls to avoid fake reviews or disclosure of confidential case details.</p>
+  <h3 class="green">Prototype / Build Now</h3>
+  <ul class="green">
+    <li>Mock reviews on advocate profile.</li>
+    <li>Rating count.</li>
+    <li>Basic review form after completed consultation.</li>
+    <li>Store review linked to advocate.</li>
+  </ul>
+  <h3 class="red">Later / Full Platform</h3>
+  <ul class="red">
+    <li>Verified consultation-only reviews.</li>
+    <li>Review moderation.</li>
+    <li>Report review.</li>
+    <li>Advocate reply.</li>
+    <li>Confidential detail warnings.</li>
+    <li>Fake review detection.</li>
+    <li>Review dispute workflow.</li>
+    <li>Rating breakdown: clarity, professionalism, responsiveness, punctuality.</li>
+  </ul>
+
+  <h2>Module 16: Documents and File Management</h2>
+  <p class="meta">Owner Type: Backend + Frontend Developer</p>
+  <h3>Purpose</h3>
+  <p>Allow users to organize legal documents safely. For prototype this can be a lightweight placeholder or basic upload.</p>
+  <h3 class="green">Prototype / Build Now</h3>
+  <ul class="green">
+    <li>Document section in client dashboard.</li>
+    <li>Optional basic upload.</li>
+    <li>Uploaded document list.</li>
+    <li>Attach document metadata to consultation request.</li>
+    <li>File metadata: name, type, uploaded date.</li>
+  </ul>
+  <h3 class="red">Later / Full Platform</h3>
+  <ul class="red">
+    <li>Private storage buckets.</li>
+    <li>Signed download URLs.</li>
+    <li>File permissions.</li>
+    <li>Malware scanning.</li>
+    <li>Document expiry and sharing controls.</li>
+    <li>AI document summary.</li>
+    <li>Legal templates.</li>
+    <li>Encryption strategy.</li>
+    <li>Retention/deletion policy.</li>
+  </ul>
+
+  <h2>Module 17: Payments and Monetization</h2>
+  <p class="meta">Owner Type: Backend/Payment Developer</p>
+  <h3>Purpose</h3>
+  <p>Show how NyayaSetu can become financially sustainable through consultations, subscriptions, and value-added services.</p>
+  <h3 class="green">Prototype / Build Now</h3>
+  <ul class="green">
+    <li>Mock payment UI.</li>
+    <li>Consultation fee displayed.</li>
+    <li>Payment coming soon flow.</li>
+    <li>Fake statuses: Pending, Paid, Refunded.</li>
+    <li>Pitch section explaining monetization: commission, advocate premium tools, subscriptions.</li>
+  </ul>
+  <h3 class="red">Later / Full Platform</h3>
+  <ul class="red">
+    <li>Razorpay integration.</li>
+    <li>Payment gateway webhooks.</li>
+    <li>Advocate payouts and platform commission.</li>
+    <li>Refunds and cancellation fees.</li>
+    <li>GST/invoice handling.</li>
+    <li>Payment dispute handling.</li>
+    <li>Subscription plans for advocates.</li>
+    <li>Financial reconciliation dashboard.</li>
+  </ul>
+
+  <h2>Module 18: Notifications</h2>
+  <p class="meta">Owner Type: Backend/Full-Stack Developer</p>
+  <h3>Purpose</h3>
+  <p>Keep users informed about consultation requests, messages, verification, posts, comments, follows, and mentions.</p>
+  <h3 class="green">Prototype / Build Now</h3>
+  <ul class="green">
+    <li>Toast notifications.</li>
+    <li>Dashboard notification cards.</li>
+    <li>Notify when request is submitted, accepted/rejected, message received, and verification approved/rejected.</li>
+    <li>Feed notification placeholder for comments/reactions.</li>
+  </ul>
+  <h3 class="red">Later / Full Platform</h3>
+  <ul class="red">
+    <li>Email notifications.</li>
+    <li>SMS and WhatsApp notifications.</li>
+    <li>Push notifications.</li>
+    <li>Reminder system.</li>
+    <li>Notification preferences.</li>
+    <li>Calendar reminders.</li>
+    <li>Mentions and follow notifications.</li>
+    <li>Notification audit logs.</li>
+  </ul>
+
+  <h2>Module 19: Legal, Compliance, Trust, and Platform Policy</h2>
+  <p class="meta">Owner Type: Founder + Legal Advisor + Product Manager</p>
+  <h3>Purpose</h3>
+  <p>This protects the platform legally and ethically. It is especially important because NyayaSetu handles legal information, public justice discourse, personal data, and advocate discovery.</p>
+  <h3 class="green">Prototype / Build Now</h3>
+  <ul class="green">
+    <li>Basic terms page.</li>
+    <li>Basic privacy page.</li>
+    <li>AI disclaimer.</li>
+    <li>Consultation disclaimer.</li>
+    <li>Advocate verification disclaimer.</li>
+    <li>Notice that NyayaSetu does not directly provide legal advice.</li>
+    <li>Posting guidelines.</li>
+    <li>Safe language across UI.</li>
+  </ul>
+  <h3 class="red">Later / Full Platform</h3>
+  <ul class="red">
+    <li>Full legal terms.</li>
+    <li>DPDP compliance policy.</li>
+    <li>Consent management.</li>
+    <li>Grievance officer details.</li>
+    <li>Refund/cancellation policy.</li>
+    <li>Advocate agreement and client agreement.</li>
+    <li>AI usage policy.</li>
+    <li>Data breach response plan.</li>
+    <li>Bar Council advertising compliance review.</li>
+    <li>Community guidelines and content moderation policy.</li>
+  </ul>
+
+  <h2>Module 20: Analytics and Metrics</h2>
+  <p class="meta">Owner Type: Backend/Product Analytics Developer</p>
+  <h3>Purpose</h3>
+  <p>Show traction potential and help the team make decisions. Investors need to see growth logic, not only features.</p>
+  <h3 class="green">Prototype / Build Now</h3>
+  <ul class="green">
+    <li>Admin stats: total users, advocates, posts, consultation requests, pending verifications, AI questions.</li>
+    <li>Mock growth numbers for pitch dashboard.</li>
+    <li>Basic feed engagement counts.</li>
+  </ul>
+  <h3 class="red">Later / Full Platform</h3>
+  <ul class="red">
+    <li>MAU tracking.</li>
+    <li>Conversion funnel.</li>
+    <li>Advocate onboarding conversion.</li>
+    <li>Consultation booking rate.</li>
+    <li>NPS and retention.</li>
+    <li>Response time tracking.</li>
+    <li>AI usage analytics.</li>
+    <li>Revenue dashboard.</li>
+    <li>Cohort analytics and churn tracking.</li>
+    <li>Content engagement analytics.</li>
+  </ul>
+
+  <h2>Module 21: Mobile App and Desktop Platform Readiness</h2>
+  <p class="meta">Owner Type: Product + UI Designer + Frontend Lead</p>
+  <h3>Purpose</h3>
+  <p>The platform should be designed so it can become both a mobile app and a desktop web platform without rebuilding the product logic.</p>
+  <h3 class="green">Prototype / Build Now</h3>
+  <ul class="green">
+    <li>Mobile-responsive web UI.</li>
+    <li>Bottom navigation behavior planned for mobile.</li>
+    <li>Desktop sidebar/top navigation planned.</li>
+    <li>Feed, chat, directory, and dashboards work on small screens.</li>
+    <li>Touch-friendly buttons and forms.</li>
+  </ul>
+  <h3 class="red">Later / Full Platform</h3>
+  <ul class="red">
+    <li>React Native or native mobile app.</li>
+    <li>Push notifications.</li>
+    <li>Deep links.</li>
+    <li>App-specific onboarding.</li>
+    <li>Offline draft posts.</li>
+    <li>Mobile document scanning.</li>
+    <li>Biometric app lock.</li>
+    <li>Separate desktop power-user layouts for advocates/admins.</li>
+  </ul>
+
+  <h1>5. Recommended Team Distribution</h1>
+  <table>
+    <tr><th>Person</th><th>Focus Area</th><th>Responsibilities</th></tr>
+    <tr><td>Person 1</td><td>Auth + Role Routing</td><td>Authentication, profile creation, protected routes, role-based redirects.</td></tr>
+    <tr><td>Person 2</td><td>Client Experience</td><td>Landing page, client dashboard, advocate directory, advocate profile, mobile-first client flow.</td></tr>
+    <tr><td>Person 3</td><td>Advocate Experience</td><td>Advocate dashboard, profile editing, consultation leads, professional posting shortcut.</td></tr>
+    <tr><td>Person 4</td><td>Admin + Trust</td><td>Admin dashboard, advocate verification, user management, warnings, moderation controls.</td></tr>
+    <tr><td>Person 5</td><td>AI Assistant</td><td>AI Q&A, disclaimers, topic suggestions, advocate escalation flow.</td></tr>
+    <tr><td>Person 6</td><td>Backend/Supabase</td><td>Database schema, RLS policies, seed data, messages, requests, posts, storage planning.</td></tr>
+    <tr><td>Person 7</td><td>Feed + Social Layer</td><td>Justice feed, post composer, article cards, reactions, comments, report flow.</td></tr>
+    <tr><td>Person 8</td><td>UI/Polish + Pitch Demo</td><td>Consistent design, responsive layout, empty states, demo script, presentation polish.</td></tr>
+  </table>
+
+  <h1>6. Recommended Build Order</h1>
+  <ol>
+    <li>Auth, roles, and route protection.</li>
+    <li>Database schema and seed data.</li>
+    <li>Landing page and navigation shell.</li>
+    <li>Justice feed with basic posts and article cards.</li>
+    <li>Advocate directory.</li>
+    <li>Advocate profile page.</li>
+    <li>Consultation request flow.</li>
+    <li>Client dashboard.</li>
+    <li>Advocate dashboard.</li>
+    <li>Admin dashboard and verification.</li>
+    <li>AI legal learning assistant.</li>
+    <li>Messaging inbox.</li>
+    <li>Moderation/reporting basics.</li>
+    <li>Mobile responsive polish.</li>
+    <li>Pitch/demo flow rehearsal.</li>
+  </ol>
+
+  <h1>7. Prototype Demo Script</h1>
+  <ol>
+    <li>Open NyayaSetu landing page and explain the mission: bridge citizens to justice using AI, verified advocates, and a professional justice network.</li>
+    <li>Show the justice feed with posts from verified advocates and legal awareness articles.</li>
+    <li>Create or open a sample post about tenant rights, consumer complaints, or women safety.</li>
+    <li>Ask the AI assistant a legal question in plain language.</li>
+    <li>AI explains the issue safely and suggests speaking with an advocate.</li>
+    <li>Open the advocate directory and filter by category/city/language.</li>
+    <li>Open a verified advocate profile and show credentials, posts, and CTA.</li>
+    <li>Send a consultation request.</li>
+    <li>Switch to advocate dashboard and accept the lead.</li>
+    <li>Switch to admin dashboard and show verification, moderation, and trust controls.</li>
+    <li>End with analytics cards showing users, advocates, posts, AI queries, and consultation requests.</li>
+  </ol>
+
+  <h1>8. Final Product Direction</h1>
+  <p>NyayaSetu should become a justice-focused professional network where people do not come for entertainment but for legal awareness, civic knowledge, professional help, and trusted action. The social layer should not copy LinkedIn or X blindly. It should borrow useful patterns such as profiles, feeds, posts, articles, follows, comments, and professional reputation, but it must add stronger trust through verified advocate badges, moderation, disclaimers, privacy protection, and safe escalation to professional help.</p>
+  <p>For the prototype, the highest priority is to make the product feel real, useful, trustworthy, and scalable. The platform should show that one day it can become both a mobile app and desktop platform used by citizens, advocates, law students, NGOs, and institutions across India.</p>
+</body>
+</html>
