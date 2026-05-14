@@ -4,7 +4,17 @@ import { Button } from '@/components/ui/button';
 
 const Landing = ({ user, logout }) => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen relative overflow-hidden">
+      <div 
+        className="absolute inset-0 -z-10 opacity-[0.05] pointer-events-none"
+        style={{ 
+          backgroundImage: 'url(/land_img.png)', 
+          backgroundSize: 'cover', 
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          minHeight: '100%'
+        }}
+      />
       <nav className="ns-nav">
         <div className="ns-nav-inner">
           <div className="flex items-center gap-2">
@@ -43,39 +53,25 @@ const Landing = ({ user, logout }) => {
         </div>
       </nav>
 
-      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white ns-band py-14 md:py-28">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
-          <div className="space-y-6">
-            <h1 className="ns-hero-title" data-testid="hero-title">
-              Bridge to Justice
-            </h1>
-            <p className="text-lg md:text-xl leading-relaxed text-slate-300">
-              Connect with verified advocates across India. Get expert legal consultation and learn about your rights through AI-powered law education.
-            </p>
-            <div className="ns-actions pt-4">
-              <Link to="/advocates">
-                <Button data-testid="find-advocate-btn" className="bg-[#B45309] text-white hover:bg-[#B45309]/90 h-12 px-8 rounded-sm font-medium shadow-md transition-all hover:-translate-y-0.5">
-                  Find an Advocate <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <Link to="/ai-learning">
-                <Button data-testid="learn-law-btn" variant="outline" className="bg-white border-2 border-white text-[#0F172A] hover:bg-slate-50 h-12 px-8 rounded-sm font-medium transition-all">
-                  Learn Law with AI
-                </Button>
-              </Link>
-              <Link to="/feed">
-                <Button variant="outline" className="bg-transparent border-2 border-white text-white hover:bg-white hover:text-[#0F172A] h-12 px-8 rounded-sm font-medium transition-all">
-                  Open Justice Feed
-                </Button>
-              </Link>
-            </div>
-          </div>
-          <div className="relative">
-            <img 
-              src="https://images.unsplash.com/photo-1595628423365-cd4e640edecc?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2Mzl8MHwxfHNlYXJjaHw0fHxpbmRpYW4lMjBsYXd5ZXIlMjBwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzA4MjI4MjR8MA&ixlib=rb-4.1.0&q=85"
-              alt="Professional Advocate"
-              className="rounded-sm shadow-[0_2px_8px_rgba(15,23,42,0.08)] w-full h-auto"
-            />
+      <div className="bg-gradient-to-br from-slate-900/90 via-slate-800/90 to-slate-900/90 text-white ns-band py-20 md:py-32">
+        <div className="max-w-4xl mx-auto text-center space-y-8">
+          <h1 className="ns-hero-title text-5xl md:text-7xl" data-testid="hero-title">
+            Bridge to Justice
+          </h1>
+          <p className="text-xl md:text-2xl leading-relaxed text-slate-300 max-w-2xl mx-auto">
+            Connect with verified advocates across India. Get expert legal consultation and learn about your rights through AI-powered law education.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4 pt-6">
+            <Link to="/advocates">
+              <Button data-testid="find-advocate-btn" className="bg-[#B45309] text-white hover:bg-[#B45309]/90 h-14 px-10 rounded-sm font-bold text-lg shadow-xl transition-all hover:-translate-y-1">
+                Find an Advocate <ArrowRight className="ml-2 h-6 w-6" />
+              </Button>
+            </Link>
+            <Link to="/ai-learning">
+              <Button data-testid="learn-law-btn" variant="outline" className="bg-white border-2 border-white text-[#0F172A] hover:bg-slate-50 h-14 px-10 rounded-sm font-bold text-lg transition-all hover:-translate-y-1">
+                Learn Law with AI
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
