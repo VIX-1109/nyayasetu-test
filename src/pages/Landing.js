@@ -6,7 +6,7 @@ const Landing = ({ user, logout }) => {
   return (
     <div className="min-h-screen relative overflow-hidden">
       <div 
-        className="absolute inset-0 -z-10 opacity-[0.05] pointer-events-none"
+        className="absolute inset-0 -z-10 opacity-[0.5] pointer-events-none"
         style={{ 
           backgroundImage: 'url(/land_img.png)', 
           backgroundSize: 'cover', 
