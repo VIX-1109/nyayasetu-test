@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabaseClient';
+import { signIn, signUp, fetchProfile } from '@/services/authService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,40 +20,18 @@ const Auth = ({ setUser }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     try {
-      let authUser;
-      if (isLogin) {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        authUser = data.user;
-      } else {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { data: { name, role } }
-        });
-        if (error) throw error;
-        authUser = data.user;
-      }
-      
-      // Fetch profile to redirect correctly
-      let userObj = authUser;
-      if (authUser) {
-        const { data: profile } = await supabase.from('profiles').select('*').eq('id', authUser.id).single();
-        if (profile) userObj = { ...authUser, ...profile };
-      }
-      
+      const authUser = isLogin
+        ? await signIn(email, password)
+        : await signUp(email, password, name, role);
+
+      const userObj = authUser ? await fetchProfile(authUser) : authUser;
       setUser(userObj);
       toast.success(isLogin ? 'Logged in successfully!' : 'Account created successfully!');
-      
-      if (userObj.role === 'admin') {
-        navigate('/admin');
-      } else if (userObj.role === 'advocate') {
-        navigate('/advocate/dashboard');
-      } else {
-        navigate('/client/dashboard');
-      }
+
+      if (userObj.role === 'admin') navigate('/admin');
+      else if (userObj.role === 'advocate') navigate('/advocate/dashboard');
+      else navigate('/client/dashboard');
     } catch (error) {
       toast.error(error.message || 'Authentication failed');
     } finally {
@@ -80,44 +58,17 @@ const Auth = ({ setUser }) => {
           {!isLogin && (
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                data-testid="name-input"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="h-12 bg-white border-slate-200 focus:border-[#0F172A] focus:ring-1 focus:ring-[#0F172A]/20 rounded-sm"
-              />
+              <Input id="name" data-testid="name-input" type="text" value={name} onChange={(e) => setName(e.target.value)} required className="h-12 bg-white border-slate-200 focus:border-[#0F172A] focus:ring-1 focus:ring-[#0F172A]/20 rounded-sm" />
             </div>
           )}
-
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              data-testid="email-input"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="h-12 bg-white border-slate-200 focus:border-[#0F172A] focus:ring-1 focus:ring-[#0F172A]/20 rounded-sm"
-            />
+            <Input id="email" data-testid="email-input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="h-12 bg-white border-slate-200 focus:border-[#0F172A] focus:ring-1 focus:ring-[#0F172A]/20 rounded-sm" />
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              data-testid="password-input"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="h-12 bg-white border-slate-200 focus:border-[#0F172A] focus:ring-1 focus:ring-[#0F172A]/20 rounded-sm"
-            />
+            <Input id="password" data-testid="password-input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="h-12 bg-white border-slate-200 focus:border-[#0F172A] focus:ring-1 focus:ring-[#0F172A]/20 rounded-sm" />
           </div>
-
           {!isLogin && (
             <div className="space-y-3">
               <Label>Register as</Label>
@@ -133,24 +84,14 @@ const Auth = ({ setUser }) => {
               </RadioGroup>
             </div>
           )}
-
-          <Button
-            type="submit"
-            disabled={loading}
-            data-testid="submit-btn"
-            className="w-full bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-12 rounded-sm font-medium shadow-md transition-all hover:-translate-y-0.5"
-          >
+          <Button type="submit" disabled={loading} data-testid="submit-btn" className="w-full bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-12 rounded-sm font-medium shadow-md transition-all hover:-translate-y-0.5">
             {loading ? 'Processing...' : isLogin ? 'Login' : 'Register'}
           </Button>
         </form>
 
         <p className="text-center text-sm text-slate-600 mt-6">
           {isLogin ? "Don't have an account? " : 'Already have an account? '}
-          <button
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-[#B45309] font-medium hover:underline"
-            data-testid="toggle-auth-btn"
-          >
+          <button onClick={() => setIsLogin(!isLogin)} className="text-[#B45309] font-medium hover:underline" data-testid="toggle-auth-btn">
             {isLogin ? 'Register' : 'Login'}
           </button>
         </p>
@@ -160,5 +101,3 @@ const Auth = ({ setUser }) => {
 };
 
 export default Auth;
-
-

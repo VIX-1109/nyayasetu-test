@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import '@/App.css';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabaseClient';
 import { Toaster } from 'sonner';
+import { getSession, fetchProfile, onAuthStateChange, signOut } from '@/services/authService';
 import Landing from './pages/Landing';
 import Auth from './pages/Auth';
 import AdvocateDirectory from './pages/AdvocateDirectory';
@@ -19,17 +19,23 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    getSession().then((session) => {
       if (session) {
-        fetchProfile(session.user);
+        fetchProfile(session.user).then((profile) => {
+          setUser(profile);
+          setLoading(false);
+        });
       } else {
         setLoading(false);
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const subscription = onAuthStateChange((_event, session) => {
       if (session) {
-        fetchProfile(session.user);
+        fetchProfile(session.user).then((profile) => {
+          setUser(profile);
+          setLoading(false);
+        });
       } else {
         setUser(null);
         setLoading(false);
@@ -39,21 +45,8 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchProfile = async (authUser) => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', authUser.id)
-      .single();
-      
-    if (data) {
-      setUser({ ...authUser, ...data });
-    }
-    setLoading(false);
-  };
-
   const logout = async () => {
-    await supabase.auth.signOut();
+    await signOut();
     setUser(null);
     window.location.href = '/';
   };

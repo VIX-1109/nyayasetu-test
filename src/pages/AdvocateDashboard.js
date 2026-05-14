@@ -1,116 +1,22 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Scale, Calendar, CheckCircle2, Clock, Newspaper, Pen, User, BarChart3, MessageSquare, AlertCircle, Eye, TrendingUp, Settings } from 'lucide-react';
-import { toast } from 'sonner';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Inbox } from '@/components/Inbox';
+import { useAdvocateDashboard } from '@/hooks/useAdvocateDashboard';
 
 const AdvocateDashboard = ({ user, logout }) => {
-  const [profile, setProfile] = useState(null);
-  const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showProfileDialog, setShowProfileDialog] = useState(false);
-  const [profileData, setProfileData] = useState({
-    bar_council_number: '',
-    specializations: '',
-    experience_years: '',
-    location: '',
-    about: '',
-    phone: ''
-  });
-
-  useEffect(() => {
-    fetchProfile();
-    fetchAppointments();
-  }, []);
-
-  const fetchProfile = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('advocates')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-        
-      if (error) {
-        if (error.code === 'PGRST116') {
-          setShowProfileDialog(true);
-        } else {
-          throw error;
-        }
-      } else {
-        setProfile(data);
-        setProfileData({
-          bar_council_number: data.bar_council_number || '',
-          specializations: data.specializations?.join(', ') || '',
-          experience_years: data.experience_years || '',
-          location: data.location || '',
-          about: data.about || '',
-          phone: data.phone || ''
-        });
-      }
-    } catch (error) {
-      console.error('Failed to load profile');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchAppointments = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('appointments')
-        .select('*, profiles(name)')
-        .eq('advocate_id', user.id)
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      setAppointments(data);
-    } catch (error) {
-      console.error('Failed to load appointments');
-    }
-  };
-
-  const handleCreateProfile = async (e) => {
-    e.preventDefault();
-    try {
-      const data = {
-        id: user.id,
-        ...profileData,
-        specializations: profileData.specializations.split(',').map(s => s.trim()),
-        experience_years: parseInt(profileData.experience_years)
-      };
-      const { error } = await supabase.from('advocates').upsert(data);
-      if (error) throw error;
-      toast.success('Profile updated successfully!');
-      setShowProfileDialog(false);
-      fetchProfile();
-    } catch (error) {
-      toast.error(error.message || 'Failed to update profile');
-    }
-  };
-
-  const handleUpdateAppointmentStatus = async (appointmentId, status) => {
-    try {
-      const { error } = await supabase.from('appointments').update({ status }).eq('id', appointmentId);
-      if (error) throw error;
-      toast.success(`Appointment ${status}`);
-      fetchAppointments();
-    } catch (error) {
-      toast.error('Failed to update appointment');
-    }
-  };
-
-  const calculateProfileCompletion = () => {
-    if (!profile) return 0;
-    const fields = ['bar_council_number', 'specializations', 'experience_years', 'location', 'about', 'phone'];
-    const completed = fields.filter(f => profile[f] && (Array.isArray(profile[f]) ? profile[f].length > 0 : true)).length;
-    return Math.round((completed / fields.length) * 100);
-  };
+  const {
+    profile, appointments, loading,
+    showProfileDialog, setShowProfileDialog,
+    profileData, setProfileData,
+    handleCreateProfile,
+    handleUpdateAppointmentStatus,
+    calculateProfileCompletion
+  } = useAdvocateDashboard(user);
 
   if (loading) {
     return <div className="flex items-center justify-center h-screen bg-slate-50">Loading Dashboard...</div>;
@@ -196,10 +102,7 @@ const AdvocateDashboard = ({ user, logout }) => {
                 <h3 className="text-lg font-semibold serif text-[#0F172A] mb-4">Profile Completion</h3>
                 <div className="space-y-4">
                   <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-[#B45309] transition-all duration-1000" 
-                      style={{ width: `${calculateProfileCompletion()}%` }}
-                    ></div>
+                    <div className="h-full bg-[#B45309] transition-all duration-1000" style={{ width: `${calculateProfileCompletion()}%` }}></div>
                   </div>
                   <p className="text-sm text-slate-600 font-medium">{calculateProfileCompletion()}% Complete</p>
                   {calculateProfileCompletion() < 100 && (
@@ -267,17 +170,10 @@ const AdvocateDashboard = ({ user, logout }) => {
                           
                           {app.status === 'pending' && (
                             <div className="flex items-center gap-2">
-                              <Button 
-                                onClick={() => handleUpdateAppointmentStatus(app.id, 'confirmed')}
-                                className="bg-[#0F766E] text-white hover:bg-[#0F766E]/90 h-10 px-6 rounded-sm shadow-sm"
-                              >
+                              <Button onClick={() => handleUpdateAppointmentStatus(app.id, 'confirmed')} className="bg-[#0F766E] text-white hover:bg-[#0F766E]/90 h-10 px-6 rounded-sm shadow-sm">
                                 Accept
                               </Button>
-                              <Button 
-                                onClick={() => handleUpdateAppointmentStatus(app.id, 'cancelled')}
-                                variant="outline" 
-                                className="h-10 px-6 rounded-sm border-slate-200"
-                              >
+                              <Button onClick={() => handleUpdateAppointmentStatus(app.id, 'cancelled')} variant="outline" className="h-10 px-6 rounded-sm border-slate-200">
                                 Reject
                               </Button>
                             </div>
@@ -312,79 +208,32 @@ const AdvocateDashboard = ({ user, logout }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="bar_council_number">Bar Council Number</Label>
-                <Input
-                  id="bar_council_number"
-                  value={profileData.bar_council_number}
-                  onChange={(e) => setProfileData({...profileData, bar_council_number: e.target.value})}
-                  required
-                  className="h-11 rounded-sm"
-                />
+                <Input id="bar_council_number" value={profileData.bar_council_number} onChange={(e) => setProfileData({...profileData, bar_council_number: e.target.value})} required className="h-11 rounded-sm" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  value={profileData.phone}
-                  onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
-                  required
-                  className="h-11 rounded-sm"
-                />
+                <Input id="phone" value={profileData.phone} onChange={(e) => setProfileData({...profileData, phone: e.target.value})} required className="h-11 rounded-sm" />
               </div>
             </div>
-            
             <div className="space-y-2">
               <Label htmlFor="specializations">Specializations (comma separated)</Label>
-              <Input
-                id="specializations"
-                value={profileData.specializations}
-                onChange={(e) => setProfileData({...profileData, specializations: e.target.value})}
-                required
-                placeholder="Civil Litigation, Criminal Law, Family Law"
-                className="h-11 rounded-sm"
-              />
+              <Input id="specializations" value={profileData.specializations} onChange={(e) => setProfileData({...profileData, specializations: e.target.value})} required placeholder="Civil Litigation, Criminal Law, Family Law" className="h-11 rounded-sm" />
             </div>
-            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="experience_years">Years of Experience</Label>
-                <Input
-                  id="experience_years"
-                  type="number"
-                  value={profileData.experience_years}
-                  onChange={(e) => setProfileData({...profileData, experience_years: e.target.value})}
-                  required
-                  className="h-11 rounded-sm"
-                />
+                <Input id="experience_years" type="number" value={profileData.experience_years} onChange={(e) => setProfileData({...profileData, experience_years: e.target.value})} required className="h-11 rounded-sm" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="location">Location (City, State)</Label>
-                <Input
-                  id="location"
-                  value={profileData.location}
-                  onChange={(e) => setProfileData({...profileData, location: e.target.value})}
-                  required
-                  className="h-11 rounded-sm"
-                />
+                <Input id="location" value={profileData.location} onChange={(e) => setProfileData({...profileData, location: e.target.value})} required className="h-11 rounded-sm" />
               </div>
             </div>
-            
             <div className="space-y-2">
               <Label htmlFor="about">Professional Bio / About</Label>
-              <Textarea
-                id="about"
-                value={profileData.about}
-                onChange={(e) => setProfileData({...profileData, about: e.target.value})}
-                required
-                rows={5}
-                className="rounded-sm"
-                placeholder="Describe your legal background, notable cases, and consultation approach..."
-              />
+              <Textarea id="about" value={profileData.about} onChange={(e) => setProfileData({...profileData, about: e.target.value})} required rows={5} className="rounded-sm" placeholder="Describe your legal background, notable cases, and consultation approach..." />
             </div>
-            
-            <Button
-              type="submit"
-              className="w-full bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-12 rounded-sm font-bold shadow-md"
-            >
+            <Button type="submit" className="w-full bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-12 rounded-sm font-bold shadow-md">
               Update Profile Information
             </Button>
           </form>

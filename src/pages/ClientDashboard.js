@@ -1,48 +1,11 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
 import { Scale, Calendar, BookOpen, Newspaper, Star, MessageSquare, FileText, ChevronRight, Clock, CheckCircle2, User } from 'lucide-react';
-import { toast } from 'sonner';
 import { Inbox } from '@/components/Inbox';
+import { useClientDashboard } from '@/hooks/useClientDashboard';
 
 const CitizenDashboard = ({ user, logout }) => {
-  const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [savedAdvocates, setSavedAdvocates] = useState([
-    { id: 'demo-1', name: 'Adv. Meera Joshi', spec: 'Family Law', location: 'Pune' },
-    { id: 'demo-2', name: 'Adv. Karan Singh', spec: 'Property Law', location: 'Delhi' }
-  ]);
-
-  useEffect(() => {
-    fetchAppointments();
-  }, []);
-
-  const fetchAppointments = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('appointments')
-        .select('*, advocates(profiles(name))')
-        .eq('client_id', user.id)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      setAppointments(data);
-    } catch (error) {
-      toast.error('Failed to load consultations');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'confirmed': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-      case 'pending': return 'bg-amber-100 text-amber-800 border-amber-200';
-      case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-slate-100 text-slate-800 border-slate-200';
-    }
-  };
+  const { appointments, loading, savedAdvocates, getStatusColor } = useClientDashboard(user);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -64,7 +27,6 @@ const CitizenDashboard = ({ user, logout }) => {
       <main className="ns-page">
         <div className="max-w-7xl mx-auto space-y-10">
           
-          {/* Welcome Dashboard */}
           <section className="bg-[#0F172A] text-white rounded-sm p-8 md:p-12 shadow-xl relative overflow-hidden">
             <div className="relative z-10">
               <h1 className="text-4xl md:text-5xl font-bold serif mb-4">Welcome back, {user.name}</h1>
@@ -89,10 +51,8 @@ const CitizenDashboard = ({ user, logout }) => {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            {/* Left Column: Active Consultations & Messages */}
             <div className="lg:col-span-8 space-y-8">
               
-              {/* Active Consultation Request Cards */}
               <section>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-semibold serif text-[#0F172A]">Active Consultations</h2>
@@ -136,7 +96,6 @@ const CitizenDashboard = ({ user, logout }) => {
                 )}
               </section>
 
-              {/* Recent Messages */}
               <section className="bg-white border border-slate-200 rounded-sm shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-slate-100 flex items-center justify-between">
                   <h2 className="text-2xl font-semibold serif text-[#0F172A]">Recent Messages</h2>
@@ -148,10 +107,8 @@ const CitizenDashboard = ({ user, logout }) => {
               </section>
             </div>
 
-            {/* Right Column: Shortcuts, Saved, Documents */}
             <div className="lg:col-span-4 space-y-8">
               
-              {/* Shortcuts Grid */}
               <div className="grid grid-cols-2 gap-4">
                 <Link to="/ai-learning" className="bg-white border border-slate-200 p-5 rounded-sm shadow-sm hover:border-[#B45309] transition-colors group text-center">
                   <BookOpen className="h-6 w-6 text-[#B45309] mx-auto mb-3 group-hover:scale-110 transition-transform" />
@@ -163,7 +120,6 @@ const CitizenDashboard = ({ user, logout }) => {
                 </Link>
               </div>
 
-              {/* Recommended/Saved Advocates */}
               <section className="bg-white border border-slate-200 rounded-sm shadow-sm overflow-hidden">
                 <div className="p-5 border-b border-slate-100">
                   <h2 className="text-lg font-semibold serif text-[#0F172A] flex items-center gap-2">
@@ -189,7 +145,6 @@ const CitizenDashboard = ({ user, logout }) => {
                 </div>
               </section>
 
-              {/* Document Placeholder (Legal Wallet) */}
               <section className="bg-white border border-slate-200 rounded-sm shadow-sm overflow-hidden">
                 <div className="p-5 border-b border-slate-100 flex items-center justify-between">
                   <h2 className="text-lg font-semibold serif text-[#0F172A] flex items-center gap-2">
@@ -212,7 +167,6 @@ const CitizenDashboard = ({ user, logout }) => {
                 </div>
               </section>
 
-              {/* Latest Legal Awareness Shortcut */}
               <section className="bg-gradient-to-br from-[#B45309] to-[#92400E] text-white rounded-sm p-6 shadow-md">
                 <h3 className="font-semibold serif text-xl mb-2">Legal Awareness</h3>
                 <p className="text-xs text-amber-100 leading-relaxed mb-4">
