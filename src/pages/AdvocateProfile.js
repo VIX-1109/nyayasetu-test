@@ -158,10 +158,12 @@ const AdvocateProfile = ({ user, logout }) => {
                     <p className="text-base text-slate-600 mono mb-4">
                       Bar Council: {advocate.bar_council_number}
                     </p>
-                    <div className="bg-emerald-100 text-emerald-800 border border-emerald-200 px-3 py-1 text-xs font-bold uppercase tracking-wider flex items-center gap-1 rounded-sm w-fit" data-testid="profile-verified-badge">
-                      <CheckCircle2 className="h-4 w-4" />
-                      Verified Advocate
-                    </div>
+                    {advocate.verification_status === 'verified' && (
+                      <div className="bg-emerald-100 text-emerald-800 border border-emerald-200 px-3 py-1 text-xs font-bold uppercase tracking-wider flex items-center gap-1 rounded-sm w-fit" data-testid="profile-verified-badge">
+                        <CheckCircle2 className="h-4 w-4" />
+                        Verified Advocate
+                      </div>
+                    )}
                   </div>
                 </div>
 

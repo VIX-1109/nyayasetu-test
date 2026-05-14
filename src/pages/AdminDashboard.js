@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase, adminSupabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -76,13 +76,13 @@ const AdminDashboard = ({ user, logout }) => {
         
       if (advError) throw advError;
 
-      const mergedUsers = profilesData.map(p => {
-        const advData = advocatesData.find(a => a.id === p.id);
-        return {
-          ...p,
-          advocate_details: advData || null
-        };
-      });
+      // Create a map for faster lookup
+      const advMap = new Map(advocatesData.map(a => [a.id, a]));
+
+      const mergedUsers = profilesData.map(p => ({
+        ...p,
+        advocate_details: advMap.get(p.id) || null
+      }));
 
       setAllUsers(mergedUsers);
     } catch (error) {
@@ -104,16 +104,23 @@ const AdminDashboard = ({ user, logout }) => {
 
   const handleVerification = async (advocateId, status) => {
     try {
-      const { error } = await supabase
+      // verification_status is a generated column dependent on admin_verified and bar_verified
+      const updateData = status === 'verified' 
+        ? { admin_verified: true, bar_verified: true }
+        : { admin_verified: false, bar_verified: false };
+
+      const { error } = await adminSupabase
         .from('advocates')
-        .update({ verification_status: status })
+        .update(updateData)
         .eq('id', advocateId);
+        
       if (error) throw error;
       
       toast.success(`Advocate ${status} successfully`);
       fetchData();
     } catch (error) {
-      toast.error('Failed to update verification');
+      console.error('Update verification error:', error);
+      toast.error(`Failed to update: ${error.message || 'Unknown error'}`);
     }
   };
 
