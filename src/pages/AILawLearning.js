@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 const api = axios.create({ baseURL: `${process.env.REACT_APP_BACKEND_URL}/api` });
-import { supabase } from '@/lib/supabaseClient';
+import { saveAiQuery } from '@/services/aiService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Scale, Send, BookOpen, ChevronRight, FileText, CheckCircle2, Circle, Clock, Info } from 'lucide-react';
@@ -137,14 +137,9 @@ const AILawLearning = ({ user, logout }) => {
         setMessages(prev => [...prev, { role: 'assistant', content: result.content, analysis: result.simulation }]);
         if (user) {
           try {
-            await supabase.from('ai_queries').insert({
-              user_id: user.id,
-              question: userMessage,
-              answer_summary: result.content.slice(0, 500),
-              category: 'prototype'
-            });
-          } catch (e) {
-            // The prototype works even before an ai_queries table exists.
+            await saveAiQuery(user.id, userMessage, result.content);
+          } catch (historyError) {
+            console.error('Failed to save AI query history:', historyError);
           }
         }
       }

@@ -44,7 +44,7 @@ export const sendAdminWarning = async (adminId, userId, message) => {
   const { error } = await supabase.from('messages').insert({
     sender_id: adminId,
     receiver_id: userId,
-    content: `⚠️ ADMIN NOTICE: ${message}`
+    content: `ADMIN NOTICE: ${message}`
   });
   if (error) throw error;
 };

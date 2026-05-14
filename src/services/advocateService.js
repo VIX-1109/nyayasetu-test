@@ -44,9 +44,13 @@ export const getPendingAdvocates = async () => {
 };
 
 export const updateVerificationStatus = async (advocateId, status) => {
+  const updateData = status === 'verified'
+    ? { admin_verified: true, bar_verified: true }
+    : { admin_verified: false, bar_verified: false };
+
   const { error } = await supabase
     .from('advocates')
-    .update({ verification_status: status })
+    .update(updateData)
     .eq('id', advocateId);
   if (error) throw error;
 };

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getPosts, createPost } from '@/services/postService';
+import { getPosts, createPost, createComment, toggleReaction, reportPost } from '@/services/postService';
 import { toast } from 'sonner';
 
 const demoPosts = [
@@ -62,12 +62,17 @@ export const useJusticeFeed = (user) => {
           created_at: post.created_at,
           reactions: post.reactions_count || 0,
           comments_count: post.comments_count || 0,
-          has_liked: false,
-          comments: []
+          has_liked: Boolean(post.post_reactions?.some(reaction => reaction.user_id === user?.id)),
+          comments: (post.post_comments || []).map(comment => ({
+            id: comment.id,
+            author: comment.profiles?.name || 'NyayaSetu Member',
+            content: comment.content,
+            time: formatRelativeTime(comment.created_at)
+          }))
         })));
       }
     } catch (error) {
-      // Fallback to demo posts
+      toast.error('Could not load live feed. Showing demo posts.');
     } finally {
       setLoading(false);
     }
@@ -89,38 +94,78 @@ export const useJusticeFeed = (user) => {
       reactions: 0, comments_count: 0, has_liked: false, comments: []
     };
 
-    setPosts(prev => [newPost, ...prev]);
-    setContent('');
-    setIsAnonymous(false);
-    setIsModalOpen(false);
-    toast.success('Post published!');
-
     try {
-      await createPost({
+      const savedPost = await createPost({
         authorId: user.id, type, category,
         content: newPost.content,
         isVerified: newPost.verified,
         isAnonymous
       });
-    } catch (error) {}
+      setPosts(prev => [{
+        ...newPost,
+        id: savedPost.id,
+        created_at: savedPost.created_at
+      }, ...prev]);
+      setContent('');
+      setIsAnonymous(false);
+      setIsModalOpen(false);
+      toast.success('Post published!');
+    } catch (error) {
+      toast.error('Could not publish post.');
+    }
   };
 
-  const handleLike = (postId) => {
+  const handleLike = async (postId) => {
     if (!user) { toast.error('Please login to react to posts.'); return; }
-    setPosts(prev => prev.map(p => p.id === postId
-      ? { ...p, has_liked: !p.has_liked, reactions: p.has_liked ? p.reactions - 1 : p.reactions + 1 }
-      : p
-    ));
+    const target = posts.find(post => post.id === postId);
+    if (!target) return;
+
+    try {
+      const hasReacted = await toggleReaction({ postId, userId: user.id, hasReacted: target.has_liked });
+      setPosts(prev => prev.map(p => p.id === postId
+        ? { ...p, has_liked: hasReacted, reactions: hasReacted ? p.reactions + 1 : Math.max(0, p.reactions - 1) }
+        : p
+      ));
+    } catch (error) {
+      toast.error('Could not update reaction.');
+    }
   };
 
-  const handleComment = (postId, text) => {
-    setPosts(prev => prev.map(p => p.id === postId
-      ? { ...p, comments_count: p.comments_count + 1, comments: [...(p.comments || []), { id: Date.now(), author: user.name, content: text, time: 'Just now' }] }
-      : p
-    ));
+  const handleComment = async (postId, text) => {
+    if (!user) { toast.error('Please login to comment.'); return; }
+
+    try {
+      const savedComment = await createComment({ postId, authorId: user.id, content: text });
+      setPosts(prev => prev.map(p => p.id === postId
+        ? {
+            ...p,
+            comments_count: p.comments_count + 1,
+            comments: [...(p.comments || []), {
+              id: savedComment.id,
+              author: savedComment.profiles?.name || user.name,
+              content: savedComment.content,
+              time: 'Just now'
+            }]
+          }
+        : p
+      ));
+    } catch (error) {
+      toast.error('Could not add comment.');
+    }
   };
 
-  useEffect(() => { fetchPosts(); }, []);
+  const handleReport = async (postId) => {
+    if (!user) { toast.error('Please login to report posts.'); return; }
+
+    try {
+      await reportPost({ postId, reporterId: user.id });
+      toast.success('Report sent for admin review.');
+    } catch (error) {
+      toast.error('Could not report this post.');
+    }
+  };
+
+  useEffect(() => { fetchPosts(); }, [user?.id]);
 
   return {
     posts, loading,
@@ -129,6 +174,15 @@ export const useJusticeFeed = (user) => {
     category, setCategory,
     isAnonymous, setIsAnonymous,
     isModalOpen, setIsModalOpen,
-    handlePost, handleLike, handleComment
+    handlePost, handleLike, handleComment, handleReport
   };
+};
+
+const formatRelativeTime = (iso) => {
+  const diff = Date.now() - new Date(iso).getTime();
+  const minutes = Math.max(1, Math.floor(diff / 60000));
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return new Date(iso).toLocaleDateString();
 };

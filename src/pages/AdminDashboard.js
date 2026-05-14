@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase, adminSupabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,6 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Label } from '@/components/ui/label';
 import { Scale, CheckCircle2, XCircle, Search, AlertTriangle, Edit, BarChart3, Users, Newspaper, ShieldAlert, MoreHorizontal, Trash2, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
+import { getReportedPosts, updatePostStatus } from '@/services/postService';
+import { sendAdminWarning } from '@/services/messageService';
 
 const AdminDashboard = ({ user, logout }) => {
   const [pendingAdvocates, setPendingAdvocates] = useState([]);
@@ -92,11 +94,14 @@ const AdminDashboard = ({ user, logout }) => {
 
   const fetchReportedPosts = async () => {
     try {
-      // Mocking reported posts for prototype
-      setPosts([
-        { id: 1, title: 'Unverified Legal Advice', author: 'User X', reports: 5, status: 'visible' },
-        { id: 2, title: 'Inappropriate Content', author: 'User Y', reports: 3, status: 'visible' }
-      ]);
+      const reports = await getReportedPosts();
+      setPosts(reports.map(report => ({
+        id: report.posts.id,
+        title: report.posts.content,
+        author: report.posts.profiles?.name || 'NyayaSetu Member',
+        reports: report.posts.reports_count || 1,
+        status: report.posts.status
+      })));
     } catch (error) {
       console.error('Failed to load reported posts');
     }
@@ -109,7 +114,7 @@ const AdminDashboard = ({ user, logout }) => {
         ? { admin_verified: true, bar_verified: true }
         : { admin_verified: false, bar_verified: false };
 
-      const { error } = await adminSupabase
+      const { error } = await supabase
         .from('advocates')
         .update(updateData)
         .eq('id', advocateId);
@@ -129,11 +134,7 @@ const AdminDashboard = ({ user, logout }) => {
     if (!warningMessage.trim()) return;
     
     try {
-      await supabase.from('messages').insert({
-        sender_id: user.id,
-        receiver_id: selectedUser.id,
-        content: `⚠️ ADMIN NOTICE: ${warningMessage}`
-      });
+      await sendAdminWarning(user.id, selectedUser.id, warningMessage);
       
       toast.success('Warning sent successfully');
       setShowWarningDialog(false);
@@ -161,9 +162,16 @@ const AdminDashboard = ({ user, logout }) => {
     }
   };
 
-  const handlePostAction = (postId, action) => {
-    toast.success(`Post ${action === 'hide' ? 'hidden' : 'removed'} successfully`);
-    setPosts(prev => prev.map(p => p.id === postId ? { ...p, status: action === 'hide' ? 'hidden' : 'removed' } : p));
+  const handlePostAction = async (postId, action) => {
+    const nextStatus = action === 'hide' ? 'hidden' : 'removed';
+
+    try {
+      await updatePostStatus(postId, nextStatus);
+      toast.success(`Post ${nextStatus} successfully`);
+      setPosts(prev => prev.map(p => p.id === postId ? { ...p, status: nextStatus } : p));
+    } catch (error) {
+      toast.error('Failed to moderate post');
+    }
   };
 
   const filteredUsers = allUsers.filter(u => {
