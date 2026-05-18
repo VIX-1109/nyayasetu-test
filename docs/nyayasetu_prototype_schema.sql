@@ -3,7 +3,7 @@
 -- The live Supabase backend has been migrated with the reproducible migration
 -- stored at:
 --
---   supabase/migrations/20260515010000_backend_feed_ai_notifications_rls.sql
+--   backend/migrations/20260515010000_backend_feed_ai_notifications_rls.sql
 --
 -- Use that migration as the source of truth for the feed, comments, reactions,
 -- reports, AI query history, notifications, helper functions, triggers, indexes,
