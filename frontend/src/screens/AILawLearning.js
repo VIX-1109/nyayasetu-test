@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import axios from 'axios';
-const api = axios.create({ baseURL: `${process.env.REACT_APP_BACKEND_URL}/api` });
+const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.REACT_APP_BACKEND_URL;
+const api = axios.create({ baseURL: `${backendUrl}/api` });
 import { saveAiQuery } from '@/services/aiService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -123,7 +124,7 @@ const AILawLearning = ({ user, logout }) => {
     setLoading(true);
 
     try {
-      if (process.env.REACT_APP_BACKEND_URL) {
+      if (backendUrl) {
         const response = await api.post('/ai/chat', {
           message: userMessage,
           session_id: sessionId
@@ -156,17 +157,17 @@ const AILawLearning = ({ user, logout }) => {
     <div className="min-h-screen bg-[#F8FAFC]">
       <nav className="ns-nav">
         <div className="ns-nav-inner">
-          <Link to="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
             <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
           </Link>
           <div className="ns-nav-links">
-            <Link to="/advocates" className="text-slate-700 hover:text-[#0F172A] font-medium">
+            <Link href="/advocates" className="text-slate-700 hover:text-[#0F172A] font-medium">
               Find Advocates
             </Link>
             {user ? (
               <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                <Link to={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'}>
+                <Link href={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'}>
                   <Button className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-10 px-6 rounded-sm font-medium">
                     Dashboard
                   </Button>
@@ -176,7 +177,7 @@ const AILawLearning = ({ user, logout }) => {
                 </Button>
               </div>
             ) : (
-              <Link to="/auth">
+              <Link href="/auth">
                 <Button className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-10 px-6 rounded-sm font-medium">
                   Login
                 </Button>
@@ -195,8 +196,8 @@ const AILawLearning = ({ user, logout }) => {
               <h1 className="text-3xl font-semibold serif text-[#0F172A]">AI Law Learning</h1>
             </div>
 
-            <div className="bg-white border border-slate-200 rounded-sm shadow-sm overflow-hidden flex flex-col" style={{ height: '70vh' }}>
-              <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="bg-white border border-slate-200 rounded-sm shadow-sm overflow-hidden flex flex-col h-[68vh] min-h-[520px] lg:h-[70vh]">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
                 {messages.length === 0 ? (
                   <div className="text-center py-20 space-y-4">
                     <div className="bg-slate-50 inline-block p-4 rounded-full mb-2">
@@ -218,7 +219,7 @@ const AILawLearning = ({ user, logout }) => {
                 ) : (
                   messages.map((msg, idx) => (
                     <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[85%] space-y-3 ${msg.role === 'user' ? 'text-right' : ''}`}>
+                      <div className={`max-w-[92%] sm:max-w-[85%] space-y-3 ${msg.role === 'user' ? 'text-right' : ''}`}>
                         <div className={`rounded-sm p-4 ${
                           msg.role === 'user' 
                             ? 'bg-[#0F172A] text-white shadow-md' 
@@ -250,7 +251,7 @@ const AILawLearning = ({ user, logout }) => {
                 <div ref={messagesEndRef} />
               </div>
 
-              <form onSubmit={handleSend} className="border-t border-slate-200 p-4 bg-slate-50">
+              <form onSubmit={handleSend} className="border-t border-slate-200 p-3 sm:p-4 bg-slate-50">
                 <div className="flex gap-2">
                   <Input
                     value={input}
@@ -269,7 +270,7 @@ const AILawLearning = ({ user, logout }) => {
                 </div>
                 {!user && (
                   <p className="text-xs text-slate-500 mt-2 text-center">
-                    Please <Link to="/auth" className="text-[#B45309] font-medium hover:underline">login</Link> to use the AI legal assistant
+                    Please <Link href="/auth" className="text-[#B45309] font-medium hover:underline">login</Link> to use the AI legal assistant
                   </p>
                 )}
               </form>
@@ -325,7 +326,7 @@ const AILawLearning = ({ user, logout }) => {
                       </div>
                       
                       <div className="mt-8 pt-6 border-t border-slate-100">
-                        <Link to="/advocates">
+                        <Link href="/advocates">
                           <Button className="w-full bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-12 rounded-sm font-medium">
                             Consult verified advocate
                           </Button>

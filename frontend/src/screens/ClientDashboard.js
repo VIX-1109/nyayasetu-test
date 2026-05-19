@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Scale, Calendar, BookOpen, Newspaper, Star, MessageSquare, FileText, ChevronRight, Clock, CheckCircle2, User } from 'lucide-react';
 import { Inbox } from '@/components/Inbox';
@@ -11,14 +11,14 @@ const CitizenDashboard = ({ user, logout }) => {
     <div className="min-h-screen bg-[#F8FAFC]">
       <nav className="ns-nav">
         <div className="ns-nav-inner">
-          <Link to="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
             <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
           </Link>
           <div className="ns-nav-links">
-            <Link to="/advocates" className="text-slate-700 hover:text-[#0F172A] font-medium">Find Advocates</Link>
-            <Link to="/feed" className="text-slate-700 hover:text-[#0F172A] font-medium">Justice Feed</Link>
-            <Link to="/ai-learning" className="text-slate-700 hover:text-[#0F172A] font-medium">AI Learning</Link>
+            <Link href="/advocates" className="text-slate-700 hover:text-[#0F172A] font-medium">Find Advocates</Link>
+            <Link href="/feed" className="text-slate-700 hover:text-[#0F172A] font-medium">Justice Feed</Link>
+            <Link href="/ai-learning" className="text-slate-700 hover:text-[#0F172A] font-medium">AI Learning</Link>
             <Button onClick={logout} variant="ghost" className="text-slate-700">Logout</Button>
           </div>
         </div>
@@ -27,19 +27,19 @@ const CitizenDashboard = ({ user, logout }) => {
       <main className="ns-page">
         <div className="max-w-7xl mx-auto space-y-10">
           
-          <section className="bg-[#0F172A] text-white rounded-sm p-8 md:p-12 shadow-xl relative overflow-hidden">
+          <section className="bg-[#0F172A] text-white rounded-sm p-5 sm:p-8 md:p-12 shadow-xl relative overflow-hidden">
             <div className="relative z-10">
-              <h1 className="text-4xl md:text-5xl font-bold serif mb-4">Welcome back, {user.name}</h1>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold serif mb-4 break-words">Welcome back, {user.name}</h1>
               <p className="text-lg text-slate-300 max-w-2xl leading-relaxed">
                 Your secure legal command center. Manage consultations, track your legal learning journey, and securely access your case materials.
               </p>
               <div className="mt-8 flex flex-wrap gap-4">
-                <Link to="/ai-learning">
+                <Link href="/ai-learning">
                   <Button className="bg-[#B45309] hover:bg-[#B45309]/90 text-white px-6 h-12 rounded-sm font-medium">
                     Ask AI Assistant
                   </Button>
                 </Link>
-                <Link to="/advocates">
+                <Link href="/advocates">
                   <Button variant="outline" className="bg-transparent border-white text-white hover:bg-white hover:text-[#0F172A] px-6 h-12 rounded-sm font-medium">
                     New Consultation
                   </Button>
@@ -56,7 +56,7 @@ const CitizenDashboard = ({ user, logout }) => {
               <section>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-semibold serif text-[#0F172A]">Active Consultations</h2>
-                  <Link to="/advocates" className="text-sm font-medium text-[#B45309] hover:underline">Book New</Link>
+                  <Link href="/advocates" className="text-sm font-medium text-[#B45309] hover:underline">Book New</Link>
                 </div>
                 
                 {loading ? (
@@ -65,7 +65,7 @@ const CitizenDashboard = ({ user, logout }) => {
                   <div className="bg-white border border-dashed border-slate-300 rounded-sm p-12 text-center space-y-4">
                     <Calendar className="h-12 w-12 text-slate-300 mx-auto" />
                     <p className="text-slate-600">You have no active consultation requests.</p>
-                    <Link to="/advocates">
+                    <Link href="/advocates">
                       <Button variant="outline" className="rounded-sm border-[#B45309] text-[#B45309]">Find an Advocate</Button>
                     </Link>
                   </div>
@@ -109,12 +109,12 @@ const CitizenDashboard = ({ user, logout }) => {
 
             <div className="lg:col-span-4 space-y-8">
               
-              <div className="grid grid-cols-2 gap-4">
-                <Link to="/ai-learning" className="bg-white border border-slate-200 p-5 rounded-sm shadow-sm hover:border-[#B45309] transition-colors group text-center">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Link href="/ai-learning" className="bg-white border border-slate-200 p-5 rounded-sm shadow-sm hover:border-[#B45309] transition-colors group text-center">
                   <BookOpen className="h-6 w-6 text-[#B45309] mx-auto mb-3 group-hover:scale-110 transition-transform" />
                   <span className="text-sm font-semibold text-[#0F172A]">AI Help</span>
                 </Link>
-                <Link to="/feed" className="bg-white border border-slate-200 p-5 rounded-sm shadow-sm hover:border-[#0F766E] transition-colors group text-center">
+                <Link href="/feed" className="bg-white border border-slate-200 p-5 rounded-sm shadow-sm hover:border-[#0F766E] transition-colors group text-center">
                   <Newspaper className="h-6 w-6 text-[#0F766E] mx-auto mb-3 group-hover:scale-110 transition-transform" />
                   <span className="text-sm font-semibold text-[#0F172A]">Legal Feed</span>
                 </Link>
@@ -134,12 +134,12 @@ const CitizenDashboard = ({ user, logout }) => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="text-sm font-semibold text-[#0F172A] truncate">{adv.name}</h4>
-                        <p className="text-xs text-slate-500">{adv.spec} · {adv.location}</p>
+                        <p className="text-xs text-slate-500">{adv.spec} Â· {adv.location}</p>
                       </div>
                       <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-[#B45309] transition-colors" />
                     </div>
                   ))}
-                  <Link to="/advocates">
+                  <Link href="/advocates">
                     <Button variant="ghost" className="w-full text-xs text-slate-500 hover:text-[#B45309]">View more in directory</Button>
                   </Link>
                 </div>
@@ -172,7 +172,7 @@ const CitizenDashboard = ({ user, logout }) => {
                 <p className="text-xs text-amber-100 leading-relaxed mb-4">
                   Stay updated with the latest news on Tenant Rights, FIR processes, and Consumer Protection.
                 </p>
-                <Link to="/feed">
+                <Link href="/feed">
                   <Button variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white hover:text-[#B45309] h-10 rounded-sm text-xs font-medium">
                     Browse Latest Posts
                   </Button>

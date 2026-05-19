@@ -1,16 +1,16 @@
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { Scale, BookOpen, Users, Shield, ArrowRight, Newspaper, BadgeCheck, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Landing = ({ user, logout }) => {
   return (
     <div className="min-h-screen relative overflow-hidden">
-      <div 
-        className="absolute inset-0 -z-10 opacity-[0.5] pointer-events-none"
-        style={{ 
-          backgroundImage: 'url(/land_img.png)', 
-          backgroundSize: 'cover', 
-          backgroundPosition: 'center',
+      <div
+        className="absolute inset-0 -z-10 opacity-[0.7] pointer-events-none"
+        style={{
+          backgroundImage: 'url(/land_img.png)',
+          backgroundSize: 'contain',
+          backgroundPosition: 'center 15%',
           backgroundRepeat: 'no-repeat',
           minHeight: '100%'
         }}
@@ -22,18 +22,18 @@ const Landing = ({ user, logout }) => {
             <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
           </div>
           <div className="ns-nav-links">
-            <Link to="/advocates" className="text-slate-700 hover:text-[#0F172A] font-medium">
+            <Link href="/advocates" className="text-slate-700 hover:text-[#0F172A] font-medium">
               Find Advocates
             </Link>
-            <Link to="/feed" className="text-slate-700 hover:text-[#0F172A] font-medium">
+            <Link href="/feed" className="text-slate-700 hover:text-[#0F172A] font-medium">
               Justice Feed
             </Link>
-            <Link to="/ai-learning" className="text-slate-700 hover:text-[#0F172A] font-medium">
+            <Link href="/ai-learning" className="text-slate-700 hover:text-[#0F172A] font-medium">
               AI Law Learning
             </Link>
             {user ? (
               <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                <Link to={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'}>
+                <Link href={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'}>
                   <Button data-testid="dashboard-btn" className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-12 px-8 rounded-sm font-medium shadow-md transition-all hover:-translate-y-0.5">
                     Dashboard
                   </Button>
@@ -43,7 +43,7 @@ const Landing = ({ user, logout }) => {
                 </Button>
               </div>
             ) : (
-              <Link to="/auth">
+              <Link href="/auth">
                 <Button data-testid="login-btn" className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-12 px-8 rounded-sm font-medium shadow-md transition-all hover:-translate-y-0.5">
                   Login
                 </Button>
@@ -62,12 +62,12 @@ const Landing = ({ user, logout }) => {
             Connect with verified advocates across India. Get expert legal consultation and learn about your rights through AI-powered law education.
           </p>
           <div className="flex flex-wrap justify-center gap-4 pt-6">
-            <Link to="/advocates">
+            <Link href="/advocates">
               <Button data-testid="find-advocate-btn" className="bg-[#B45309] text-white hover:bg-[#B45309]/90 h-14 px-10 rounded-sm font-bold text-lg shadow-xl transition-all hover:-translate-y-1">
                 Find an Advocate <ArrowRight className="ml-2 h-6 w-6" />
               </Button>
             </Link>
-            <Link to="/ai-learning">
+            <Link href="/ai-learning">
               <Button data-testid="learn-law-btn" variant="outline" className="bg-white border-2 border-white text-[#0F172A] hover:bg-slate-50 h-14 px-10 rounded-sm font-bold text-lg transition-all hover:-translate-y-1">
                 Learn Law with AI
               </Button>
@@ -125,7 +125,7 @@ const Landing = ({ user, logout }) => {
                 Learn, discuss, and seek help around Nyaya
               </h2>
             </div>
-            <Link to="/feed" className="hidden md:block">
+            <Link href="/feed" className="hidden md:block">
               <Button className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-12 px-8 rounded-sm font-medium">
                 View Feed
               </Button>
@@ -172,7 +172,7 @@ const Landing = ({ user, logout }) => {
           <p className="text-lg md:text-xl leading-relaxed text-slate-700 mb-8">
             Whether you need legal consultation or want to understand your rights, NyayaSetu is your trusted platform.
           </p>
-          <Link to="/auth">
+          <Link href="/auth">
             <Button data-testid="get-started-btn" className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-12 px-8 rounded-sm font-medium shadow-md transition-all hover:-translate-y-0.5">
               Get Started Today
             </Button>
@@ -186,7 +186,7 @@ const Landing = ({ user, logout }) => {
             <Scale className="h-6 w-6" strokeWidth={1.5} />
             <span className="text-xl font-bold serif">NyayaSetu</span>
           </div>
-          <p className="text-slate-400">© 2026 NyayaSetu. Bridging the gap to justice.</p>
+          <p className="text-slate-400">Â© 2026 NyayaSetu. Bridging the gap to justice.</p>
         </div>
       </footer>
     </div>
@@ -194,5 +194,3 @@ const Landing = ({ user, logout }) => {
 };
 
 export default Landing;
-
-

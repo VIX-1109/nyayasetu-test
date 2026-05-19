@@ -1,23 +1,23 @@
-import { useParams, Link } from 'react-router-dom';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Scale, Send } from 'lucide-react';
 import { useMessages } from '@/hooks/useMessages';
 
-const Messages = ({ user, logout }) => {
-  const { userId } = useParams();
+const Messages = ({ user, logout, peerUserId }) => {
+  const userId = peerUserId;
   const { messages, input, setInput, loading, messagesEndRef, handleSend } = useMessages(user, userId);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       <nav className="ns-nav">
         <div className="ns-nav-inner">
-          <Link to="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
             <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
           </Link>
           <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-            <Link to={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'}>
+            <Link href={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'}>
               <Button className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-10 px-6 rounded-sm font-medium">Dashboard</Button>
             </Link>
             <Button onClick={logout} variant="ghost" className="text-slate-700">Logout</Button>
@@ -27,13 +27,13 @@ const Messages = ({ user, logout }) => {
 
       <div className="ns-page">
         <div className="max-w-4xl mx-auto">
-          <div className="bg-white border border-slate-200 shadow-sm rounded-sm overflow-hidden" style={{ height: '70vh' }} data-testid="messages-container">
+          <div className="bg-white border border-slate-200 shadow-sm rounded-sm overflow-hidden h-[68vh] min-h-[500px] lg:h-[70vh]" data-testid="messages-container">
             <div className="h-full flex flex-col">
               <div className="border-b border-slate-200 p-4">
                 <h2 className="text-xl font-semibold serif text-[#0F172A]">Messages</h2>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
                 {loading ? (
                   <div className="text-center py-12">Loading messages...</div>
                 ) : messages.length === 0 ? (
@@ -43,7 +43,7 @@ const Messages = ({ user, logout }) => {
                 ) : (
                   messages.map((msg) => (
                     <div key={msg.id} className={`flex ${msg.sender_id === user.id ? 'justify-end' : 'justify-start'}`} data-testid={`message-${msg.id}`}>
-                      <div className={`max-w-[70%] rounded-sm p-4 ${msg.sender_id === user.id ? 'bg-[#0F172A] text-white' : 'bg-slate-100 text-slate-900 border border-slate-200'}`}>
+                      <div className={`max-w-[88%] sm:max-w-[70%] rounded-sm p-3 sm:p-4 ${msg.sender_id === user.id ? 'bg-[#0F172A] text-white' : 'bg-slate-100 text-slate-900 border border-slate-200'}`}>
                         <p className="text-base leading-relaxed">{msg.content}</p>
                         <p className="text-xs mt-2 opacity-70">{new Date(msg.created_at).toLocaleString()}</p>
                       </div>

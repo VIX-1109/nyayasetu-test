@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -56,17 +56,17 @@ const AdvocateDirectory = ({ user, logout }) => {
         <div className="min-h-screen bg-[#F8FAFC]">
             <nav className="ns-nav">
                 <div className="ns-nav-inner">
-                    <Link to="/" className="flex items-center gap-2">
+                    <Link href="/" className="flex items-center gap-2">
                         <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
                         <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
                     </Link>
                     <div className="ns-nav-links">
-                        <Link to="/ai-learning" className="text-slate-700 hover:text-[#0F172A] font-medium">
+                        <Link href="/ai-learning" className="text-slate-700 hover:text-[#0F172A] font-medium">
                             AI Law Learning
                         </Link>
                         {user ? (
                             <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                                <Link to={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'}>
+                                <Link href={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'}>
                                     <Button data-testid="dashboard-nav-btn" className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-10 px-6 rounded-sm font-medium">
                                         Dashboard
                                     </Button>
@@ -76,7 +76,7 @@ const AdvocateDirectory = ({ user, logout }) => {
                                 </Button>
                             </div>
                         ) : (
-                            <Link to="/auth">
+                            <Link href="/auth">
                                 <Button data-testid="login-nav-btn" className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-10 px-6 rounded-sm font-medium">
                                     Login
                                 </Button>
@@ -181,7 +181,7 @@ const AdvocateDirectory = ({ user, logout }) => {
                                         </div>
                                         <div className="bg-slate-50 px-6 py-3 border-t border-slate-100">
                                             <span className="text-sm font-medium text-[#B45309] group-hover:underline">
-                                                View Profile →
+                                                View Profile {'>'}
                                             </span>
                                         </div>
                                     </div>
@@ -196,5 +196,3 @@ const AdvocateDirectory = ({ user, logout }) => {
 };
 
 export default AdvocateDirectory;
-
-

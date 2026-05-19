@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -11,9 +12,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-const AdvocateProfile = ({ user, logout }) => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+const AdvocateProfile = ({ user, logout, advocateId }) => {
+  const id = advocateId;
+  const router = useRouter();
   const [advocate, setAdvocate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showBooking, setShowBooking] = useState(false);
@@ -55,7 +56,7 @@ const AdvocateProfile = ({ user, logout }) => {
     e.preventDefault();
     if (!user) {
       toast.error('Please login to book an appointment');
-      navigate('/auth');
+      router.push('/auth');
       return;
     }
     if (user.role !== 'client') {
@@ -103,10 +104,10 @@ const AdvocateProfile = ({ user, logout }) => {
   const handleMessage = () => {
     if (!user) {
       toast.error('Please login to send a message');
-      navigate('/auth');
+      router.push('/auth');
       return;
     }
-    navigate(`/messages/${advocate.id}`);
+    router.push(`/messages/${advocate.id}`);
   };
 
   if (loading) {
@@ -121,17 +122,17 @@ const AdvocateProfile = ({ user, logout }) => {
     <div className="min-h-screen bg-[#F8FAFC]">
       <nav className="ns-nav">
         <div className="ns-nav-inner">
-          <Link to="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
             <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
           </Link>
           <div className="ns-nav-links">
-            <Link to="/advocates" className="text-slate-700 hover:text-[#0F172A] font-medium">
+            <Link href="/advocates" className="text-slate-700 hover:text-[#0F172A] font-medium">
               All Advocates
             </Link>
             {user && (
               <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                <Link to={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'}>
+                <Link href={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'}>
                   <Button className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-10 px-6 rounded-sm font-medium">
                     Dashboard
                   </Button>
@@ -372,5 +373,3 @@ const AdvocateProfile = ({ user, logout }) => {
 };
 
 export default AdvocateProfile;
-
-

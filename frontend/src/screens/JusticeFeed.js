@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { useJusticeFeed } from '@/hooks/useJusticeFeed';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -177,21 +177,21 @@ const JusticeFeed = ({ user, logout }) => {
     <div className="min-h-screen bg-[#F3F2EF]">
       <nav className="ns-nav shadow-sm bg-white border-b border-slate-200">
         <div className="ns-nav-inner max-w-6xl mx-auto px-4">
-          <Link to="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <div className="bg-[#0F172A] p-1.5 rounded-sm">
               <Scale className="h-6 w-6 text-white" strokeWidth={2} />
             </div>
             <span className="text-xl font-black serif text-[#0F172A] tracking-tighter">NyayaSetu</span>
           </Link>
-          <div className="ns-nav-links flex items-center gap-8">
-            <Link to="/advocates" className="text-slate-500 hover:text-[#0F172A] font-bold text-xs uppercase tracking-widest flex flex-col items-center gap-0.5"><User className="h-5 w-5" /> Experts</Link>
-            <Link to="/ai-learning" className="text-slate-500 hover:text-[#0F172A] font-bold text-xs uppercase tracking-widest flex flex-col items-center gap-0.5"><PenTool className="h-5 w-5" /> AI Help</Link>
+          <div className="ns-nav-links">
+            <Link href="/advocates" className="shrink-0 text-slate-500 hover:text-[#0F172A] font-bold text-[11px] md:text-xs uppercase tracking-widest flex items-center md:flex-col gap-1"><User className="h-4 w-4 md:h-5 md:w-5" /> Experts</Link>
+            <Link href="/ai-learning" className="shrink-0 text-slate-500 hover:text-[#0F172A] font-bold text-[11px] md:text-xs uppercase tracking-widest flex items-center md:flex-col gap-1"><PenTool className="h-4 w-4 md:h-5 md:w-5" /> AI Help</Link>
             {user ? (
-              <Link to={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'}>
-                <Button className="bg-[#B45309] text-white h-9 px-5 rounded-full font-bold text-xs shadow-lg hover:scale-105 transition-all">Dashboard</Button>
+              <Link href={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'}>
+                <Button className="bg-[#B45309] text-white h-9 px-4 md:px-5 rounded-full font-bold text-xs shadow-lg hover:scale-105 transition-all">Dashboard</Button>
               </Link>
             ) : (
-              <Link to="/auth"><Button className="bg-[#0F172A] text-white h-9 px-5 rounded-full font-bold text-xs">Join Now</Button></Link>
+              <Link href="/auth"><Button className="bg-[#0F172A] text-white h-9 px-4 md:px-5 rounded-full font-bold text-xs">Join Now</Button></Link>
             )}
           </div>
         </div>
@@ -201,7 +201,7 @@ const JusticeFeed = ({ user, logout }) => {
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 px-4">
           
           {/* Left Column: Profile Snapshot */}
-          <aside className="lg:col-span-3 space-y-4">
+          <aside className="order-2 lg:order-1 lg:col-span-3 space-y-4">
             <div className="bg-white border border-slate-200 rounded-sm overflow-hidden shadow-sm">
               <div className="h-16 bg-gradient-to-r from-[#0F172A] to-[#B45309]"></div>
               <div className="px-5 pb-5 -mt-8 text-center">
@@ -239,7 +239,7 @@ const JusticeFeed = ({ user, logout }) => {
           </aside>
 
           {/* Center Column: Posts */}
-          <section className="lg:col-span-6 space-y-4">
+          <section className="order-1 lg:order-2 lg:col-span-6 space-y-4">
             {/* Minimal Post Trigger */}
             {user && (
               <div className="bg-white border border-slate-200 rounded-sm p-4 shadow-sm space-y-3">
@@ -253,7 +253,7 @@ const JusticeFeed = ({ user, logout }) => {
                         Start a legal post or help request...
                       </button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-xl rounded-sm backdrop-blur-xl bg-white/95 border-slate-200 p-0 overflow-hidden shadow-2xl">
+                    <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-xl rounded-sm backdrop-blur-xl bg-white/95 border-slate-200 p-0 shadow-2xl">
                       <DialogHeader className="p-6 border-b border-slate-100 bg-white">
                         <DialogTitle className="serif text-2xl text-[#0F172A] flex items-center gap-3">
                           <div className="bg-[#B45309]/10 p-2 rounded-sm"><PenTool className="h-5 w-5 text-[#B45309]" /></div>
@@ -281,7 +281,7 @@ const JusticeFeed = ({ user, logout }) => {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="space-y-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Type</label>
                             <Select value={type} onValueChange={setType}>
@@ -376,7 +376,7 @@ const JusticeFeed = ({ user, logout }) => {
           </section>
 
           {/* Right Column: News & Trending */}
-          <aside className="lg:col-span-3 space-y-4">
+          <aside className="order-3 lg:col-span-3 space-y-4">
             <div className="bg-white border border-slate-200 rounded-sm p-4 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-bold serif text-[#0F172A] text-lg">NyayaSetu News</h3>
@@ -386,10 +386,10 @@ const JusticeFeed = ({ user, logout }) => {
                 {newsItems.map((news) => (
                   <li key={news.id} className="group cursor-pointer">
                     <h4 className="text-sm font-bold text-slate-800 leading-snug group-hover:text-[#B45309] group-hover:underline line-clamp-2">
-                      • {news.title}
+                      * {news.title}
                     </h4>
                     <p className="text-[10px] text-slate-400 mt-1 pl-3 font-bold uppercase tracking-tighter">
-                      {news.time} · {news.readers} readers
+                      {news.time} Â· {news.readers} readers
                     </p>
                   </li>
                 ))}
@@ -421,8 +421,8 @@ const JusticeFeed = ({ user, logout }) => {
 
             <div className="px-4 text-center">
               <p className="text-[10px] text-slate-400 leading-relaxed font-medium">
-                NyayaSetu © 2024. All Rights Reserved.<br />
-                About · Accessibility · Help Center
+                NyayaSetu Â© 2024. All Rights Reserved.<br />
+                About Â· Accessibility Â· Help Center
               </p>
             </div>
           </aside>

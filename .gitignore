@@ -10,6 +10,8 @@
 # production
 /build
 /frontend/build
+/.next
+/frontend/.next
 
 # misc
 .DS_Store

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabaseClient';
 import { MessageCircle } from 'lucide-react';
 
@@ -54,7 +54,7 @@ export const Inbox = ({ emptyHint }) => {
 
       setConversations(Object.values(convos));
     } catch (e) {
-      // silently ignore — keep dashboard rendering
+      // silently ignore - keep dashboard rendering
     } finally {
       setLoading(false);
     }
@@ -86,7 +86,7 @@ export const Inbox = ({ emptyHint }) => {
       </div>
 
       {loading ? (
-        <div className="text-center py-8 text-slate-500">Loading conversations…</div>
+        <div className="text-center py-8 text-slate-500">Loading conversations...</div>
       ) : conversations.length === 0 ? (
         <div className="text-center py-8 text-slate-600" data-testid="inbox-empty">
           {emptyHint || 'No conversations yet.'}
@@ -96,7 +96,7 @@ export const Inbox = ({ emptyHint }) => {
           {conversations.map((c) => (
             <Link
               key={c.user_id}
-              to={`/messages/${c.user_id}`}
+              href={`/messages/${c.user_id}`}
               className="block py-4 px-2 hover:bg-slate-50 transition-colors -mx-2 rounded-sm"
               data-testid={`inbox-item-${c.user_id}`}
             >
@@ -131,4 +131,3 @@ export const Inbox = ({ emptyHint }) => {
 };
 
 export default Inbox;
-

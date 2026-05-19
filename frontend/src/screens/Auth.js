@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { signIn, signUp, fetchProfile } from '@/services/authService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,7 @@ const Auth = ({ setUser }) => {
   const [name, setName] = useState('');
   const [role, setRole] = useState('client');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,9 +29,9 @@ const Auth = ({ setUser }) => {
       setUser(userObj);
       toast.success(isLogin ? 'Logged in successfully!' : 'Account created successfully!');
 
-      if (userObj.role === 'admin') navigate('/admin');
-      else if (userObj.role === 'advocate') navigate('/advocate/dashboard');
-      else navigate('/client/dashboard');
+      if (userObj.role === 'admin') router.push('/admin');
+      else if (userObj.role === 'advocate') router.push('/advocate/dashboard');
+      else router.push('/client/dashboard');
     } catch (error) {
       toast.error(error.message || 'Authentication failed');
     } finally {

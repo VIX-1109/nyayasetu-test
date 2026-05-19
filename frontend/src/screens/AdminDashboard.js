@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -184,7 +184,7 @@ const AdminDashboard = ({ user, logout }) => {
     <div className="min-h-screen bg-[#F8FAFC]">
       <nav className="ns-nav">
         <div className="ns-nav-inner">
-          <Link to="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
             <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
           </Link>
@@ -203,7 +203,7 @@ const AdminDashboard = ({ user, logout }) => {
               <h1 className="text-4xl font-bold serif text-[#0F172A]">Platform Administration</h1>
               <p className="text-slate-600">Oversee users, verify advocates, and moderate content.</p>
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full md:w-auto">
               <div className="bg-white border border-slate-200 px-4 py-2 rounded-sm text-center">
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">Total Users</p>
                 <p className="text-xl font-bold text-[#0F172A]">{allUsers.length}</p>
@@ -229,11 +229,11 @@ const AdminDashboard = ({ user, logout }) => {
             {/* User Management Tab */}
             <TabsContent value="users">
               <div className="bg-white border border-slate-200 shadow-sm rounded-sm overflow-hidden">
-                <div className="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="p-4 sm:p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <h2 className="text-xl font-semibold serif text-[#0F172A] flex items-center gap-2">
                     <Users className="h-5 w-5 text-slate-400" /> User Management
                   </h2>
-                  <div className="flex items-center gap-2 w-full md:w-auto">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full md:w-auto">
                     <div className="relative flex-1 md:w-64">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                       <Input 
@@ -244,7 +244,7 @@ const AdminDashboard = ({ user, logout }) => {
                       />
                     </div>
                     <Select value={roleFilter} onValueChange={setRoleFilter}>
-                      <SelectTrigger className="w-32 h-10 rounded-sm border-slate-200">
+                      <SelectTrigger className="w-full sm:w-32 h-10 rounded-sm border-slate-200">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -343,7 +343,7 @@ const AdminDashboard = ({ user, logout }) => {
                           </div>
                         </div>
                       </div>
-                      <div className="p-4 bg-white border-t border-slate-100 grid grid-cols-2 gap-2">
+                      <div className="p-4 bg-white border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <Button 
                           onClick={() => handleVerification(adv.id, 'verified')}
                           className="bg-emerald-600 hover:bg-emerald-700 text-white h-10 rounded-sm font-bold"
@@ -379,7 +379,7 @@ const AdminDashboard = ({ user, logout }) => {
                         <h4 className={`font-semibold ${post.status !== 'visible' ? 'text-slate-400 line-through' : 'text-[#0F172A]'}`}>
                           {post.title}
                         </h4>
-                        <p className="text-xs text-slate-500 mt-1">Author: {post.author} · <span className="text-red-500 font-bold">{post.reports} Reports</span></p>
+                        <p className="text-xs text-slate-500 mt-1">Author: {post.author} Â· <span className="text-red-500 font-bold">{post.reports} Reports</span></p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Button 
