@@ -22,7 +22,7 @@ const ProtectedPage = ({ roles, children }) => {
       router.replace('/auth');
       return;
     }
-    if (roles?.length && !roles.includes(user.role)) {
+    if (roles?.length && user?.role && !roles.includes(user.role)) {
       router.replace(dashboardFor(user.role));
     }
   }, [loading, user, roles, router]);
