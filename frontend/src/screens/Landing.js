@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Scale, BookOpen, Users, Shield, ArrowRight, Newspaper, BadgeCheck, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import AccountMenu from '@/components/AccountMenu';
 
 const Landing = ({ user, logout }) => {
   return (
@@ -31,24 +32,7 @@ const Landing = ({ user, logout }) => {
             <Link href="/ai-learning" className="text-slate-700 hover:text-[#0F172A] font-medium">
               AI Law Learning
             </Link>
-            {user ? (
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                <Link href={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'}>
-                  <Button data-testid="dashboard-btn" className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-12 px-8 rounded-sm font-medium shadow-md transition-all hover:-translate-y-0.5">
-                    Dashboard
-                  </Button>
-                </Link>
-                <Button data-testid="logout-btn" onClick={logout} variant="ghost" className="text-slate-700">
-                  Logout
-                </Button>
-              </div>
-            ) : (
-              <Link href="/auth">
-                <Button data-testid="login-btn" className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-12 px-8 rounded-sm font-medium shadow-md transition-all hover:-translate-y-0.5">
-                  Login
-                </Button>
-              </Link>
-            )}
+            <AccountMenu user={user} logout={logout} />
           </div>
         </div>
       </nav>

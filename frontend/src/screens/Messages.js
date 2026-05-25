@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Scale, Send } from 'lucide-react';
 import { useMessages } from '@/hooks/useMessages';
+import AccountMenu from '@/components/AccountMenu';
 
 const Messages = ({ user, logout, peerUserId }) => {
   const userId = peerUserId;
@@ -16,12 +17,7 @@ const Messages = ({ user, logout, peerUserId }) => {
             <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
             <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
           </Link>
-          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-            <Link href={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'}>
-              <Button className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-10 px-6 rounded-sm font-medium">Dashboard</Button>
-            </Link>
-            <Button onClick={logout} variant="ghost" className="text-slate-700">Logout</Button>
-          </div>
+          <AccountMenu user={user} logout={logout} />
         </div>
       </nav>
 

@@ -12,6 +12,7 @@ import { Scale, CheckCircle2, XCircle, Search, AlertTriangle, Edit, BarChart3, U
 import { toast } from 'sonner';
 import { getReportedPosts, updatePostStatus } from '@/services/postService';
 import { sendAdminWarning } from '@/services/messageService';
+import AccountMenu from '@/components/AccountMenu';
 
 const AdminDashboard = ({ user, logout }) => {
   const [pendingAdvocates, setPendingAdvocates] = useState([]);
@@ -190,7 +191,7 @@ const AdminDashboard = ({ user, logout }) => {
           </Link>
           <div className="ns-nav-links">
             <span className="text-slate-500 font-mono text-sm px-3 py-1 bg-slate-100 rounded-sm">ADMIN CONSOLE</span>
-            <Button onClick={logout} variant="ghost" className="text-slate-700">Logout</Button>
+            <AccountMenu user={user} logout={logout} />
           </div>
         </div>
       </nav>

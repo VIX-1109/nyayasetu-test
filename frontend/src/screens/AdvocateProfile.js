@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import AccountMenu from '@/components/AccountMenu';
 
 const AdvocateProfile = ({ user, logout, advocateId }) => {
   const id = advocateId;
@@ -130,18 +131,7 @@ const AdvocateProfile = ({ user, logout, advocateId }) => {
             <Link href="/advocates" className="text-slate-700 hover:text-[#0F172A] font-medium">
               All Advocates
             </Link>
-            {user && (
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                <Link href={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'}>
-                  <Button className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-10 px-6 rounded-sm font-medium">
-                    Dashboard
-                  </Button>
-                </Link>
-                <Button onClick={logout} variant="ghost" className="text-slate-700">
-                  Logout
-                </Button>
-              </div>
-            )}
+            <AccountMenu user={user} logout={logout} />
           </div>
         </div>
       </nav>

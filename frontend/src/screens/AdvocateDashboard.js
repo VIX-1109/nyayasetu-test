@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Calendar as CalendarUI } from '@/components/ui/calendar';
 import { Inbox } from '@/components/Inbox';
 import { useAdvocateDashboard } from '@/hooks/useAdvocateDashboard';
+import AccountMenu from '@/components/AccountMenu';
 
 const AdvocateDashboard = ({ user, logout }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -88,7 +89,7 @@ const AdvocateDashboard = ({ user, logout }) => {
           <div className="ns-nav-links">
             <Link href="/feed" className="text-slate-700 hover:text-[#0F172A] font-medium">Justice Feed</Link>
             <Link href="/ai-learning" className="text-slate-700 hover:text-[#0F172A] font-medium">AI Learning</Link>
-            <Button onClick={logout} variant="ghost" className="text-slate-700">Logout</Button>
+            <AccountMenu user={user} logout={logout} />
           </div>
         </div>
       </nav>

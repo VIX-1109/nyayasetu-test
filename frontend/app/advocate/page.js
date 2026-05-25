@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 
 export default function AdvocateRoot() {
-  redirect('/advocate/dashboard');
+  redirect('/advocate/verification');
   return null;
 }

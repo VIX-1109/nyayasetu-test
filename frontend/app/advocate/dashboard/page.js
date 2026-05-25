@@ -7,7 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 export default function AdvocateDashboardPage() {
   const { logout } = useAuth();
   return (
-    <ProtectedPage roles={['advocate']}>
+    <ProtectedPage roles={['advocate']} requireVerifiedAdvocate>
       {({ user }) => <AdvocateDashboard user={user} logout={logout} />}
     </ProtectedPage>
   );

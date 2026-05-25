@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Scale, Send, BookOpen, ChevronRight, FileText, CheckCircle2, Circle, Clock, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AccountMenu from '@/components/AccountMenu';
 
 const getPrototypeLegalResponse = (question) => {
   const text = question.toLowerCase();
@@ -165,24 +166,7 @@ const AILawLearning = ({ user, logout }) => {
             <Link href="/advocates" className="text-slate-700 hover:text-[#0F172A] font-medium">
               Find Advocates
             </Link>
-            {user ? (
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                <Link href={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'}>
-                  <Button className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-10 px-6 rounded-sm font-medium">
-                    Dashboard
-                  </Button>
-                </Link>
-                <Button onClick={logout} variant="ghost" className="text-slate-700">
-                  Logout
-                </Button>
-              </div>
-            ) : (
-              <Link href="/auth">
-                <Button className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-10 px-6 rounded-sm font-medium">
-                  Login
-                </Button>
-              </Link>
-            )}
+            <AccountMenu user={user} logout={logout} />
           </div>
         </div>
       </nav>

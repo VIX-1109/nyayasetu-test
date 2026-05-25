@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Scale, MapPin, Briefcase, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
+import AccountMenu from '@/components/AccountMenu';
 
 const AdvocateDirectory = ({ user, logout }) => {
   const [advocates, setAdvocates] = useState([]);
@@ -63,24 +64,7 @@ const AdvocateDirectory = ({ user, logout }) => {
             <Link href="/ai-learning" className="text-slate-700 hover:text-[#0F172A] font-medium">
               AI Law Learning
             </Link>
-            {user ? (
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                <Link href={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'}>
-                  <Button data-testid="dashboard-nav-btn" className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-10 px-6 rounded-sm font-medium">
-                    Dashboard
-                  </Button>
-                </Link>
-                <Button data-testid="logout-nav-btn" onClick={logout} variant="ghost" className="text-slate-700">
-                  Logout
-                </Button>
-              </div>
-            ) : (
-              <Link href="/auth">
-                <Button data-testid="login-nav-btn" className="bg-[#0F172A] text-white hover:bg-[#0F172A]/90 h-10 px-6 rounded-sm font-medium">
-                  Login
-                </Button>
-              </Link>
-            )}
+            <AccountMenu user={user} logout={logout} />
           </div>
         </div>
       </nav>
