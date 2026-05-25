@@ -3,7 +3,7 @@ import { getAdvocateProfile, upsertAdvocateProfile } from '@/services/advocateSe
 import { getAppointmentsByAdvocate, updateAppointmentStatus } from '@/services/appointmentService';
 import { toast } from 'sonner';
 
-export const useAdvocateDashboard = (user) => {
+export const useAdvocateDashboard = (user, options = {}) => {
   const [profile, setProfile] = useState(null);
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,6 +32,7 @@ export const useAdvocateDashboard = (user) => {
     } catch (error) {
       if (error.code === 'PGRST116') {
         setShowProfileDialog(true);
+        setProfile(null);
       }
     } finally {
       setLoading(false);
@@ -82,9 +83,12 @@ export const useAdvocateDashboard = (user) => {
   };
 
   useEffect(() => {
+    if (!user?.id) return;
     fetchProfile();
-    fetchAppointments();
-  }, []);
+    if (options.loadAppointments !== false) {
+      fetchAppointments();
+    }
+  }, [user?.id, options.loadAppointments]);
 
   return {
     profile, appointments, loading,

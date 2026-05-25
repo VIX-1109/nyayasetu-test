@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getSession, fetchProfile, onAuthStateChange, signOut } from '@/services/authService';
+import { getCurrentUser, fetchProfile, onAuthStateChange, signOut } from '@/services/authService';
 
 const AuthContext = createContext(null);
 
@@ -14,10 +14,10 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     let mounted = true;
 
-    getSession().then((session) => {
+    getCurrentUser().then((authUser) => {
       if (!mounted) return;
-      if (session) {
-        fetchProfile(session.user).then((profile) => {
+      if (authUser) {
+        fetchProfile(authUser).then((profile) => {
           if (!mounted) return;
           setUser(profile);
           setLoading(false);
@@ -28,8 +28,16 @@ export const AuthProvider = ({ children }) => {
     });
 
     const subscription = onAuthStateChange((_event, session) => {
-      if (session) {
-        fetchProfile(session.user).then((profile) => {
+      if (session?.user) {
+        getCurrentUser().then((authUser) => {
+          if (!authUser) {
+            setUser(null);
+            setLoading(false);
+            return;
+          }
+          return fetchProfile(authUser);
+        }).then((profile) => {
+          if (!profile) return;
           setUser(profile);
           setLoading(false);
         });
@@ -51,7 +59,14 @@ export const AuthProvider = ({ children }) => {
     router.push('/');
   };
 
-  const value = useMemo(() => ({ user, setUser, loading, logout }), [user, loading]);
+  const refreshUser = async () => {
+    const authUser = await getCurrentUser();
+    const profile = authUser ? await fetchProfile(authUser) : null;
+    setUser(profile);
+    return profile;
+  };
+
+  const value = useMemo(() => ({ user, setUser, loading, logout, refreshUser }), [user, loading]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

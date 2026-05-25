@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Scale, Calendar, BookOpen, Newspaper, Star, MessageSquare, FileText, ChevronRight, Clock, CheckCircle2, User } from 'lucide-react';
 import { Inbox } from '@/components/Inbox';
 import { useClientDashboard } from '@/hooks/useClientDashboard';
+import AccountMenu from '@/components/AccountMenu';
 
 const CitizenDashboard = ({ user, logout }) => {
   const { appointments, loading, savedAdvocates, getStatusColor } = useClientDashboard(user);
@@ -19,7 +20,7 @@ const CitizenDashboard = ({ user, logout }) => {
             <Link href="/advocates" className="text-slate-700 hover:text-[#0F172A] font-medium">Find Advocates</Link>
             <Link href="/feed" className="text-slate-700 hover:text-[#0F172A] font-medium">Justice Feed</Link>
             <Link href="/ai-learning" className="text-slate-700 hover:text-[#0F172A] font-medium">AI Learning</Link>
-            <Button onClick={logout} variant="ghost" className="text-slate-700">Logout</Button>
+            <AccountMenu user={user} logout={logout} />
           </div>
         </div>
       </nav>

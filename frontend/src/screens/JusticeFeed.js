@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Scale, BadgeCheck, BookOpen, Flag, Heart, MessageCircle, Newspaper, ShieldAlert, Send, User, Bookmark, Share2, AlertCircle, EyeOff, UserCircle, PenTool, Image as ImageIcon, Video, FileText, ChevronDown, Info } from 'lucide-react';
 import { toast } from 'sonner';
+import AccountMenu from '@/components/AccountMenu';
 
 const newsItems = [
   { id: 1, title: 'SC expands definition of "Vulnerability"', readers: '12k', time: '2h ago' },
@@ -186,13 +187,7 @@ const JusticeFeed = ({ user, logout }) => {
           <div className="ns-nav-links">
             <Link href="/advocates" className="shrink-0 text-slate-500 hover:text-[#0F172A] font-bold text-[11px] md:text-xs uppercase tracking-widest flex items-center md:flex-col gap-1"><User className="h-4 w-4 md:h-5 md:w-5" /> Experts</Link>
             <Link href="/ai-learning" className="shrink-0 text-slate-500 hover:text-[#0F172A] font-bold text-[11px] md:text-xs uppercase tracking-widest flex items-center md:flex-col gap-1"><PenTool className="h-4 w-4 md:h-5 md:w-5" /> AI Help</Link>
-            {user ? (
-              <Link href={user.role === 'admin' ? '/admin' : user.role === 'advocate' ? '/advocate/dashboard' : '/client/dashboard'}>
-                <Button className="bg-[#B45309] text-white h-9 px-4 md:px-5 rounded-full font-bold text-xs shadow-lg hover:scale-105 transition-all">Dashboard</Button>
-              </Link>
-            ) : (
-              <Link href="/auth"><Button className="bg-[#0F172A] text-white h-9 px-4 md:px-5 rounded-full font-bold text-xs">Join Now</Button></Link>
-            )}
+            <AccountMenu user={user} logout={logout} compact />
           </div>
         </div>
       </nav>
