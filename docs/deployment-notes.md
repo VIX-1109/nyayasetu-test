@@ -7,8 +7,7 @@ If the landing page appears as plain HTML with no styling, the CSS bundle is not
 Use one of these correct paths:
 
 - Local dev: run `npm run dev` inside `frontend`, then open the shown localhost URL.
-- Vercel (project `frontend`): connect the GitHub repo and keep **Root Directory** as repo root (`.`). The root `vercel.json` builds inside `frontend/` and copies `.next` to the repo root so Vercel can find `routes-manifest.json`.
-- If you set **Root Directory** to `frontend` in Vercel instead, remove the `cd frontend &&` prefixes from `vercel.json` (or delete root `vercel.json` and use defaults).
-- Deploy from `frontend/` for CLI: `npx vercel deploy --prod` (do not use the `emergent` project at repo root unless you intend to).
+- Vercel (project `frontend`): connect the GitHub repo with **Root Directory** set to `frontend` (Vercel → Project Settings → General). Use default Next.js build commands; do not add `cd frontend` overrides at the repo root.
+- Git pushes to the connected branch auto-deploy. For CLI: `cd frontend` then `npx vercel deploy --prod`.
 
 Do not deploy the old root `build/` folder. It is not the current app.
