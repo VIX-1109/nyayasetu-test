@@ -4,6 +4,7 @@ import axios from 'axios';
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.REACT_APP_BACKEND_URL;
 const api = axios.create({ baseURL: `${backendUrl}/api` });
 import { saveAiQuery } from '@/services/aiService';
+import { consumeAiQuerySlot } from '@/lib/aiRateLimit';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Scale, Send, BookOpen, ChevronRight, FileText, CheckCircle2, Circle, Clock, Info } from 'lucide-react';
@@ -116,6 +117,16 @@ const AILawLearning = ({ user, logout }) => {
 
     if (!user) {
       toast.error('Please login to use AI Law Learning');
+      return;
+    }
+
+    try {
+      const { remaining } = consumeAiQuerySlot(user.id);
+      if (remaining <= 3) {
+        toast.info(`${remaining} AI questions left this hour`);
+      }
+    } catch (error) {
+      toast.error(error.message);
       return;
     }
 

@@ -18,8 +18,12 @@ const AdvocateVerification = ({ user, logout }) => {
     profileData,
     setProfileData,
     handleCreateProfile,
-    calculateProfileCompletion
-  } = useAdvocateDashboard(user, { loadAppointments: false });
+    calculateProfileCompletion,
+    appointments,
+    handleUpdateAppointmentStatus,
+  } = useAdvocateDashboard(user);
+
+  const pendingAppointments = appointments.filter((app) => app.status === 'pending');
 
   if (loading) {
     return <div className="flex min-h-screen items-center justify-center bg-slate-50">Loading verification...</div>;
@@ -87,6 +91,43 @@ const AdvocateVerification = ({ user, logout }) => {
                 <p>
                   You can update verification details here. You will not appear as a verified advocate or access full advocate tools until admin approval.
                 </p>
+              </div>
+            )}
+
+            {pendingAppointments.length > 0 && (
+              <div className="mt-6 rounded-sm border border-[#0F766E]/30 bg-emerald-50/50 p-5">
+                <h2 className="serif text-xl font-semibold text-[#0F172A]">
+                  New consultation requests ({pendingAppointments.length})
+                </h2>
+                <p className="mt-1 text-sm text-slate-600">
+                  Citizens can book you before verification. Accept or reject requests here; full scheduling tools unlock after admin approval.
+                </p>
+                <div className="mt-4 space-y-3">
+                  {pendingAppointments.map((app) => (
+                    <div key={app.id} className="rounded-sm border border-slate-200 bg-white p-4">
+                      <p className="font-semibold text-[#0F172A]">{app.profiles?.name || 'Citizen'}</p>
+                      <p className="text-xs text-slate-500">{app.date} at {app.time}</p>
+                      <p className="mt-2 line-clamp-2 text-sm text-slate-600">{app.description}</p>
+                      <div className="mt-3 flex gap-2">
+                        <Button
+                          type="button"
+                          onClick={() => handleUpdateAppointmentStatus(app.id, 'confirmed')}
+                          className="h-9 rounded-sm bg-[#0F766E] px-4 text-white hover:bg-[#0F766E]/90"
+                        >
+                          Accept
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => handleUpdateAppointmentStatus(app.id, 'cancelled')}
+                          className="h-9 rounded-sm"
+                        >
+                          Reject
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 

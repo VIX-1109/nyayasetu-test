@@ -33,9 +33,9 @@ export const useAdvocateDashboard = (user, options = {}) => {
       if (error.code === 'PGRST116') {
         setShowProfileDialog(true);
         setProfile(null);
+      } else {
+        toast.error(error.message || 'Failed to load advocate profile');
       }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -44,7 +44,9 @@ export const useAdvocateDashboard = (user, options = {}) => {
       const data = await getAppointmentsByAdvocate(user.id);
       setAppointments(data);
     } catch (error) {
-      console.error('Failed to load appointments');
+      console.error('Failed to load appointments', error);
+      toast.error(error.message || 'Failed to load consultation requests');
+      setAppointments([]);
     }
   };
 
@@ -55,7 +57,7 @@ export const useAdvocateDashboard = (user, options = {}) => {
         id: user.id,
         ...profileData,
         specializations: profileData.specializations.split(',').map(s => s.trim()),
-        experience_years: parseInt(profileData.experience_years)
+        experience_years: parseInt(profileData.experience_years, 10)
       });
       toast.success('Profile updated successfully!');
       setShowProfileDialog(false);
@@ -71,7 +73,7 @@ export const useAdvocateDashboard = (user, options = {}) => {
       toast.success(`Appointment ${status}`);
       fetchAppointments();
     } catch (error) {
-      toast.error('Failed to update appointment');
+      toast.error(error.message || 'Failed to update appointment');
     }
   };
 
@@ -84,10 +86,26 @@ export const useAdvocateDashboard = (user, options = {}) => {
 
   useEffect(() => {
     if (!user?.id) return;
-    fetchProfile();
-    if (options.loadAppointments !== false) {
-      fetchAppointments();
-    }
+
+    let cancelled = false;
+
+    const load = async () => {
+      setLoading(true);
+      const tasks = [fetchProfile()];
+      if (options.loadAppointments !== false) {
+        tasks.push(fetchAppointments());
+      }
+      await Promise.all(tasks);
+      if (!cancelled) {
+        setLoading(false);
+      }
+    };
+
+    load();
+
+    return () => {
+      cancelled = true;
+    };
   }, [user?.id, options.loadAppointments]);
 
   return {
@@ -96,6 +114,7 @@ export const useAdvocateDashboard = (user, options = {}) => {
     profileData, setProfileData,
     handleCreateProfile,
     handleUpdateAppointmentStatus,
-    calculateProfileCompletion
+    calculateProfileCompletion,
+    refreshAppointments: fetchAppointments,
   };
 };

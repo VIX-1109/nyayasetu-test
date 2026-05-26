@@ -4,12 +4,13 @@ import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { signIn, signUp, fetchProfile, requestPasswordReset } from '@/services/authService';
 import { getPasswordValidationMessage } from '@/lib/passwordPolicy';
+import EmailVerificationPrompt from '@/components/EmailVerificationPrompt';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
-import { MailCheck, Scale } from 'lucide-react';
+import { Scale } from 'lucide-react';
 
 const Auth = ({ setUser }) => {
   const searchParams = useSearchParams();
@@ -76,14 +77,7 @@ const Auth = ({ setUser }) => {
           {isForgot ? 'Enter your email to receive a secure reset link' : isLogin ? 'Login to access your account' : 'Register to get started'}
         </p>
 
-        {verificationNotice && (
-          <div className="mb-6 flex gap-3 rounded-sm border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-            <MailCheck className="h-5 w-5 shrink-0 text-amber-700" />
-            <p>
-              Please check your email. NyayaSetu requires email verification before dashboard access.
-            </p>
-          </div>
-        )}
+        {verificationNotice && <EmailVerificationPrompt email={email} />}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {isRegister && (

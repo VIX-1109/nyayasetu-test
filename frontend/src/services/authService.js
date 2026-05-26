@@ -98,6 +98,17 @@ export const requestPasswordReset = async (email) => {
   if (error) throw normalizeAuthError(error);
 };
 
+export const resendVerificationEmail = async (email) => {
+  const { error } = await supabase.auth.resend({
+    type: 'signup',
+    email,
+    options: {
+      emailRedirectTo: getAuthRedirectUrl('/auth?confirmed=1')
+    }
+  });
+  if (error) throw normalizeAuthError(error);
+};
+
 export const updatePassword = async (password) => {
   const passwordResult = passwordSchema.safeParse(password);
   if (!passwordResult.success) {
