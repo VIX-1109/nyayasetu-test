@@ -12,6 +12,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AccountMenu from '@/components/AccountMenu';
+import { createAppointment } from '@/services/appointmentService';
+import { buildAppointmentPayload } from '@/lib/appointmentBooking';
 
 const AdvocateProfile = ({ user, logout, advocateId }) => {
   const id = advocateId;
@@ -77,15 +79,16 @@ const AdvocateProfile = ({ user, logout, advocateId }) => {
         description
       ].join('\n');
 
-      const { error } = await supabase.from('appointments').insert({
-        advocate_id: id,
-        client_id: user.id,
-        date,
-        time,
-        description: intakeDescription,
-        status: 'pending'
-      });
-      if (error) throw error;
+      await createAppointment(
+        buildAppointmentPayload({
+          advocateId: id,
+          clientId: user.id,
+          date,
+          time,
+          mode,
+          intakeDescription,
+        })
+      );
       toast.success('Consultation request sent successfully!');
       setShowBooking(false);
       setDate('');
@@ -96,7 +99,8 @@ const AdvocateProfile = ({ user, logout, advocateId }) => {
       setCity('');
       setDescription('');
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Failed to book appointment');
+      console.error('Book appointment failed:', error);
+      toast.error(error.message || 'Failed to book appointment');
     } finally {
       setBookingLoading(false);
     }

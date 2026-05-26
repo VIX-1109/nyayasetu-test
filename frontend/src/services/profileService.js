@@ -6,7 +6,8 @@ const editableProfileFields = [
   'city',
   'state',
   'language',
-  'bio'
+  'bio',
+  'avatar_url',
 ];
 
 const filterProfileUpdates = (updates) => {

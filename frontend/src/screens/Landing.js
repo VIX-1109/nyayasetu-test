@@ -18,18 +18,18 @@ const Landing = ({ user, logout }) => {
       />
       <nav className="ns-nav">
         <div className="ns-nav-inner">
-          <div className="flex items-center gap-2">
+          <Link href="/" className="flex shrink-0 items-center gap-2">
             <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
             <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
-          </div>
-          <div className="ns-nav-links">
+          </Link>
+          <div className="ns-nav-links justify-end">
             <Link href="/advocates" className="text-slate-700 hover:text-[#0F172A] font-medium">
               Find Advocates
             </Link>
             <Link href="/feed" className="text-slate-700 hover:text-[#0F172A] font-medium">
               Justice Feed
             </Link>
-            <Link href="/ai-learning" className="text-slate-700 hover:text-[#0F172A] font-medium">
+            <Link href="/ai-learning" className="hidden text-slate-700 hover:text-[#0F172A] font-medium sm:inline">
               AI Law Learning
             </Link>
             <AccountMenu user={user} logout={logout} />
@@ -170,7 +170,7 @@ const Landing = ({ user, logout }) => {
             <Scale className="h-6 w-6" strokeWidth={1.5} />
             <span className="text-xl font-bold serif">NyayaSetu</span>
           </div>
-          <p className="text-slate-400">Â© 2026 NyayaSetu. Bridging the gap to justice.</p>
+          <p className="text-slate-400">(c) 2026 NyayaSetu. Bridging the gap to justice.</p>
         </div>
       </footer>
     </div>

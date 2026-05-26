@@ -5,16 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { getDashboardPath } from '@/components/ProtectedPage';
 import { Bell, BriefcaseBusiness, CheckCircle2, FileText, LayoutDashboard, LogOut, Menu, MessageCircle, Settings, ShieldCheck, User, Users } from 'lucide-react';
-
-const initialsFor = (user) => {
-  const source = user?.name || user?.email || 'NS';
-  return source
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join('') || 'NS';
-};
+import UserAvatar from '@/components/UserAvatar';
 
 const roleLabel = (role) => {
   if (role === 'admin') return 'Platform Admin';
@@ -89,9 +80,7 @@ const AccountMenu = ({ user, logout, compact = false }) => {
         aria-expanded={open}
         data-testid="account-menu-button"
       >
-        <span className="grid h-8 w-8 place-items-center rounded-full bg-[#0F172A] text-xs font-bold text-white">
-          {initialsFor(user)}
-        </span>
+        <UserAvatar user={user} size="sm" />
         {!compact && (
           <span className="hidden min-w-0 sm:block">
             <span className="block max-w-[130px] truncate text-sm font-semibold text-[#0F172A]">{user.name || 'Account'}</span>
@@ -105,9 +94,7 @@ const AccountMenu = ({ user, logout, compact = false }) => {
         <div className="absolute right-0 z-50 mt-3 w-72 overflow-hidden rounded-sm border border-slate-200 bg-white shadow-xl" role="menu">
           <div className="border-b border-slate-100 p-4">
             <div className="flex items-center gap-3">
-              <div className="grid h-11 w-11 place-items-center rounded-full bg-[#0F172A] text-sm font-bold text-white">
-                {initialsFor(user)}
-              </div>
+              <UserAvatar user={user} size="md" />
               <div className="min-w-0">
                 <p className="truncate font-semibold text-[#0F172A]">{user.name || 'NyayaSetu Member'}</p>
                 <p className="truncate text-xs text-slate-500">{user.email}</p>

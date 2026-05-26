@@ -1,16 +1,20 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { updateOwnProfile } from '@/services/profileService';
+import { removeProfileAvatar, uploadProfileAvatar } from '@/services/avatarService';
+import { validateAvatarSourceFile } from '@/lib/avatar';
+import AvatarCropDialog from '@/components/AvatarCropDialog';
+import UserAvatar from '@/components/UserAvatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import AccountMenu from '@/components/AccountMenu';
 import { getDashboardPath } from '@/components/ProtectedPage';
-import { BadgeCheck, Lock, Scale, UserRound } from 'lucide-react';
+import { BadgeCheck, Camera, Lock, Scale, Trash2, UserRound } from 'lucide-react';
 import { toast } from 'sonner';
 
 const safeValue = (value) => value || '';
@@ -26,6 +30,16 @@ const Profile = () => {
     bio: ''
   });
   const [saving, setSaving] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [cropImageSrc, setCropImageSrc] = useState(null);
+  const fileInputRef = useRef(null);
+
+  useEffect(() => () => {
+    if (cropImageSrc) {
+      URL.revokeObjectURL(cropImageSrc);
+    }
+  }, [cropImageSrc]);
 
   useEffect(() => {
     if (!user) return;
@@ -41,6 +55,67 @@ const Profile = () => {
 
   const handleChange = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const clearCropPreview = () => {
+    if (cropImageSrc) {
+      URL.revokeObjectURL(cropImageSrc);
+    }
+    setCropImageSrc(null);
+  };
+
+  const handleAvatarSelect = (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file || !user) return;
+
+    try {
+      validateAvatarSourceFile(file);
+      clearCropPreview();
+      setCropImageSrc(URL.createObjectURL(file));
+      setCropDialogOpen(true);
+    } catch (error) {
+      toast.error(error.message || 'Invalid image file');
+    }
+  };
+
+  const handleCropConfirm = async (croppedFile) => {
+    if (!user) return;
+
+    setAvatarUploading(true);
+    try {
+      await uploadProfileAvatar(user.id, croppedFile);
+      await refreshUser();
+      toast.success('Profile picture updated');
+      setCropDialogOpen(false);
+      clearCropPreview();
+    } catch (error) {
+      toast.error(error.message || 'Unable to upload profile picture');
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
+  const handleCropDialogChange = (open) => {
+    if (!open && !avatarUploading) {
+      clearCropPreview();
+    }
+    setCropDialogOpen(open);
+  };
+
+  const handleRemoveAvatar = async () => {
+    if (!user?.avatar_url) return;
+
+    setAvatarUploading(true);
+    try {
+      await removeProfileAvatar(user.id);
+      await refreshUser();
+      toast.success('Profile picture removed');
+    } catch (error) {
+      toast.error(error.message || 'Unable to remove profile picture');
+    } finally {
+      setAvatarUploading(false);
+    }
   };
 
   const handleSubmit = async (event) => {
@@ -80,9 +155,7 @@ const Profile = () => {
           <aside className="lg:col-span-4">
             <section className="rounded-sm border border-slate-200 bg-white p-6 shadow-sm">
               <div className="mb-5 flex items-center gap-4">
-                <div className="grid h-16 w-16 place-items-center rounded-full bg-[#0F172A] text-xl font-bold text-white">
-                  {(user.name || user.email || 'NS').slice(0, 2).toUpperCase()}
-                </div>
+                <UserAvatar user={user} size="lg" />
                 <div className="min-w-0">
                   <h1 className="serif truncate text-2xl font-semibold text-[#0F172A]">{user.name || 'NyayaSetu Member'}</h1>
                   <p className="truncate text-sm text-slate-500">{user.email}</p>
@@ -134,6 +207,49 @@ const Profile = () => {
                 <BadgeCheck className="hidden h-8 w-8 text-emerald-700 md:block" />
               </div>
 
+              <div className="mb-8 rounded-sm border border-slate-200 bg-slate-50 p-5">
+                <Label className="mb-3 block text-sm font-semibold text-[#0F172A]">Profile picture</Label>
+                <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+                  <UserAvatar user={user} size="xl" />
+                  <div className="space-y-3">
+                    <p className="text-sm text-slate-600">
+                      Upload a clear photo (JPG, PNG, or WebP). You can crop and zoom before saving. Visible on your account menu and profile.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="hidden"
+                        onChange={handleAvatarSelect}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={avatarUploading}
+                        onClick={() => fileInputRef.current?.click()}
+                        className="h-10 rounded-sm border-slate-200"
+                      >
+                        <Camera className="mr-2 h-4 w-4" />
+                        {avatarUploading ? 'Uploading...' : user.avatar_url ? 'Change photo' : 'Upload photo'}
+                      </Button>
+                      {user.avatar_url && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={avatarUploading}
+                          onClick={handleRemoveAvatar}
+                          className="h-10 rounded-sm border-red-200 text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="profile-name">Full Name</Label>
@@ -177,6 +293,14 @@ const Profile = () => {
           </section>
         </div>
       </main>
+
+      <AvatarCropDialog
+        open={cropDialogOpen}
+        imageSrc={cropImageSrc}
+        onOpenChange={handleCropDialogChange}
+        onConfirm={handleCropConfirm}
+        confirming={avatarUploading}
+      />
     </div>
   );
 };

@@ -1,21 +1,47 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Scale, Calendar, CheckCircle2, Clock, Newspaper, Pen, User, BarChart3, MessageSquare, AlertCircle, Eye, TrendingUp, Settings } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Scale, Calendar, CheckCircle2, Clock, Newspaper, Pen, User, BarChart3, MessageSquare, AlertCircle, Eye, TrendingUp, Settings, ChevronRight } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Calendar as CalendarUI } from '@/components/ui/calendar';
 import { Inbox } from '@/components/Inbox';
 import { useAdvocateDashboard } from '@/hooks/useAdvocateDashboard';
 import AccountMenu from '@/components/AccountMenu';
 
+const getAppointmentDisplayStatus = (app) => {
+  let displayStatus = app.status;
+  if (!app.date) return displayStatus;
+
+  const apptDate = new Date(`${app.date}T${app.time || '00:00'}`);
+  const now = new Date();
+  if (app.status === 'completed' && apptDate > now) {
+    displayStatus = 'confirmed';
+  } else if (app.status === 'confirmed' && apptDate < now) {
+    displayStatus = 'completed';
+  }
+  return displayStatus;
+};
+
+const getStatusBadgeClass = (displayStatus) => {
+  if (displayStatus === 'confirmed') return 'bg-emerald-50 text-emerald-700 border-emerald-100';
+  if (displayStatus === 'pending') return 'bg-amber-50 text-amber-700 border-amber-100';
+  if (displayStatus === 'completed') return 'bg-blue-50 text-blue-700 border-blue-100';
+  if (displayStatus === 'cancelled') return 'bg-red-50 text-red-700 border-red-100';
+  return 'bg-slate-50 text-slate-600 border-slate-100';
+};
+
 const AdvocateDashboard = ({ user, logout }) => {
+  const router = useRouter();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [calendarModalOpen, setCalendarModalOpen] = useState(false);
+  const [appointmentDetailOpen, setAppointmentDetailOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [blockedDays, setBlockedDays] = useState([]);
   const [dayNotes, setDayNotes] = useState({});
   const [currentNote, setCurrentNote] = useState("");
@@ -31,6 +57,25 @@ const AdvocateDashboard = ({ user, logout }) => {
     handleUpdateAppointmentStatus,
     calculateProfileCompletion
   } = useAdvocateDashboard(user);
+
+  useEffect(() => {
+    if (!selectedAppointment?.id) return;
+    const updated = appointments.find((app) => app.id === selectedAppointment.id);
+    if (updated) {
+      setSelectedAppointment(updated);
+    }
+  }, [appointments, selectedAppointment?.id]);
+
+  const openAppointmentDetails = (app) => {
+    setSelectedAppointment(app);
+    setAppointmentDetailOpen(true);
+  };
+
+  const handleMessageClient = (clientId) => {
+    if (!clientId) return;
+    setAppointmentDetailOpen(false);
+    router.push(`/messages/${clientId}`);
+  };
 
   if (loading) {
     return <div className="flex items-center justify-center h-screen bg-slate-50">Loading Dashboard...</div>;
@@ -209,55 +254,94 @@ const AdvocateDashboard = ({ user, logout }) => {
                         No requests yet.
                       </div>
                     ) : (
-                      allAppointments.map((app) => (
-                        <div key={app.id} className="p-6 hover:bg-slate-50 transition-colors group">
-                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-3">
-                                <h4 className="font-bold text-[#0F172A] text-lg">{app.profiles?.name || 'Citizen'}</h4>
-                                {(() => {
-                                  let displayStatus = app.status;
-                                  if (app.date) {
-                                    const apptDate = new Date(`${app.date}T${app.time || '00:00'}`);
-                                    const now = new Date();
-                                    if (app.status === 'completed' && apptDate > now) {
-                                      displayStatus = 'confirmed';
-                                    } else if (app.status === 'confirmed' && apptDate < now) {
-                                      displayStatus = 'completed';
-                                    }
-                                  }
-                                  return (
-                                    <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded-sm border ${
-                                      displayStatus === 'confirmed' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
-                                      displayStatus === 'pending' ? 'bg-amber-50 text-amber-700 border-amber-100' :
-                                      displayStatus === 'completed' ? 'bg-blue-50 text-blue-700 border-blue-100' :
-                                      'bg-slate-50 text-slate-600 border-slate-100'
-                                    }`}>
-                                      {displayStatus}
-                                    </span>
-                                  );
-                                })()}
+                      allAppointments.map((app) => {
+                        const displayStatus = getAppointmentDisplayStatus(app);
+                        const isOffline = String(app.id).startsWith('offline-');
+
+                        return (
+                          <div
+                            key={app.id}
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => openAppointmentDetails(app)}
+                            onKeyDown={(event) => {
+                              if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault();
+                                openAppointmentDetails(app);
+                              }
+                            }}
+                            className="p-6 hover:bg-slate-50 transition-colors group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0F766E]/40"
+                          >
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                              <div className="space-y-2 min-w-0 flex-1">
+                                <div className="flex items-center gap-3">
+                                  <h4 className="font-bold text-[#0F172A] text-lg">{app.profiles?.name || 'Citizen'}</h4>
+                                  <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded-sm border ${getStatusBadgeClass(displayStatus)}`}>
+                                    {displayStatus}
+                                  </span>
+                                </div>
+                                <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 font-medium">
+                                  <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {app.date || 'Date TBD'}</span>
+                                  <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {app.time || 'Time TBD'}</span>
+                                </div>
+                                <p className="text-sm text-slate-600 max-w-xl line-clamp-2">{app.description || 'No details provided.'}</p>
                               </div>
-                              <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 font-medium">
-                                <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {app.date}</span>
-                                <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {app.time}</span>
+
+                              <div className="flex flex-wrap items-center gap-2 shrink-0">
+                                {app.status === 'pending' && !isOffline && (
+                                  <>
+                                    <Button
+                                      onClick={(event) => {
+                                        event.stopPropagation();
+                                        handleUpdateAppointmentStatus(app.id, 'confirmed');
+                                      }}
+                                      className="bg-[#0F766E] text-white hover:bg-[#0F766E]/90 h-10 px-6 rounded-sm shadow-sm"
+                                    >
+                                      Accept
+                                    </Button>
+                                    <Button
+                                      onClick={(event) => {
+                                        event.stopPropagation();
+                                        handleUpdateAppointmentStatus(app.id, 'cancelled');
+                                      }}
+                                      variant="outline"
+                                      className="h-10 px-6 rounded-sm border-slate-200"
+                                    >
+                                      Reject
+                                    </Button>
+                                  </>
+                                )}
+                                {app.client_id && (
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      handleMessageClient(app.client_id);
+                                    }}
+                                    className="h-10 rounded-sm border-slate-200"
+                                  >
+                                    <MessageSquare className="mr-2 h-4 w-4" />
+                                    Message
+                                  </Button>
+                                )}
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    openAppointmentDetails(app);
+                                  }}
+                                  className="h-10 text-[#B45309] hover:text-[#B45309]/80"
+                                >
+                                  View details
+                                  <ChevronRight className="ml-1 h-4 w-4" />
+                                </Button>
                               </div>
-                              <p className="text-sm text-slate-600 max-w-xl line-clamp-2">{app.description}</p>
                             </div>
-                            
-                            {app.status === 'pending' && (
-                              <div className="flex items-center gap-2">
-                                <Button onClick={() => handleUpdateAppointmentStatus(app.id, 'confirmed')} className="bg-[#0F766E] text-white hover:bg-[#0F766E]/90 h-10 px-6 rounded-sm shadow-sm">
-                                  Accept
-                                </Button>
-                                <Button onClick={() => handleUpdateAppointmentStatus(app.id, 'cancelled')} variant="outline" className="h-10 px-6 rounded-sm border-slate-200">
-                                  Reject
-                                </Button>
-                              </div>
-                            )}
                           </div>
-                        </div>
-                      ))
+                        );
+                      })
                     )}
                   </div>
                 </section>
@@ -301,6 +385,110 @@ const AdvocateDashboard = ({ user, logout }) => {
           </div>
         </div>
       </main>
+
+      <Dialog
+        open={appointmentDetailOpen}
+        onOpenChange={(open) => {
+          setAppointmentDetailOpen(open);
+          if (!open) setSelectedAppointment(null);
+        }}
+      >
+        <DialogContent className="max-w-lg rounded-sm">
+          {selectedAppointment && (() => {
+            const displayStatus = getAppointmentDisplayStatus(selectedAppointment);
+            const isOffline = String(selectedAppointment.id).startsWith('offline-');
+            const clientName = selectedAppointment.profiles?.name || 'Citizen';
+
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="serif text-2xl text-[#0F172A]">Consultation details</DialogTitle>
+                  <DialogDescription>
+                    Request from {clientName}
+                    {isOffline ? ' (offline schedule entry)' : ''}
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-4 py-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-sm text-slate-500">Status</span>
+                    <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded-sm border ${getStatusBadgeClass(displayStatus)}`}>
+                      {displayStatus}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="rounded-sm border border-slate-100 bg-slate-50 p-3">
+                      <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Date</p>
+                      <p className="mt-1 text-sm font-semibold text-[#0F172A]">{selectedAppointment.date || 'Not set'}</p>
+                    </div>
+                    <div className="rounded-sm border border-slate-100 bg-slate-50 p-3">
+                      <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Time</p>
+                      <p className="mt-1 text-sm font-semibold text-[#0F172A]">{selectedAppointment.time || 'Not set'}</p>
+                    </div>
+                  </div>
+                  {selectedAppointment.mode && (
+                    <div className="rounded-sm border border-slate-100 bg-slate-50 p-3">
+                      <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Mode</p>
+                      <p className="mt-1 text-sm font-semibold capitalize text-[#0F172A]">{selectedAppointment.mode}</p>
+                    </div>
+                  )}
+                  <div className="rounded-sm border border-slate-100 bg-slate-50 p-3">
+                    <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Case summary</p>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-700 whitespace-pre-wrap">
+                      {selectedAppointment.description || 'No details provided.'}
+                    </p>
+                  </div>
+                  {selectedAppointment.created_at && (
+                    <p className="text-xs text-slate-500">
+                      Requested on {new Date(selectedAppointment.created_at).toLocaleString()}
+                    </p>
+                  )}
+                </div>
+
+                <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:justify-between">
+                  <div className="flex flex-wrap gap-2">
+                    {selectedAppointment.status === 'pending' && !isOffline && (
+                      <>
+                        <Button
+                          onClick={async () => {
+                            await handleUpdateAppointmentStatus(selectedAppointment.id, 'confirmed');
+                          }}
+                          className="bg-[#0F766E] text-white hover:bg-[#0F766E]/90 h-10 rounded-sm"
+                        >
+                          Accept
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={async () => {
+                            await handleUpdateAppointmentStatus(selectedAppointment.id, 'cancelled');
+                          }}
+                          className="h-10 rounded-sm border-slate-200"
+                        >
+                          Reject
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2 sm:justify-end">
+                    {selectedAppointment.client_id ? (
+                      <Button
+                        type="button"
+                        onClick={() => handleMessageClient(selectedAppointment.client_id)}
+                        className="h-10 rounded-sm bg-[#0F172A] text-white hover:bg-[#0F172A]/90"
+                      >
+                        <MessageSquare className="mr-2 h-4 w-4" />
+                        Message client
+                      </Button>
+                    ) : (
+                      <p className="text-xs text-slate-500 self-center">Messaging is available for online bookings only.</p>
+                    )}
+                  </div>
+                </DialogFooter>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={showProfileDialog} onOpenChange={setShowProfileDialog}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-sm">

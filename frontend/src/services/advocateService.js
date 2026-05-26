@@ -30,11 +30,12 @@ export const getAdvocateProfile = async (advocateId) => {
 };
 
 export const upsertAdvocateProfile = async (profileData) => {
-  const { error } = await supabase.from('advocates').upsert({
-    ...profileData,
-    admin_verified: false,
-    bar_verified: false
-  });
+  const editableProfileData = { ...profileData };
+  delete editableProfileData.admin_verified;
+  delete editableProfileData.bar_verified;
+  delete editableProfileData.verification_status;
+
+  const { error } = await supabase.from('advocates').upsert(editableProfileData);
   if (error) throw error;
 };
 

@@ -1,6 +1,7 @@
 import '@/index.css';
 import '@/App.css';
 import { AuthProvider } from '@/context/AuthContext';
+import EmailVerificationOverlay from '@/components/EmailVerificationOverlay';
 import { Toaster } from 'sonner';
 
 export const metadata = {
@@ -14,6 +15,7 @@ export default function RootLayout({ children }) {
       <body>
         <AuthProvider>
           {children}
+          <EmailVerificationOverlay />
           <Toaster position="top-right" />
         </AuthProvider>
       </body>

@@ -110,23 +110,22 @@ const AdminDashboard = ({ user, logout }) => {
 
   const handleVerification = async (advocateId, status) => {
     try {
-      // verification_status is a generated column dependent on admin_verified and bar_verified
-      const updateData = status === 'verified' 
-        ? { admin_verified: true, bar_verified: true }
-        : { admin_verified: false, bar_verified: false };
-
+      const verified = status === 'verified';
       const { error } = await supabase
         .from('advocates')
-        .update(updateData)
+        .update({
+          admin_verified: verified,
+          bar_verified: verified,
+        })
         .eq('id', advocateId);
-        
+
       if (error) throw error;
-      
+
       toast.success(`Advocate ${status} successfully`);
-      fetchData();
+      fetchPendingAdvocates();
+      fetchAllUsers();
     } catch (error) {
-      console.error('Update verification error:', error);
-      toast.error(`Failed to update: ${error.message || 'Unknown error'}`);
+      toast.error(error.message || 'Failed to update advocate verification');
     }
   };
 
@@ -141,25 +140,50 @@ const AdminDashboard = ({ user, logout }) => {
       setShowWarningDialog(false);
       setWarningMessage('');
     } catch (error) {
-      toast.error('Failed to send warning');
+      toast.error(error.message || 'Failed to send warning');
     }
   };
 
   const handleEditUser = async (e) => {
     e.preventDefault();
+
     try {
+      const trimmedName = editData.name.trim();
+      const promotedToAdmin = editData.role === 'admin' && selectedUser?.role !== 'admin';
+
+      if (promotedToAdmin) {
+        const response = await fetch('/api/admin/promote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: selectedUser.id }),
+        });
+        const payload = await response.json();
+        if (!response.ok) {
+          throw new Error(payload.error || 'Failed to promote user');
+        }
+      }
+
+      const profileUpdates = {
+        name: trimmedName,
+        updated_at: new Date().toISOString(),
+      };
+
+      if (!promotedToAdmin) {
+        profileUpdates.role = editData.role;
+      }
+
       const { error } = await supabase
         .from('profiles')
-        .update({ name: editData.name, role: editData.role })
+        .update(profileUpdates)
         .eq('id', selectedUser.id);
-        
+
       if (error) throw error;
-      
+
       toast.success('User updated successfully');
       setShowEditDialog(false);
       fetchAllUsers();
     } catch (error) {
-      toast.error('Failed to update user');
+      toast.error(error.message || 'Failed to update user');
     }
   };
 
@@ -380,7 +404,7 @@ const AdminDashboard = ({ user, logout }) => {
                         <h4 className={`font-semibold ${post.status !== 'visible' ? 'text-slate-400 line-through' : 'text-[#0F172A]'}`}>
                           {post.title}
                         </h4>
-                        <p className="text-xs text-slate-500 mt-1">Author: {post.author} Â· <span className="text-red-500 font-bold">{post.reports} Reports</span></p>
+                        <p className="text-xs text-slate-500 mt-1">Author: {post.author} - <span className="text-red-500 font-bold">{post.reports} Reports</span></p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Button 

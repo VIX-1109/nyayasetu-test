@@ -21,14 +21,21 @@ export const getNewMessages = async (userId, otherUserId, afterTimestamp) => {
   return data;
 };
 
-export const sendMessage = async (senderId, receiverId, content) => {
-  const { data, error } = await supabase
-    .from('messages')
-    .insert({ sender_id: senderId, receiver_id: receiverId, content })
-    .select()
-    .single();
-  if (error) throw error;
-  return data;
+const postMessage = async ({ receiverId, content, adminNotice = false }) => {
+  const response = await fetch('/api/message', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ receiverId, content, adminNotice })
+  });
+  const payload = await response.json();
+  if (!response.ok) {
+    throw new Error(payload.error || 'Failed to send message');
+  }
+  return payload.message;
+};
+
+export const sendMessage = async (_senderId, receiverId, content) => {
+  return postMessage({ receiverId, content });
 };
 
 export const markMessagesAsRead = async (receiverId, senderId) => {
@@ -40,11 +47,6 @@ export const markMessagesAsRead = async (receiverId, senderId) => {
     .eq('is_read', false);
 };
 
-export const sendAdminWarning = async (adminId, userId, message) => {
-  const { error } = await supabase.from('messages').insert({
-    sender_id: adminId,
-    receiver_id: userId,
-    content: `ADMIN NOTICE: ${message}`
-  });
-  if (error) throw error;
+export const sendAdminWarning = async (_adminId, userId, message) => {
+  return postMessage({ receiverId: userId, content: message, adminNotice: true });
 };
