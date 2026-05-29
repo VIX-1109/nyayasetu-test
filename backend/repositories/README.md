@@ -9,10 +9,15 @@ Rules:
 - Do not decide product workflows here; services should do that.
 - Keep method names aligned with `backend/interfaces`.
 
-Example future files:
+Current files:
+
+- `message.repository.js`
+- `admin.repository.js`
+- `profile.repository.js`
+
+Planned files:
 
 - `feed.repository.js`
 - `advocate.repository.js`
 - `appointment.repository.js`
-- `message.repository.js`
 - `ai.repository.js`

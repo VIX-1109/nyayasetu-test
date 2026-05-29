@@ -1,6 +1,6 @@
 # Controllers
 
-Controllers are the future API entrypoints for HTTP routes, serverless functions, or Express handlers.
+Controllers are API entrypoints for HTTP routes, serverless functions, or future Express handlers.
 
 Rules:
 
@@ -9,10 +9,14 @@ Rules:
 - Return response objects and HTTP status codes.
 - Do not contain Supabase query logic.
 
-Example future files:
+Current files:
+
+- `message.controller.js`
+- `admin.controller.js`
+
+Planned files:
 
 - `feed.controller.js`
 - `advocate.controller.js`
 - `appointment.controller.js`
-- `message.controller.js`
 - `ai.controller.js`

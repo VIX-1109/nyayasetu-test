@@ -1,50 +1,91 @@
-# Backend Implementation Plan: Supabase (BaaS)
+# NyayaSetu Implementation Plan
 
-Based on your request, we will skip building a custom Node.js/SQLite backend and instead use a Backend-as-a-Service (BaaS). I recommend **Supabase** over Firebase for this specific project because your data (Users, Advocates, Appointments, Messages) is highly relational, and Supabase uses a powerful PostgreSQL database which fits this perfectly. 
+NyayaSetu is currently implemented as a modular monolith using Next.js, Supabase, and a separated backend module layer.
 
-## User Review Required
-> [!IMPORTANT]
-> To proceed with **Supabase**, you will need to:
-> 1. Create a free project at [Supabase.com](https://supabase.com).
-> 2. Provide me with the `REACT_APP_SUPABASE_URL` and `REACT_APP_SUPABASE_ANON_KEY` once created.
-> 
-> *Alternatively, if you strongly prefer **Firebase**, let me know and I will adjust the plan for NoSQL/Firestore.*
+The goal is to keep the MVP fast to build while still organizing the code in a way that can grow into a larger legal-tech platform.
 
-## Proposed Architecture Changes
+## Current Architecture
 
-Since we are moving to a BaaS, we won't need a separate `/backend` folder. Instead, we will directly integrate Supabase into your React frontend.
+```txt
+frontend/
+  app/
+    api/              Next.js server routes
+    ...               pages and route entries
+  src/
+    components/       reusable UI
+    hooks/            client-side feature hooks
+    lib/              Supabase/browser helpers
+    screens/          major app screens
+    services/         frontend client helpers
 
-### 1. SDK Integration
-- Install `@supabase/supabase-js`.
-- Replace the current `axios` (`api.post`, `api.get`) calls in your frontend with Supabase SDK calls.
-- Update `App.js`, `Auth.js`, and all dashboard pages to use Supabase Auth and Database queries.
+backend/
+  controllers/        request/API handling
+  services/           business rules and workflows
+  repositories/       Supabase/Postgres access
+  interfaces/         module contracts
+  migrations/         database schema and RLS
+```
 
-### 2. Database Schema (Supabase PostgreSQL)
-I will provide you with a SQL script to run in your Supabase SQL Editor to instantly create these tables:
-1. **users**: Extends Supabase Auth with roles (client, advocate, admin) and names.
-2. **advocate_profiles**: Bio, specialization, experience, verification status.
-3. **appointments**: Links clients to advocates, holds dates, times, and status.
-4. **messages**: Sender/receiver logic and timestamps.
+## Runtime Backend
 
-### 3. Frontend Refactoring Strategy
+The backend currently runs through:
 
-We will update the frontend files systematically to replace the mock API calls:
+- Next.js API routes in `frontend/app/api/`
+- Supabase Auth
+- Supabase Postgres
+- Supabase RLS policies
+- Supabase RPC functions and triggers
 
-#### Auth (`Auth.js`, `App.js`)
-- Use `supabase.auth.signUp()` and `supabase.auth.signInWithPassword()`.
-- Use `supabase.auth.getSession()` to maintain user state.
+The API routes should stay thin. New backend logic should follow:
 
-#### Advocates (`AdvocateDirectory.js`, `AdvocateProfile.js`, `AdvocateDashboard.js`)
-- Use `supabase.from('advocates_view').select('*')` to list and filter advocates.
+```txt
+API route -> controller -> service -> repository -> Supabase
+```
 
-#### Appointments & Messages (`ClientDashboard.js`, `Messages.js`)
-- Use Supabase queries to insert and fetch appointments and real-time chat messages.
+## Implemented MVP Areas
 
-#### AI Learning
-- Supabase doesn't have a built-in AI chat endpoint natively (without edge functions). If you have an OpenAI/Gemini API key, we can call it directly from the frontend, or mock this specific feature for now.
+- Authentication and profile handling
+- Email verification prompt
+- Forgot/reset password flow
+- Role separation for client, advocate, and admin
+- Advocate verification data and RLS hardening
+- Advocate discovery/profile support
+- Justice Feed data model
+- Secure messaging route
+- Admin promotion route
+- Profile avatar support
+- AI legal learning prototype
+- Basic AI query history
+- Custom 404 page
+- Vercel deployment notes
 
-## Verification Plan
+## Near-Term Priorities
 
-### Manual Verification
-- **Auth**: User can successfully register and login, and their data appears in your Supabase dashboard.
-- **Appointments & Messages**: Data correctly reads and writes from Supabase tables without permissions errors.
+1. Complete appointment booking UI.
+2. Add tests for auth, messaging, admin promotion, and advocate verification.
+3. Move more feature logic into backend modules:
+   - feed
+   - advocates
+   - appointments
+   - AI query history
+4. Improve mobile responsiveness page by page.
+5. Clean or remove old generated output that is not part of the current Next.js app.
+
+## On Hold
+
+Real paid AI integration is intentionally on hold for the MVP. The AI assistant can remain a prototype until there is budget, investor interest, or mentor validation.
+
+Before connecting paid AI, add server-side rate limiting and cost controls.
+
+## Deployment Rule
+
+The active app is inside `frontend/`.
+
+For Vercel, the project should use:
+
+- Root Directory: `frontend`
+- Framework: `Next.js`
+- Build Command: `npm run build`
+- Install Command: `npm install`
+
+Do not deploy the old root `build/` folder.

@@ -1,9 +1,12 @@
-﻿# NyayaSetu
+# NyayaSetu
 
-NyayaSetu is organized as a two-part project:
+NyayaSetu is a legal-tech prototype for advocate discovery, justice-focused social posts, secure messaging, dashboards, and basic AI legal learning.
 
-- `frontend/` contains the React, Tailwind, shadcn UI, and Supabase client application deployed on Vercel.
-- `backend/` contains the backend structure, Supabase migrations, and planned controller/service/repository contracts.
+The project is organized as a modular monolith:
+
+- `frontend/` contains the Next.js, React, Tailwind, shadcn UI, and Supabase client application deployed on Vercel.
+- `backend/` contains backend controllers, services, repositories, interfaces, and Supabase migrations.
+- `docs/` contains operational notes such as deployment guidance.
 
 ## Frontend
 
@@ -11,8 +14,8 @@ Run the web app from the frontend folder:
 
 ```bash
 cd frontend
-npm install --legacy-peer-deps
-npm run start
+npm install
+npm run dev
 ```
 
 Build locally:
@@ -22,15 +25,31 @@ cd frontend
 npm run build
 ```
 
-Copy `frontend/.env.example` to `frontend/.env` for local frontend development. Only put public frontend variables there. Do not put Supabase service-role keys in the frontend app.
+The build uses webpack because the Next.js API routes import backend modules from the sibling `backend/` folder.
 
 ## Backend
 
-The current prototype uses Supabase as the backend. Database migrations live in `backend/migrations/`.
+The current backend runtime is:
 
-The backend folder is organized for the mentor-requested layering:
+- Next.js API routes in `frontend/app/api/`
+- Supabase Auth, Postgres, RLS policies, functions, and migrations
+- Shared backend modules in `backend/`
 
-- `controllers/`: request/API entrypoints when a Node/Express or serverless backend is added.
-- `services/`: business logic and workflow orchestration.
-- `repositories/`: database access and Supabase/Postgres queries.
-- `interfaces/`: shared contracts for modules, data shapes, and service boundaries.
+The API routes are intentionally thin wrappers. Product logic lives in:
+
+- `backend/controllers/`: request/API handling
+- `backend/services/`: business rules and workflows
+- `backend/repositories/`: Supabase/Postgres access
+- `backend/interfaces/`: module contracts and data shapes
+- `backend/migrations/`: schema, RLS, triggers, and database functions
+
+## Environment
+
+Use public frontend variables only in the frontend app:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+```
+
+Never put service-role keys, database passwords, OpenAI secrets, or payment secrets in frontend env files.

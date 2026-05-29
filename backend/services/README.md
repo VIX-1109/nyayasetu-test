@@ -9,10 +9,14 @@ Rules:
 - Keep UI, routing, and database-specific details out of the service interface.
 - Return domain-friendly results to controllers.
 
-Example future files:
+Current files:
+
+- `message.service.js`
+- `admin.service.js`
+
+Planned files:
 
 - `feed.service.js`
 - `advocate.service.js`
 - `appointment.service.js`
-- `message.service.js`
 - `ai.service.js`
