@@ -1,4 +1,5 @@
 # NyayaSetu
+![Vercel Deployments](https://img.shields.io/github/deployments/VIX-1109/NyayaSetu/production?label=vercel&logo=vercel)
 
 NyayaSetu is a legal-tech prototype for advocate discovery, justice-focused social posts, secure messaging, dashboards, and basic AI legal learning.
 
