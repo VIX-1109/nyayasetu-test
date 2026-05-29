@@ -1,18 +1,33 @@
 # Backend
 
-This backend folder is structured for a controller-service-repository architecture while the prototype uses Supabase for the actual backend runtime.
+The backend folder contains the modular backend layer for NyayaSetu.
+
+The current production runtime is still a Next.js + Supabase architecture, but the backend logic is separated into controller-service-repository modules so the project can grow cleanly without becoming a pile of API-route code.
 
 ## Layers
 
-- `controllers/`: HTTP/serverless entrypoints. Controllers validate request shape, call services, and format responses.
-- `services/`: business workflows. Services decide what should happen, coordinate repositories, and enforce product rules.
-- `repositories/`: persistence layer. Repositories contain Supabase/Postgres queries and should not contain UI logic.
+- `controllers/`: request/API entrypoints. Controllers parse request data, call services, and return response objects.
+- `services/`: business workflows. Services enforce product rules and coordinate repositories.
+- `repositories/`: persistence layer. Repositories contain Supabase/Postgres queries and RPC calls.
 - `interfaces/`: module contracts. Interfaces define expected data shapes and method boundaries so different people can work independently.
 - `migrations/`: database schema, RLS policies, functions, triggers, and indexes.
 
+## Current Implemented Modules
+
+- Admin promotion flow
+- Secure message sending flow
+- Supabase migrations for auth hardening, feed, appointments, AI query history, profile avatars, RLS, and verification rules
+
 ## Current Prototype Backend
 
-The current working backend is Supabase:
+NyayaSetu currently uses:
+
+- Supabase Auth and profiles
+- Supabase Postgres with RLS
+- Next.js API routes in `frontend/app/api/`
+- Backend modules in this folder
+
+Current backend-supported areas include:
 
 - Auth and profiles
 - Advocate verification data
@@ -22,4 +37,12 @@ The current working backend is Supabase:
 - AI query history
 - Notifications
 
-When a Node.js or serverless backend is introduced later, use these folders instead of placing business logic directly inside React pages.
+## Development Rule
+
+Do not put business logic directly inside React pages or large API route files.
+
+Use this flow:
+
+```txt
+API route -> controller -> service -> repository -> Supabase
+```
