@@ -48,7 +48,7 @@ const ProtectedPage = ({ roles, requireEmailConfirmed = true, requireVerifiedAdv
     return null;
   }
 
-  return children({ user });
+  return typeof children === 'function' ? children({ user }) : children;
 };
 
 export default ProtectedPage;
