@@ -136,76 +136,98 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      <nav className="ns-nav">
+      <nav className="ns-nav sticky top-0 z-50 bg-white/95 backdrop-blur-sm">
         <div className="ns-nav-inner">
           <Link href="/" className="flex items-center gap-2">
             <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
             <span className="serif text-2xl font-bold text-[#0F172A]">NyayaSetu</span>
           </Link>
           <div className="ns-nav-links">
-            <Link href="/advocates" className="font-medium text-slate-700 hover:text-[#0F172A]">Find Advocates</Link>
-            <Link href="/feed" className="font-medium text-slate-700 hover:text-[#0F172A]">Justice Feed</Link>
+            <Link href="/advocates" className="font-medium text-slate-600 hover:text-[#0F172A] text-sm transition-colors">Find Advocates</Link>
+            <Link href="/feed" className="font-medium text-slate-600 hover:text-[#0F172A] text-sm transition-colors">Justice Feed</Link>
             <AccountMenu user={user} logout={logout} />
           </div>
         </div>
       </nav>
 
+      {/* Profile Hero Banner */}
+      <div
+        className="w-full px-4 sm:px-6 md:px-12 lg:px-24 py-10"
+        style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)' }}
+      >
+        <div className="max-w-6xl mx-auto flex items-center gap-5">
+          <UserAvatar user={user} size="lg" />
+          <div>
+            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">My Account</p>
+            <h1 className="serif text-3xl font-bold text-white">{user.name || 'NyayaSetu Member'}</h1>
+            <p className="text-slate-400 text-sm mt-0.5">{user.email}</p>
+          </div>
+        </div>
+      </div>
+
       <main className="ns-page">
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 lg:grid-cols-12">
           <aside className="lg:col-span-4">
-            <section className="rounded-sm border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="mb-5 flex items-center gap-4">
-                <UserAvatar user={user} size="lg" />
-                <div className="min-w-0">
-                  <h1 className="serif truncate text-2xl font-semibold text-[#0F172A]">{user.name || 'NyayaSetu Member'}</h1>
-                  <p className="truncate text-sm text-slate-500">{user.email}</p>
-                </div>
+            <section className="rounded-sm border border-slate-200 bg-white shadow-sm overflow-hidden">
+              <div className="p-6 border-b border-slate-100 bg-slate-50">
+                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Account Details</h3>
               </div>
-
-              <div className="space-y-3 text-sm">
-                <div className="flex items-center justify-between border-t border-slate-100 pt-4">
+              <div className="p-6 space-y-3 text-sm">
+                <div className="flex items-center justify-between">
                   <span className="text-slate-500">Role</span>
-                  <span className="font-semibold capitalize text-[#0F172A]">{user.role}</span>
+                  <span className="font-bold capitalize text-[#0F172A] bg-slate-100 px-2 py-0.5 rounded-full text-xs">{user.role}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-slate-500">Email</span>
-                  <span className={user.email_confirmed_at ? 'font-semibold text-emerald-700' : 'font-semibold text-amber-700'}>
+                  <span className={`font-bold text-xs px-2 py-0.5 rounded-full ${
+                    user.email_confirmed_at
+                      ? 'text-emerald-700 bg-emerald-50'
+                      : 'text-amber-700 bg-amber-50'
+                  }`}>
                     {user.email_confirmed_at ? 'Verified' : 'Pending'}
                   </span>
                 </div>
                 {user.role === 'advocate' && (
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500">Advocate status</span>
-                    <span className="font-semibold capitalize text-[#B45309]">{user.advocate_verification_status || 'pending'}</span>
+                    <span className="font-bold capitalize text-[#B45309] text-xs bg-amber-50 px-2 py-0.5 rounded-full">{user.advocate_verification_status || 'pending'}</span>
                   </div>
                 )}
                 <div className="flex items-center justify-between">
                   <span className="text-slate-500">Joined</span>
-                  <span className="font-semibold text-[#0F172A]">{user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Recently'}</span>
+                  <span className="font-semibold text-[#0F172A] text-xs">{user.created_at ? new Date(user.created_at).toLocaleDateString('en-IN') : 'Recently'}</span>
                 </div>
               </div>
-
-              <Link href={getDashboardPath(user.role)}>
-                <Button className="mt-6 h-11 w-full rounded-sm bg-[#0F172A] text-white hover:bg-[#0F172A]/90">
-                  Open Dashboard
-                </Button>
-              </Link>
+              <div className="p-5 border-t border-slate-100">
+                <Link href={getDashboardPath(user.role)}>
+                  <Button className="h-11 w-full rounded-sm bg-[#0F172A] text-white hover:bg-[#0F172A]/90 font-bold">
+                    Open Dashboard
+                  </Button>
+                </Link>
+              </div>
             </section>
           </aside>
 
           <section className="lg:col-span-8">
-            <form onSubmit={handleSubmit} className="rounded-sm border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-              <div className="mb-8 flex items-start justify-between gap-4">
-                <div>
-                  <div className="mb-2 flex items-center gap-2 text-[#B45309]">
-                    <UserRound className="h-5 w-5" />
-                    <span className="text-sm font-bold uppercase tracking-wider">Account</span>
+            <form onSubmit={handleSubmit} className="rounded-sm border border-slate-200 bg-white shadow-sm overflow-hidden">
+              <div
+                className="px-6 md:px-8 py-6 border-b border-slate-100"
+                style={{ background: 'linear-gradient(to right, #F8FAFC, #fff)' }}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <div className="mb-2 flex items-center gap-2 text-[#B45309]">
+                      <UserRound className="h-5 w-5" />
+                      <span className="text-xs font-black uppercase tracking-widest">Edit Profile</span>
+                    </div>
+                    <h2 className="serif text-2xl font-bold text-[#0F172A]">My Profile</h2>
+                    <p className="mt-1 text-sm text-slate-500">Edit public-safe details. Role and verification fields are locked.</p>
                   </div>
-                  <h2 className="serif text-3xl font-semibold text-[#0F172A]">My Profile</h2>
-                  <p className="mt-2 text-sm text-slate-600">Edit public-safe account details. Sensitive role and verification fields are locked.</p>
+                  <BadgeCheck className="hidden h-8 w-8 text-emerald-600 md:block shrink-0" />
                 </div>
-                <BadgeCheck className="hidden h-8 w-8 text-emerald-700 md:block" />
               </div>
+
+              <div className="p-6 md:p-8 space-y-8">
 
               <div className="mb-8 rounded-sm border border-slate-200 bg-slate-50 p-5">
                 <Label className="mb-3 block text-sm font-semibold text-[#0F172A]">Profile picture</Label>
@@ -289,6 +311,7 @@ const Profile = () => {
               <Button type="submit" disabled={saving} className="mt-8 h-12 rounded-sm bg-[#B45309] px-8 font-bold text-white hover:bg-[#B45309]/90">
                 {saving ? 'Saving...' : 'Save Profile'}
               </Button>
+              </div>
             </form>
           </section>
         </div>

@@ -381,10 +381,10 @@ const JusticeFeed = ({ user, logout }) => {
                 {newsItems.map((news) => (
                   <li key={news.id} className="group cursor-pointer">
                     <h4 className="text-sm font-bold text-slate-800 leading-snug group-hover:text-[#B45309] group-hover:underline line-clamp-2">
-                      * {news.title}
+                      {news.title}
                     </h4>
                     <p className="text-[10px] text-slate-400 mt-1 pl-3 font-bold uppercase tracking-tighter">
-                      {news.time} Â· {news.readers} readers
+                      {news.time} · {news.readers} readers
                     </p>
                   </li>
                 ))}
@@ -416,8 +416,8 @@ const JusticeFeed = ({ user, logout }) => {
 
             <div className="px-4 text-center">
               <p className="text-[10px] text-slate-400 leading-relaxed font-medium">
-                NyayaSetu Â© 2024. All Rights Reserved.<br />
-                About Â· Accessibility Â· Help Center
+                NyayaSetu © 2026. All Rights Reserved.<br />
+                About · Accessibility · Help Center
               </p>
             </div>
           </aside>

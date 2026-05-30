@@ -6,7 +6,7 @@ import Profile from '@/screens/Profile';
 export default function ProfilePage() {
   return (
     <ProtectedPage>
-      {() => <Profile />}
+      <Profile />
     </ProtectedPage>
   );
 }

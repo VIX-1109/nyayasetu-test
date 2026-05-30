@@ -1,12 +1,12 @@
 "use client";
 
-import { use } from 'react';
+import { useParams } from 'next/navigation';
 import ProtectedPage from '@/components/ProtectedPage';
 import Messages from '@/screens/Messages';
 import { useAuth } from '@/context/AuthContext';
 
-export default function MessagesPage({ params }) {
-  const { userId } = use(params);
+export default function MessagesPage() {
+  const { userId } = useParams();
   const { logout } = useAuth();
   return (
     <ProtectedPage>
