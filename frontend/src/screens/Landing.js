@@ -380,9 +380,13 @@ const Landing = ({ user, logout }) => {
             <div className="space-y-4">
               <h4 className="text-white font-semibold text-sm uppercase tracking-wider">Legal</h4>
               <ul className="space-y-3">
-                {['Privacy Policy', 'Terms of Service', 'Disclaimer', 'Contact Us'].map(item => (
-                  <li key={item}>
-                    <span className="text-slate-400 text-sm cursor-pointer hover:text-white transition-colors">{item}</span>
+                {[
+                  { label: 'Privacy Policy', href: '/privacy' },
+                  { label: 'Terms of Service', href: '/terms' },
+                  { label: 'Contact Us', href: '/contact' },
+                ].map(item => (
+                  <li key={item.label}>
+                    <Link href={item.href} className="text-slate-400 text-sm hover:text-white transition-colors">{item.label}</Link>
                   </li>
                 ))}
               </ul>
