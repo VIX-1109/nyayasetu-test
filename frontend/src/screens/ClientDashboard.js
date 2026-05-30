@@ -10,16 +10,16 @@ const CitizenDashboard = ({ user, logout }) => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      <nav className="ns-nav">
+      <nav className="ns-nav sticky top-0 z-50 bg-white/95 backdrop-blur-sm">
         <div className="ns-nav-inner">
           <Link href="/" className="flex items-center gap-2">
             <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
             <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
           </Link>
           <div className="ns-nav-links">
-            <Link href="/advocates" className="text-slate-700 hover:text-[#0F172A] font-medium">Find Advocates</Link>
-            <Link href="/feed" className="text-slate-700 hover:text-[#0F172A] font-medium">Justice Feed</Link>
-            <Link href="/ai-learning" className="text-slate-700 hover:text-[#0F172A] font-medium">AI Learning</Link>
+            <Link href="/advocates" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">Find Advocates</Link>
+            <Link href="/feed" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">Justice Feed</Link>
+            <Link href="/ai-learning" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">AI Learning</Link>
             <AccountMenu user={user} logout={logout} />
           </div>
         </div>
@@ -28,27 +28,39 @@ const CitizenDashboard = ({ user, logout }) => {
       <main className="ns-page">
         <div className="max-w-7xl mx-auto space-y-10">
           
-          <section className="bg-[#0F172A] text-white rounded-sm p-5 sm:p-8 md:p-12 shadow-xl relative overflow-hidden">
-            <div className="relative z-10">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold serif mb-4 break-words">Welcome back, {user.name}</h1>
-              <p className="text-lg text-slate-300 max-w-2xl leading-relaxed">
-                Your secure legal command center. Manage consultations, track your legal learning journey, and securely access your case materials.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-4">
-                <Link href="/ai-learning">
-                  <Button className="bg-[#B45309] hover:bg-[#B45309]/90 text-white px-6 h-12 rounded-sm font-medium">
-                    Ask AI Assistant
-                  </Button>
-                </Link>
-                <Link href="/advocates">
-                  <Button variant="outline" className="bg-transparent border-white text-white hover:bg-white hover:text-[#0F172A] px-6 h-12 rounded-sm font-medium">
-                    New Consultation
-                  </Button>
-                </Link>
+      {/* ── DASHBOARD HERO BANNER ── */}
+      <div
+        className="w-full px-4 sm:px-6 md:px-12 lg:px-24 py-10 md:py-14"
+        style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 60%, #0F172A 100%)' }}
+      >
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-[#B45309] flex items-center justify-center text-white text-xl font-black">
+                {user.name?.[0] || 'U'}
+              </div>
+              <div>
+                <p className="text-slate-400 text-sm font-medium uppercase tracking-widest">Client Dashboard</p>
+                <h1 className="text-3xl md:text-4xl font-bold serif text-white leading-tight">Welcome back, {user.name}</h1>
               </div>
             </div>
-            <Scale className="absolute -right-20 -bottom-20 h-80 w-80 text-white/5" />
-          </section>
+            <p className="text-slate-400 text-sm pl-15">Your secure legal command center. Manage consultations and access your case materials.</p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/ai-learning">
+              <Button className="bg-[#B45309] hover:bg-[#B45309]/90 text-white px-6 h-11 rounded-sm font-bold">
+                Ask AI Assistant
+              </Button>
+            </Link>
+            <Link href="/advocates">
+              <Button variant="outline" className="bg-transparent border-white/20 text-white hover:bg-white hover:text-[#0F172A] px-6 h-11 rounded-sm font-bold transition-all">
+                New Consultation
+              </Button>
+            </Link>
+          </div>
+        </div>
+        <Scale className="absolute right-0 bottom-0 h-40 w-40 text-white/5 hidden md:block" />
+      </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
@@ -135,7 +147,7 @@ const CitizenDashboard = ({ user, logout }) => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="text-sm font-semibold text-[#0F172A] truncate">{adv.name}</h4>
-                        <p className="text-xs text-slate-500">{adv.spec} Â· {adv.location}</p>
+                        <p className="text-xs text-slate-500">{adv.spec} · {adv.location}</p>
                       </div>
                       <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-[#B45309] transition-colors" />
                     </div>

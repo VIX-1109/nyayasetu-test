@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+"use client";
+
 import { getMessages, getNewMessages, sendMessage, markMessagesAsRead } from '@/services/messageService';
 import { toast } from 'sonner';
 

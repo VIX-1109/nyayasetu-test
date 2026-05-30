@@ -60,7 +60,7 @@
     "zod": "^3.24.4"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "start": "next start",
     "build": "next build --webpack",
     "test": "echo \"No tests configured\""
