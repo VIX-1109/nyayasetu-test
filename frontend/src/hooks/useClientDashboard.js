@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabaseClient';
 import { getAppointmentsByClient } from '@/services/appointmentService';
 import { toast } from 'sonner';
 
@@ -22,8 +23,40 @@ export const useClientDashboard = (user) => {
   };
 
   useEffect(() => {
+    if (!user?.id) return;
+
     fetchAppointments();
-  }, []);
+
+    // Supabase Realtime — instant updates when advocate accepts/rejects
+    const channel = supabase
+      .channel(`appointments:client:${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'appointments',
+          filter: `client_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const updated = payload.new;
+          setAppointments((prev) =>
+            prev.map((a) => (a.id === updated.id ? { ...a, ...updated } : a))
+          );
+          // Notify user of status change
+          if (updated.status === 'confirmed') {
+            toast.success('Your consultation has been confirmed by the advocate!');
+          } else if (updated.status === 'cancelled') {
+            toast.error('Your consultation request was declined.');
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
 
   const getStatusColor = (status) => {
     switch (status) {
