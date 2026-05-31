@@ -207,48 +207,53 @@ const AdminDashboard = ({ user, logout }) => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      <nav className="ns-nav">
+      <nav className="ns-nav sticky top-0 z-50 bg-white/95 backdrop-blur-sm">
         <div className="ns-nav-inner">
           <Link href="/" className="flex items-center gap-2">
             <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
             <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
           </Link>
           <div className="ns-nav-links">
-            <span className="text-slate-500 font-mono text-sm px-3 py-1 bg-slate-100 rounded-sm">ADMIN CONSOLE</span>
+            <span className="text-slate-400 font-mono text-xs px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-sm tracking-widest uppercase">Admin Console</span>
             <AccountMenu user={user} logout={logout} />
           </div>
         </div>
       </nav>
 
+      {/* Admin Hero Banner */}
+      <div
+        className="w-full px-4 sm:px-6 md:px-12 lg:px-24 py-10 md:py-14"
+        style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)' }}
+      >
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div className="space-y-2">
+            <p className="text-slate-400 text-xs font-black uppercase tracking-widest">Platform Administration</p>
+            <h1 className="text-3xl md:text-4xl font-bold serif text-white">Admin Dashboard</h1>
+            <p className="text-slate-400 text-sm">Oversee users, verify advocates, and moderate content.</p>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { label: 'Total Users', value: allUsers.length, color: 'text-white' },
+              { label: 'Advocates', value: allUsers.filter(u => u.role === 'advocate').length, color: 'text-[#B45309]' },
+              { label: 'Pending', value: pendingAdvocates.length, color: 'text-amber-400' },
+            ].map((stat) => (
+              <div key={stat.label} className="bg-white/10 border border-white/20 rounded-sm px-4 py-3 text-center">
+                <p className={`text-2xl font-black ${stat.color}`}>{stat.value}</p>
+                <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold mt-0.5">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <main className="ns-page">
         <div className="max-w-7xl mx-auto space-y-8">
-          
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-              <h1 className="text-4xl font-bold serif text-[#0F172A]">Platform Administration</h1>
-              <p className="text-slate-600">Oversee users, verify advocates, and moderate content.</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full md:w-auto">
-              <div className="bg-white border border-slate-200 px-4 py-2 rounded-sm text-center">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">Total Users</p>
-                <p className="text-xl font-bold text-[#0F172A]">{allUsers.length}</p>
-              </div>
-              <div className="bg-white border border-slate-200 px-4 py-2 rounded-sm text-center">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">Advocates</p>
-                <p className="text-xl font-bold text-[#B45309]">{allUsers.filter(u => u.role === 'advocate').length}</p>
-              </div>
-              <div className="bg-white border border-slate-200 px-4 py-2 rounded-sm text-center">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-tighter">Pending</p>
-                <p className="text-xl font-bold text-amber-600">{pendingAdvocates.length}</p>
-              </div>
-            </div>
-          </div>
 
           <Tabs defaultValue="users" className="w-full">
-            <TabsList className="bg-slate-100 p-1 rounded-sm mb-8 w-fit">
-              <TabsTrigger value="users" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-sm px-6">User Directory</TabsTrigger>
-              <TabsTrigger value="verifications" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-sm px-6">Verification Queue</TabsTrigger>
-              <TabsTrigger value="moderation" className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-sm px-6">Moderation</TabsTrigger>
+            <TabsList className="bg-slate-100 p-1 rounded-sm mb-8 w-fit border border-slate-200">
+              <TabsTrigger value="users" className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#0F172A] rounded-sm px-6 font-bold text-xs uppercase tracking-wider">User Directory</TabsTrigger>
+              <TabsTrigger value="verifications" className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#0F172A] rounded-sm px-6 font-bold text-xs uppercase tracking-wider">Verification Queue {pendingAdvocates.length > 0 && <span className="ml-1.5 bg-amber-500 text-white text-[9px] px-1.5 py-0.5 rounded-full font-black">{pendingAdvocates.length}</span>}</TabsTrigger>
+              <TabsTrigger value="moderation" className="data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-[#0F172A] rounded-sm px-6 font-bold text-xs uppercase tracking-wider">Moderation</TabsTrigger>
             </TabsList>
 
             {/* User Management Tab */}
