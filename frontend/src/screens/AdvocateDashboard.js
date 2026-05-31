@@ -13,6 +13,7 @@ import { Calendar as CalendarUI } from '@/components/ui/calendar';
 import { Inbox } from '@/components/Inbox';
 import { useAdvocateDashboard } from '@/hooks/useAdvocateDashboard';
 import AccountMenu from '@/components/AccountMenu';
+import MobileNav from '@/components/MobileNav';
 
 const getAppointmentDisplayStatus = (app) => {
   let displayStatus = app.status;
@@ -131,10 +132,14 @@ const AdvocateDashboard = ({ user, logout }) => {
             <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
             <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
           </Link>
-          <div className="ns-nav-links">
+          <div className="hidden md:flex ns-nav-links">
             <Link href="/feed" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">Justice Feed</Link>
             <Link href="/ai-learning" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">AI Learning</Link>
             <AccountMenu user={user} logout={logout} />
+          </div>
+          <div className="flex md:hidden items-center gap-2">
+            <AccountMenu user={user} logout={logout} />
+            <MobileNav user={user} logout={logout} />
           </div>
         </div>
       </nav>

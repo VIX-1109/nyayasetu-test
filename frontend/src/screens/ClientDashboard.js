@@ -4,6 +4,7 @@ import { Scale, Calendar, BookOpen, Newspaper, Star, MessageSquare, FileText, Ch
 import { Inbox } from '@/components/Inbox';
 import { useClientDashboard } from '@/hooks/useClientDashboard';
 import AccountMenu from '@/components/AccountMenu';
+import MobileNav from '@/components/MobileNav';
 
 const CitizenDashboard = ({ user, logout }) => {
   const { appointments, loading, savedAdvocates, getStatusColor } = useClientDashboard(user);
@@ -16,11 +17,15 @@ const CitizenDashboard = ({ user, logout }) => {
             <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
             <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
           </Link>
-          <div className="ns-nav-links">
+          <div className="hidden md:flex ns-nav-links">
             <Link href="/advocates" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">Find Advocates</Link>
             <Link href="/feed" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">Justice Feed</Link>
             <Link href="/ai-learning" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">AI Learning</Link>
             <AccountMenu user={user} logout={logout} />
+          </div>
+          <div className="flex md:hidden items-center gap-2">
+            <AccountMenu user={user} logout={logout} />
+            <MobileNav user={user} logout={logout} />
           </div>
         </div>
       </nav>

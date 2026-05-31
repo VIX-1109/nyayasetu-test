@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AccountMenu from '@/components/AccountMenu';
+import MobileNav from '@/components/MobileNav';
 import { createAppointment } from '@/services/appointmentService';
 import { buildAppointmentPayload } from '@/lib/appointmentBooking';
 
@@ -147,11 +148,15 @@ const AdvocateProfile = ({ user, logout, advocateId }) => {
             <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
             <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
           </Link>
-          <div className="ns-nav-links">
+          <div className="hidden md:flex ns-nav-links">
             <Link href="/advocates" className="flex items-center gap-1.5 text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">
               <ArrowLeft className="h-4 w-4" /> All Advocates
             </Link>
             <AccountMenu user={user} logout={logout} />
+          </div>
+          <div className="flex md:hidden items-center gap-2">
+            <AccountMenu user={user} logout={logout} />
+            <MobileNav user={user} logout={logout} />
           </div>
         </div>
       </nav>

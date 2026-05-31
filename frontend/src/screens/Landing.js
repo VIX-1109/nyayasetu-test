@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { Scale, BookOpen, Users, Shield, ArrowRight, Newspaper, BadgeCheck, MessageCircle, CheckCircle2, Search, FileText, Star, MapPin, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import MobileNav from '@/components/MobileNav';
 import AccountMenu from '@/components/AccountMenu';
 
 const Landing = ({ user, logout }) => {
@@ -15,11 +16,17 @@ const Landing = ({ user, logout }) => {
             <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
             <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
           </Link>
-          <div className="ns-nav-links justify-end">
+          {/* Desktop nav links — hidden on mobile */}
+          <div className="hidden md:flex ns-nav-links justify-end">
             <Link href="/advocates" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">Find Advocates</Link>
             <Link href="/feed" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">Justice Feed</Link>
-            <Link href="/ai-learning" className="hidden text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors sm:inline">AI Law Learning</Link>
+            <Link href="/ai-learning" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">AI Law Learning</Link>
             <AccountMenu user={user} logout={logout} />
+          </div>
+          {/* Mobile nav — hamburger, only visible on mobile */}
+          <div className="flex md:hidden items-center gap-2">
+            <AccountMenu user={user} logout={logout} />
+            <MobileNav user={user} logout={logout} />
           </div>
         </div>
       </nav>

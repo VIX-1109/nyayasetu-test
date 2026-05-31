@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import AccountMenu from '@/components/AccountMenu';
+import MobileNav from '@/components/MobileNav';
 
 const newsItems = [
   { id: 1, title: 'SC expands definition of "Vulnerability" in domestic violence cases', time: '2h ago', tag: 'Supreme Court' },
@@ -386,10 +387,14 @@ const JusticeFeed = ({ user, logout }) => {
             <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
             <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
           </Link>
-          <div className="ns-nav-links">
+          <div className="hidden md:flex ns-nav-links">
             <Link href="/advocates" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">Find Advocates</Link>
-            <Link href="/ai-learning" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors hidden md:inline">AI Learning</Link>
+            <Link href="/ai-learning" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">AI Learning</Link>
             <AccountMenu user={user} logout={logout} />
+          </div>
+          <div className="flex md:hidden items-center gap-2">
+            <AccountMenu user={user} logout={logout} />
+            <MobileNav user={user} logout={logout} />
           </div>
         </div>
       </nav>

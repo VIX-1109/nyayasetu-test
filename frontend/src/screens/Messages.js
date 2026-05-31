@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Scale, Send, ArrowLeft, User, Clock } from 'lucide-react';
 import { useMessages } from '@/hooks/useMessages';
 import AccountMenu from '@/components/AccountMenu';
+import MobileNav from '@/components/MobileNav';
 
 const Messages = ({ user, logout, peerUserId }) => {
   const userId = peerUserId;
@@ -17,7 +18,10 @@ const Messages = ({ user, logout, peerUserId }) => {
             <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
             <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
           </Link>
-          <AccountMenu user={user} logout={logout} />
+          <div className="flex items-center gap-2">
+            <AccountMenu user={user} logout={logout} />
+            <MobileNav user={user} logout={logout} />
+          </div>
         </div>
       </nav>
 
