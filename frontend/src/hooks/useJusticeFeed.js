@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getPosts, createPost, createComment, toggleReaction, reportPost } from '@/services/postService';
+import { supabase } from '@/lib/supabaseClient';
 import { toast } from 'sonner';
 
 const demoPosts = [
@@ -165,7 +166,40 @@ export const useJusticeFeed = (user) => {
     }
   };
 
-  useEffect(() => { fetchPosts(); }, [user?.id]);
+  useEffect(() => {
+    fetchPosts();
+
+    // Supabase Realtime — new posts from other users appear instantly without reload
+    const channel = supabase
+      .channel('posts:feed')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'posts' },
+        (payload) => {
+          const p = payload.new;
+          // Skip own posts — already added optimistically in handlePost
+          if (p.author_id === user?.id) return;
+          setPosts(prev => [{
+            id: p.id,
+            author_name: p.is_anonymous ? 'Public Voice' : 'NyayaSetu Member',
+            author_role: 'member',
+            is_anonymous: p.is_anonymous,
+            verified: p.author_verified || false,
+            type: p.type || 'Short Update',
+            category: p.category || 'General',
+            content: p.content,
+            created_at: p.created_at,
+            reactions: 0,
+            comments_count: 0,
+            has_liked: false,
+            comments: []
+          }, ...prev]);
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [user?.id]);
 
   return {
     posts, loading,

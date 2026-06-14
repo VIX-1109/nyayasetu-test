@@ -14,6 +14,7 @@ import {
 import { toast } from 'sonner';
 import AccountMenu from '@/components/AccountMenu';
 import MobileNav from '@/components/MobileNav';
+import NotificationBell from '@/components/NotificationBell';
 
 const newsItems = [
   { id: 1, title: 'SC expands definition of "Vulnerability" in domestic violence cases', time: '2h ago', tag: 'Supreme Court' },
@@ -390,9 +391,11 @@ const JusticeFeed = ({ user, logout }) => {
           <div className="hidden md:flex ns-nav-links">
             <Link href="/advocates" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">Find Advocates</Link>
             <Link href="/ai-learning" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">AI Learning</Link>
+            <NotificationBell user={user} />
             <AccountMenu user={user} logout={logout} />
           </div>
           <div className="flex md:hidden items-center gap-2">
+            <NotificationBell user={user} />
             <AccountMenu user={user} logout={logout} />
             <MobileNav user={user} logout={logout} />
           </div>

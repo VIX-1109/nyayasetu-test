@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Scale, MapPin, Briefcase, CheckCircle2, Search, SlidersHorizontal, ArrowRight } from 'lucide-react';
 import AccountMenu from '@/components/AccountMenu';
 import MobileNav from '@/components/MobileNav';
+import NotificationBell from '@/components/NotificationBell';
 import { useAdvocates } from '@/hooks/useAdvocates';
 
 const SkeletonCard = () => (
@@ -41,9 +42,11 @@ const AdvocateDirectory = ({ user, logout }) => {
           </Link>
           <div className="hidden md:flex ns-nav-links">
             <Link href="/ai-learning" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">AI Law Learning</Link>
+            <NotificationBell user={user} />
             <AccountMenu user={user} logout={logout} />
           </div>
           <div className="flex md:hidden items-center gap-2">
+            <NotificationBell user={user} />
             <AccountMenu user={user} logout={logout} />
             <MobileNav user={user} logout={logout} />
           </div>

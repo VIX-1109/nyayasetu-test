@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Inbox } from '@/components/Inbox';
 import AccountMenu from '@/components/AccountMenu';
 import MobileNav from '@/components/MobileNav';
+import NotificationBell from '@/components/NotificationBell';
 import { Scale, MessageSquare } from 'lucide-react';
 
 const MessagesInbox = ({ user, logout }) => {
@@ -18,9 +19,11 @@ const MessagesInbox = ({ user, logout }) => {
           <div className="hidden md:flex ns-nav-links">
             <Link href="/feed" className="font-medium text-slate-600 hover:text-[#0F172A] text-sm transition-colors">Justice Feed</Link>
             <Link href="/advocates" className="font-medium text-slate-600 hover:text-[#0F172A] text-sm transition-colors">Find Advocates</Link>
+            <NotificationBell user={user} />
             <AccountMenu user={user} logout={logout} />
           </div>
           <div className="flex md:hidden items-center gap-2">
+            <NotificationBell user={user} />
             <AccountMenu user={user} logout={logout} />
             <MobileNav user={user} logout={logout} />
           </div>

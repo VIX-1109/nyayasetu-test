@@ -5,6 +5,7 @@ import { Inbox } from '@/components/Inbox';
 import { useClientDashboard } from '@/hooks/useClientDashboard';
 import AccountMenu from '@/components/AccountMenu';
 import MobileNav from '@/components/MobileNav';
+import NotificationBell from '@/components/NotificationBell';
 
 const CitizenDashboard = ({ user, logout }) => {
   const { appointments, loading, savedAdvocates, getStatusColor } = useClientDashboard(user);
@@ -21,9 +22,11 @@ const CitizenDashboard = ({ user, logout }) => {
             <Link href="/advocates" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">Find Advocates</Link>
             <Link href="/feed" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">Justice Feed</Link>
             <Link href="/ai-learning" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">AI Learning</Link>
+            <NotificationBell user={user} />
             <AccountMenu user={user} logout={logout} />
           </div>
           <div className="flex md:hidden items-center gap-2">
+            <NotificationBell user={user} />
             <AccountMenu user={user} logout={logout} />
             <MobileNav user={user} logout={logout} />
           </div>

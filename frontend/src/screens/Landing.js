@@ -4,6 +4,7 @@ import { Scale, BookOpen, Users, Shield, ArrowRight, Newspaper, BadgeCheck, Mess
 import { Button } from '@/components/ui/button';
 import MobileNav from '@/components/MobileNav';
 import AccountMenu from '@/components/AccountMenu';
+import NotificationBell from '@/components/NotificationBell';
 
 const Landing = ({ user, logout }) => {
   return (
@@ -21,10 +22,11 @@ const Landing = ({ user, logout }) => {
             <Link href="/advocates" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">Find Advocates</Link>
             <Link href="/feed" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">Justice Feed</Link>
             <Link href="/ai-learning" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">AI Law Learning</Link>
+            <NotificationBell user={user} />
             <AccountMenu user={user} logout={logout} />
           </div>
-          {/* Mobile nav — hamburger, only visible on mobile */}
           <div className="flex md:hidden items-center gap-2">
+            <NotificationBell user={user} />
             <AccountMenu user={user} logout={logout} />
             <MobileNav user={user} logout={logout} />
           </div>

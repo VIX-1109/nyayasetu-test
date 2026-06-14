@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { getReportedPosts, updatePostStatus } from '@/services/postService';
 import { sendAdminWarning } from '@/services/messageService';
 import AccountMenu from '@/components/AccountMenu';
+import NotificationBell from '@/components/NotificationBell';
 
 const AdminDashboard = ({ user, logout }) => {
   const [pendingAdvocates, setPendingAdvocates] = useState([]);
@@ -215,6 +216,7 @@ const AdminDashboard = ({ user, logout }) => {
           </Link>
           <div className="ns-nav-links">
             <span className="text-slate-400 font-mono text-xs px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-sm tracking-widest uppercase">Admin Console</span>
+            <NotificationBell user={user} />
             <AccountMenu user={user} logout={logout} />
           </div>
         </div>

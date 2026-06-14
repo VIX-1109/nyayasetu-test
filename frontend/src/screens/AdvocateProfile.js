@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AccountMenu from '@/components/AccountMenu';
 import MobileNav from '@/components/MobileNav';
+import NotificationBell from '@/components/NotificationBell';
 import { createAppointment } from '@/services/appointmentService';
 import { buildAppointmentPayload } from '@/lib/appointmentBooking';
 
@@ -152,9 +153,11 @@ const AdvocateProfile = ({ user, logout, advocateId }) => {
             <Link href="/advocates" className="flex items-center gap-1.5 text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">
               <ArrowLeft className="h-4 w-4" /> All Advocates
             </Link>
+            <NotificationBell user={user} />
             <AccountMenu user={user} logout={logout} />
           </div>
           <div className="flex md:hidden items-center gap-2">
+            <NotificationBell user={user} />
             <AccountMenu user={user} logout={logout} />
             <MobileNav user={user} logout={logout} />
           </div>

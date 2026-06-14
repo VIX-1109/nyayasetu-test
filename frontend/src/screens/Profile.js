@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import AccountMenu from '@/components/AccountMenu';
+import NotificationBell from '@/components/NotificationBell';
 import { getDashboardPath } from '@/components/ProtectedPage';
 import { BadgeCheck, Camera, Lock, Scale, Trash2, UserRound } from 'lucide-react';
 import { toast } from 'sonner';
@@ -145,6 +146,7 @@ const Profile = () => {
           <div className="ns-nav-links">
             <Link href="/advocates" className="font-medium text-slate-600 hover:text-[#0F172A] text-sm transition-colors">Find Advocates</Link>
             <Link href="/feed" className="font-medium text-slate-600 hover:text-[#0F172A] text-sm transition-colors">Justice Feed</Link>
+            <NotificationBell user={user} />
             <AccountMenu user={user} logout={logout} />
           </div>
         </div>
