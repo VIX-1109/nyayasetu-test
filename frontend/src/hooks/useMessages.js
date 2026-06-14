@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { supabase } from '@/lib/supabaseClient';
 import { getMessages, sendMessage, markMessagesAsRead } from '@/services/messageService';
 import { toast } from 'sonner';
 
@@ -33,8 +32,8 @@ export const useMessages = (user, userId) => {
     const content = input;
     setInput('');
     try {
-      await sendMessage(user.id, userId, content);
-      // No need to manually append — Realtime subscription will pick it up
+      const sent = await sendMessage(user.id, userId, content);
+      if (sent) setMessages(prev => [...prev, sent]);
     } catch (error) {
       toast.error(error.message || 'Failed to send message');
     }
@@ -47,35 +46,19 @@ export const useMessages = (user, userId) => {
     setMessages([]);
     fetchMessages();
 
-    // Supabase Realtime subscription — replaces 4s polling
-    const channel = supabase
-      .channel(`messages:${user.id}:${userId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `receiver_id=eq.${user.id}`,
-        },
-        async (payload) => {
-          const newMsg = payload.new;
-          // Only add if it's from the person we're chatting with
-          if (newMsg.sender_id === userId) {
-            setMessages((prev) => {
-              // Avoid duplicates
-              if (prev.find((m) => m.id === newMsg.id)) return prev;
-              return [...prev, newMsg];
-            });
-            await markMessagesAsRead(user.id, userId);
-          }
-        }
-      )
-      .subscribe();
+    // Poll every 3 seconds for new messages
+    const interval = setInterval(async () => {
+      try {
+        const data = await getMessages(user.id, userId);
+        setMessages(prev => {
+          // Only update if there are new messages to avoid unnecessary re-renders
+          if (data.length !== prev.length) return data;
+          return prev;
+        });
+      } catch (_) {}
+    }, 3000);
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => clearInterval(interval);
   }, [userId, user?.id]);
 
   useEffect(() => {

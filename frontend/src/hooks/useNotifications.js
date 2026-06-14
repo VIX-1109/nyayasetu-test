@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '@/lib/supabaseClient';
 import { getNotifications, markAsRead, markAllAsRead } from '@/services/notificationService';
 
@@ -34,17 +33,17 @@ export const useNotifications = (user) => {
     setUnreadCount(0);
   };
 
-  // Refactor: create channel only once per user id
   const channelRef = useRef(null);
+  // Unique per hook instance so desktop + mobile bells don't conflict
+  const instanceId = useRef(Math.random().toString(36).slice(2));
 
   useEffect(() => {
     if (!user?.id) return;
     fetchNotifications();
 
-    // If channel already exists, do not recreate
     if (channelRef.current) return;
 
-    const notifChannel = supabase.channel(`notifications:${user.id}`);
+    const notifChannel = supabase.channel(`notifications:${user.id}:${instanceId.current}`);
     channelRef.current = notifChannel;
 
     notifChannel
