@@ -1,7 +1,20 @@
 import { useState, useEffect } from 'react';
 import { getPosts, createPost, createComment, toggleReaction, reportPost } from '@/services/postService';
+import { getRankedPostIds, enrichPost, logInteraction } from '@/services/lexfeedService';
 import { supabase } from '@/lib/supabaseClient';
 import { toast } from 'sonner';
+
+// Reorder Supabase posts by LexFeed's ranked id list. Posts not in the
+// ranked list keep their existing (newest-first) order at the end.
+const applyRanking = (posts, rankedIds) => {
+  if (!rankedIds?.length) return posts;
+  const rank = new Map(rankedIds.map((id, i) => [id, i]));
+  return [...posts].sort((a, b) => {
+    const ra = rank.has(a.id) ? rank.get(a.id) : Number.POSITIVE_INFINITY;
+    const rb = rank.has(b.id) ? rank.get(b.id) : Number.POSITIVE_INFINITY;
+    return ra - rb;
+  });
+};
 
 const demoPosts = [
   {
@@ -51,7 +64,7 @@ export const useJusticeFeed = (user) => {
     try {
       const data = await getPosts();
       if (data?.length) {
-        setPosts(data.map(post => ({
+        const mapped = data.map(post => ({
           id: post.id,
           author_name: post.is_anonymous ? 'Public Voice' : (post.profiles?.name || 'NyayaSetu Member'),
           author_role: post.profiles?.role || 'member',
@@ -70,7 +83,11 @@ export const useJusticeFeed = (user) => {
             content: comment.content,
             time: formatRelativeTime(comment.created_at)
           }))
-        })));
+        }));
+
+        // Ask LexFeed for a personalized order; silently keep newest-first if unavailable.
+        const rankedIds = await getRankedPostIds(user?.id);
+        setPosts(applyRanking(mapped, rankedIds));
       }
     } catch (error) {
       toast.error('Could not load live feed. Showing demo posts.');
@@ -107,6 +124,7 @@ export const useJusticeFeed = (user) => {
         id: savedPost.id,
         created_at: savedPost.created_at
       }, ...prev]);
+      enrichPost(savedPost.id, newPost.content); // classify + embed for ranking
       setContent('');
       setIsAnonymous(false);
       setIsModalOpen(false);
@@ -127,6 +145,7 @@ export const useJusticeFeed = (user) => {
         ? { ...p, has_liked: hasReacted, reactions: hasReacted ? p.reactions + 1 : Math.max(0, p.reactions - 1) }
         : p
       ));
+      if (hasReacted) logInteraction(user.id, postId, 'like');
     } catch (error) {
       toast.error('Could not update reaction.');
     }
@@ -137,6 +156,7 @@ export const useJusticeFeed = (user) => {
 
     try {
       const savedComment = await createComment({ postId, authorId: user.id, content: text });
+      logInteraction(user.id, postId, 'comment');
       setPosts(prev => prev.map(p => p.id === postId
         ? {
             ...p,
@@ -160,6 +180,7 @@ export const useJusticeFeed = (user) => {
 
     try {
       await reportPost({ postId, reporterId: user.id });
+      logInteraction(user.id, postId, 'report');
       toast.success('Report sent for admin review.');
     } catch (error) {
       toast.error('Could not report this post.');
@@ -197,6 +218,7 @@ export const useJusticeFeed = (user) => {
         created_at: saved.created_at,
         reactions: 0, comments_count: 0, has_liked: false, comments: []
       }, ...prev]);
+      enrichPost(saved.id, content); // classify + embed for ranking
       toast.success('Shared to Justice Feed!');
       return true;
     } catch (error) {
