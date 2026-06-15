@@ -10,7 +10,8 @@ import {
   Scale, BadgeCheck, Flag, Heart, MessageCircle, Newspaper,
   ShieldAlert, Send, User, Share2, AlertCircle, EyeOff,
   UserCircle, PenTool, Image as ImageIcon, Video, FileText,
-  Info, TrendingUp, Flame, ChevronRight, ArrowRight
+  Info, TrendingUp, Flame, ChevronRight, ArrowRight,
+  Repeat2, ExternalLink
 } from 'lucide-react';
 import { toast } from 'sonner';
 import AccountMenu from '@/components/AccountMenu';
@@ -355,6 +356,119 @@ const PostComposerDialog = ({ user, isModalOpen, setIsModalOpen, content, setCon
   </Dialog>
 );
 
+const NewsCard = ({ article, user, onRetweet }) => (
+  <div className="bg-white border border-slate-200 rounded-sm shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+    {article.image ? (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={article.image} alt="" className="w-full h-40 object-cover" />
+    ) : (
+      <div
+        className="w-full h-40 flex items-center justify-center"
+        style={{ background: 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)' }}
+      >
+        <Newspaper className="h-10 w-10 text-white/30" />
+      </div>
+    )}
+    <div className="p-5 flex-1 flex flex-col">
+      <span className="text-[9px] font-black text-[#B45309] uppercase tracking-widest">{article.tag}</span>
+      <h3 className="serif font-semibold text-[#0F172A] leading-snug mt-2 mb-2 line-clamp-2">{article.title}</h3>
+      {article.summary && (
+        <p className="text-xs text-slate-500 leading-relaxed line-clamp-3 mb-3">{article.summary}</p>
+      )}
+      <div className="flex items-center justify-between border-t border-slate-100 pt-3 mt-auto">
+        <div className="min-w-0">
+          <p className="text-[11px] font-bold text-[#0F172A] truncate">{article.source}</p>
+          <p className="text-[10px] text-slate-400">{article.time_label}</p>
+        </div>
+        <div className="flex gap-2 shrink-0">
+          {article.url && (
+            <a
+              href={article.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-700 bg-blue-50 border border-blue-100 rounded-sm px-2.5 py-1.5 hover:bg-blue-100 transition-colors"
+            >
+              <ExternalLink className="h-3 w-3" /> Read
+            </a>
+          )}
+          <button
+            onClick={() => onRetweet(article)}
+            disabled={!user}
+            className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-sm px-2.5 py-1.5 hover:bg-emerald-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Repeat2 className="h-3 w-3" /> Retweet
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const RetweetDialog = ({ open, setOpen, article, onSubmit }) => {
+  const [caption, setCaption] = useState('');
+
+  useEffect(() => { if (open) setCaption(''); }, [open, article]);
+
+  if (!article) return null;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const ok = await onSubmit(article, caption);
+    if (ok) setOpen(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="sm:max-w-lg rounded-sm p-0 overflow-hidden">
+        <DialogHeader
+          className="px-6 py-5 border-b border-slate-100"
+          style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)' }}
+        >
+          <DialogTitle className="serif text-xl text-white flex items-center gap-3">
+            <div className="bg-[#B45309]/20 p-2 rounded-sm">
+              <Repeat2 className="h-4 w-4 text-[#B45309]" />
+            </div>
+            Share to Justice Feed
+          </DialogTitle>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {/* Article preview */}
+          <div className="bg-slate-50 border border-slate-200 rounded-sm p-4">
+            <span className="text-[9px] font-black text-[#B45309] uppercase tracking-widest">{article.tag}</span>
+            <p className="text-sm font-semibold text-[#0F172A] leading-snug mt-1">{article.title}</p>
+            <p className="text-[11px] text-slate-400 mt-1">{article.source} · {article.time_label}</p>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+              Your caption <span className="font-medium normal-case tracking-normal text-slate-400">(min 30 characters)</span>
+            </label>
+            <Textarea
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              placeholder="Add your thoughts — what does this mean for citizens?"
+              className="min-h-[110px] text-sm border-slate-200 focus:border-[#0F172A] resize-none rounded-sm bg-slate-50"
+            />
+            <p className="text-[11px] text-slate-400 text-right">{caption.trim().length} / 30 min</p>
+          </div>
+
+          <div className="flex justify-between items-center pt-2 border-t border-slate-100">
+            <p className="text-[11px] text-slate-400">Source credit is attached automatically.</p>
+            <Button
+              type="submit"
+              disabled={caption.trim().length < 30}
+              className="bg-[#B45309] text-white hover:bg-[#B45309]/90 h-10 px-6 rounded-sm font-bold"
+            >
+              <Repeat2 className="h-4 w-4 mr-2" /> Share
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const JusticeFeed = ({ user, logout }) => {
   const {
     posts, loading,
@@ -363,21 +477,29 @@ const JusticeFeed = ({ user, logout }) => {
     category, setCategory,
     isAnonymous, setIsAnonymous,
     isModalOpen, setIsModalOpen,
-    handlePost, handleLike, handleComment, handleReport
+    handlePost, handleLike, handleComment, handleReport, handleRetweet
   } = useJusticeFeed(user);
 
+  const [activeView, setActiveView] = useState('feed'); // 'feed' | 'news'
   const [activeCategory, setActiveCategory] = useState('All');
   const [news, setNews] = useState([]);
   const [newsLoading, setNewsLoading] = useState(true);
 
+  // Retweet dialog
+  const [retweetOpen, setRetweetOpen] = useState(false);
+  const [retweetArticle, setRetweetArticle] = useState(null);
+  const openRetweet = (article) => { setRetweetArticle(article); setRetweetOpen(true); };
+
   useEffect(() => {
     let active = true;
-    getLegalNews(5)
+    getLegalNews(12)
       .then((items) => { if (active) setNews(items); })
       .catch(() => { if (active) setNews([]); })
       .finally(() => { if (active) setNewsLoading(false); });
     return () => { active = false; };
   }, []);
+
+  const sidebarNews = news.slice(0, 5);
 
   const filteredPosts = activeCategory === 'All'
     ? posts
@@ -439,29 +561,57 @@ const JusticeFeed = ({ user, logout }) => {
           </div>
         </div>
 
-        {/* Category filter tabs */}
+        {/* Primary tabs: Justice Feed | Legal News */}
         <div className="max-w-7xl mx-auto mt-6 pt-6 border-t border-white/10">
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            {ALL_CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all ${
-                  activeCategory === cat
-                    ? 'bg-[#B45309] text-white shadow-lg'
-                    : 'bg-white/10 text-slate-300 hover:bg-white/20 border border-white/10'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setActiveView('feed')}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-sm text-sm font-bold transition-all ${
+                activeView === 'feed'
+                  ? 'bg-white text-[#0F172A] shadow-lg'
+                  : 'bg-white/10 text-slate-300 hover:bg-white/20 border border-white/10'
+              }`}
+            >
+              <MessageCircle className="h-4 w-4" /> Justice Feed
+            </button>
+            <button
+              onClick={() => setActiveView('news')}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-sm text-sm font-bold transition-all ${
+                activeView === 'news'
+                  ? 'bg-white text-[#0F172A] shadow-lg'
+                  : 'bg-white/10 text-slate-300 hover:bg-white/20 border border-white/10'
+              }`}
+            >
+              <Newspaper className="h-4 w-4" /> Legal News
+            </button>
           </div>
+
+          {/* Category filter tabs — only on the Justice Feed tab */}
+          {activeView === 'feed' && (
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide mt-4">
+              {ALL_CATEGORIES.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all ${
+                    activeCategory === cat
+                      ? 'bg-[#B45309] text-white shadow-lg'
+                      : 'bg-white/10 text-slate-300 hover:bg-white/20 border border-white/10'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Main Content */}
       <main className="ns-page py-8">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="max-w-7xl mx-auto">
+        {activeView === 'feed' ? (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
           {/* Feed — center */}
           <section className="lg:col-span-8 space-y-5">
@@ -549,13 +699,13 @@ const JusticeFeed = ({ user, logout }) => {
                       <div className="h-3.5 w-4/5 bg-slate-100 rounded" />
                     </div>
                   ))
-                ) : news.length === 0 ? (
+                ) : sidebarNews.length === 0 ? (
                   <div className="px-5 py-8 text-center">
                     <p className="text-xs text-slate-400">No legal news yet.</p>
                     <p className="text-[10px] text-slate-300 mt-1">Check back shortly.</p>
                   </div>
                 ) : (
-                  news.map((item, i) => {
+                  sidebarNews.map((item, i) => {
                     const Wrapper = item.url ? 'a' : 'div';
                     const wrapperProps = item.url
                       ? { href: item.url, target: '_blank', rel: 'noopener noreferrer' }
@@ -579,7 +729,10 @@ const JusticeFeed = ({ user, logout }) => {
                 )}
               </div>
               <div className="px-5 py-3 border-t border-slate-100">
-                <button className="w-full text-xs font-bold text-[#B45309] hover:underline flex items-center justify-center gap-1">
+                <button
+                  onClick={() => setActiveView('news')}
+                  className="w-full text-xs font-bold text-[#B45309] hover:underline flex items-center justify-center gap-1"
+                >
                   View all legal news <ChevronRight className="h-3.5 w-3.5" />
                 </button>
               </div>
@@ -649,7 +802,55 @@ const JusticeFeed = ({ user, logout }) => {
 
           </aside>
         </div>
+        ) : (
+          /* ── Legal News tab ── */
+          <section>
+            <div className="flex items-center justify-between mb-5 px-1">
+              <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">
+                {newsLoading ? 'Loading legal news…' : `${news.length} legal news update${news.length !== 1 ? 's' : ''}`}
+              </p>
+              <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-2 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" /> Live
+              </span>
+            </div>
+
+            {newsLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="bg-white border border-slate-200 rounded-sm overflow-hidden animate-pulse">
+                    <div className="h-40 bg-slate-100" />
+                    <div className="p-5 space-y-3">
+                      <div className="h-2 w-20 bg-slate-100 rounded" />
+                      <div className="h-4 w-full bg-slate-100 rounded" />
+                      <div className="h-4 w-4/5 bg-slate-100 rounded" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : news.length === 0 ? (
+              <div className="bg-white border border-dashed border-slate-300 rounded-sm p-16 text-center space-y-3">
+                <Newspaper className="h-10 w-10 text-slate-300 mx-auto" />
+                <p className="text-slate-500 font-semibold serif">No legal news yet.</p>
+                <p className="text-slate-400 text-sm">Live Indian legal news will appear here shortly.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                {news.map((article, i) => (
+                  <NewsCard key={i} article={article} user={user} onRetweet={openRetweet} />
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+        </div>
       </main>
+
+      <RetweetDialog
+        open={retweetOpen}
+        setOpen={setRetweetOpen}
+        article={retweetArticle}
+        onSubmit={handleRetweet}
+      />
     </div>
   );
 };

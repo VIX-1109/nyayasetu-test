@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabaseClient';
 export const getLegalNews = async (limit = 6) => {
   const { data, error } = await supabase
     .from('legal_news')
-    .select('tag, title, url, time_label, source')
+    .select('tag, title, summary, url, image, time_label, source')
     .order('position', { ascending: true })
     .limit(limit);
   if (error) throw error;

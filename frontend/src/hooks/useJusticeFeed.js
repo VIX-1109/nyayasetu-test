@@ -166,6 +166,45 @@ export const useJusticeFeed = (user) => {
     }
   };
 
+  // Share a news article into the Justice Feed as a post
+  const handleRetweet = async (article, caption) => {
+    if (!user) { toast.error('Please login to share to the feed.'); return false; }
+    const text = (caption || '').trim();
+    if (text.length < 30) { toast.error('Add a short caption (at least 30 characters).'); return false; }
+
+    const verified = user.role === 'admin' || user.role === 'advocate';
+    const category = article.tag || 'General';
+    const content = `${text}\n\n— via ${article.source || 'Legal News'}: ${article.title}${article.url ? `\n${article.url}` : ''}`;
+
+    try {
+      const saved = await createPost({
+        authorId: user.id,
+        type: 'Legal News',
+        category,
+        content,
+        isVerified: verified,
+        isAnonymous: false,
+      });
+      setPosts(prev => [{
+        id: saved.id,
+        author_name: user.name,
+        author_role: user.role,
+        is_anonymous: false,
+        verified,
+        type: 'Legal News',
+        category,
+        content,
+        created_at: saved.created_at,
+        reactions: 0, comments_count: 0, has_liked: false, comments: []
+      }, ...prev]);
+      toast.success('Shared to Justice Feed!');
+      return true;
+    } catch (error) {
+      toast.error('Could not share this article.');
+      return false;
+    }
+  };
+
   useEffect(() => {
     fetchPosts();
 
@@ -208,7 +247,7 @@ export const useJusticeFeed = (user) => {
     category, setCategory,
     isAnonymous, setIsAnonymous,
     isModalOpen, setIsModalOpen,
-    handlePost, handleLike, handleComment, handleReport
+    handlePost, handleLike, handleComment, handleReport, handleRetweet
   };
 };
 
