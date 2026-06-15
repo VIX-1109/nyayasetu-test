@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import AnimatedLogo from '@/components/AnimatedLogo';
 import { usePathname } from 'next/navigation';
 import { X, Menu, Scale, Home, Users, Newspaper, BookOpen, Shield, MessageCircle, User, LogOut } from 'lucide-react';
 import { getDashboardPath } from '@/components/ProtectedPage';
@@ -72,8 +73,7 @@ const MobileNav = ({ user, logout, navLinks = [] }) => {
           style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)' }}
         >
           <div className="flex items-center gap-2">
-            <Scale className="h-6 w-6 text-white" strokeWidth={1.5} />
-            <span className="text-lg font-bold serif text-white">NyayaSetu</span>
+            <AnimatedLogo size={26} navy="#ffffff" />
           </div>
           <button
             onClick={() => setOpen(false)}

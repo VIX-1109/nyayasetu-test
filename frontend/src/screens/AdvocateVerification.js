@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import AnimatedLogo from '@/components/AnimatedLogo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -36,8 +37,7 @@ const AdvocateVerification = ({ user, logout }) => {
       <nav className="ns-nav">
         <div className="ns-nav-inner">
           <Link href="/" className="flex items-center gap-2">
-            <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
-            <span className="serif text-2xl font-bold text-[#0F172A]">NyayaSetu</span>
+            <AnimatedLogo size={32} />
           </Link>
           <div className="ns-nav-links">
             <Link href="/feed" className="font-medium text-slate-700 hover:text-[#0F172A]">Justice Feed</Link>

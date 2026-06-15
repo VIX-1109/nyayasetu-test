@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import AnimatedLogo from '@/components/AnimatedLogo';
 import { signIn, signUp, fetchProfile, requestPasswordReset } from '@/services/authService';
 import { getPasswordValidationMessage } from '@/lib/passwordPolicy';
 import EmailVerificationPrompt from '@/components/EmailVerificationPrompt';
@@ -75,8 +76,7 @@ const Auth = ({ setUser }) => {
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <Scale className="h-7 w-7 text-white" strokeWidth={1.5} />
-          <span className="text-xl font-bold serif text-white">NyayaSetu</span>
+          <AnimatedLogo size={28} navy="#ffffff" />
         </Link>
 
         {/* Main copy */}
@@ -122,8 +122,7 @@ const Auth = ({ setUser }) => {
 
           {/* Mobile logo */}
           <div className="flex items-center justify-center gap-2 lg:hidden">
-            <Scale className="h-7 w-7 text-[#0F172A]" strokeWidth={1.5} />
-            <span className="text-xl font-bold serif text-[#0F172A]">NyayaSetu</span>
+            <AnimatedLogo size={28} />
           </div>
 
           {/* Heading */}

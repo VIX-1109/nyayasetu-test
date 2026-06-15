@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import AnimatedLogo from '@/components/AnimatedLogo';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -211,8 +212,7 @@ const AdminDashboard = ({ user, logout }) => {
       <nav className="ns-nav sticky top-0 z-50 bg-white/95 backdrop-blur-sm">
         <div className="ns-nav-inner">
           <Link href="/" className="flex items-center gap-2">
-            <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
-            <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
+            <AnimatedLogo size={32} />
           </Link>
           <div className="ns-nav-links">
             <span className="text-slate-400 font-mono text-xs px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-sm tracking-widest uppercase">Admin Console</span>

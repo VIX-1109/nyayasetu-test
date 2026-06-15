@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import MobileNav from '@/components/MobileNav';
 import AccountMenu from '@/components/AccountMenu';
 import NotificationBell from '@/components/NotificationBell';
+import AnimatedLogo from '@/components/AnimatedLogo';
 
 const Landing = ({ user, logout }) => {
   return (
@@ -14,8 +15,7 @@ const Landing = ({ user, logout }) => {
       <nav className="ns-nav sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200">
         <div className="ns-nav-inner">
           <Link href="/" className="flex shrink-0 items-center gap-2">
-            <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
-            <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
+            <AnimatedLogo size={32} />
           </Link>
           {/* Desktop nav links — hidden on mobile */}
           <div className="hidden md:flex ns-nav-links justify-end">
@@ -356,8 +356,7 @@ const Landing = ({ user, logout }) => {
             {/* Brand */}
             <div className="md:col-span-2 space-y-4">
               <div className="flex items-center gap-2">
-                <Scale className="h-7 w-7" strokeWidth={1.5} />
-                <span className="text-xl font-bold serif">NyayaSetu</span>
+                <AnimatedLogo size={28} />
               </div>
               <p className="text-slate-400 leading-relaxed text-sm max-w-xs">
                 Bridging the gap between citizens and justice across India. Free, verified, and accessible to all.

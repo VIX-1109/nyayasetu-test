@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import AnimatedLogo from '@/components/AnimatedLogo';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from '@/components/ui/button';
@@ -146,8 +147,7 @@ const AdvocateProfile = ({ user, logout, advocateId }) => {
       <nav className="ns-nav sticky top-0 z-50 bg-white/95 backdrop-blur-sm">
         <div className="ns-nav-inner">
           <Link href="/" className="flex items-center gap-2">
-            <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
-            <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
+            <AnimatedLogo size={32} />
           </Link>
           <div className="hidden md:flex ns-nav-links">
             <Link href="/advocates" className="flex items-center gap-1.5 text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">

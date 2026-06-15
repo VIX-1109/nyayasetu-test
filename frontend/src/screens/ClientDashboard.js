@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Scale, Calendar, BookOpen, Newspaper, Star, MessageSquare, FileText, ChevronRight, Clock, CheckCircle2, User } from 'lucide-react';
+import AnimatedLogo from '@/components/AnimatedLogo';
 import { Inbox } from '@/components/Inbox';
 import { useClientDashboard } from '@/hooks/useClientDashboard';
 import AccountMenu from '@/components/AccountMenu';
@@ -15,8 +16,7 @@ const CitizenDashboard = ({ user, logout }) => {
       <nav className="ns-nav sticky top-0 z-50 bg-white/95 backdrop-blur-sm">
         <div className="ns-nav-inner">
           <Link href="/" className="flex items-center gap-2">
-            <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
-            <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
+            <AnimatedLogo size={32} />
           </Link>
           <div className="hidden md:flex ns-nav-links">
             <Link href="/advocates" className="text-slate-600 hover:text-[#0F172A] font-medium text-sm transition-colors">Find Advocates</Link>

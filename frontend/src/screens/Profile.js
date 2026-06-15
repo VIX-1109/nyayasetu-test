@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import AnimatedLogo from '@/components/AnimatedLogo';
 import { useAuth } from '@/context/AuthContext';
 import { updateOwnProfile } from '@/services/profileService';
 import { removeProfileAvatar, uploadProfileAvatar } from '@/services/avatarService';
@@ -140,8 +141,7 @@ const Profile = () => {
       <nav className="ns-nav sticky top-0 z-50 bg-white/95 backdrop-blur-sm">
         <div className="ns-nav-inner">
           <Link href="/" className="flex items-center gap-2">
-            <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
-            <span className="serif text-2xl font-bold text-[#0F172A]">NyayaSetu</span>
+            <AnimatedLogo size={32} />
           </Link>
           <div className="ns-nav-links">
             <Link href="/advocates" className="font-medium text-slate-600 hover:text-[#0F172A] text-sm transition-colors">Find Advocates</Link>

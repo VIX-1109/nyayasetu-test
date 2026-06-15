@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import AnimatedLogo from '@/components/AnimatedLogo';
 import { Scale, ArrowLeft, Mail, MapPin, Clock, Send, MessageSquare, Shield, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -44,8 +45,7 @@ export default function ContactUs() {
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <Scale className="h-7 w-7 text-[#0F172A]" strokeWidth={1.5} />
-            <span className="text-xl font-bold serif text-[#0F172A]">NyayaSetu</span>
+            <AnimatedLogo size={28} />
           </Link>
           <Link href="/" className="flex items-center gap-2 text-sm text-slate-500 hover:text-[#0F172A] transition-colors font-medium">
             <ArrowLeft className="h-4 w-4" /> Back to Home

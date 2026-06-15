@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import AnimatedLogo from '@/components/AnimatedLogo';
 import axios from 'axios';
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.REACT_APP_BACKEND_URL;
 const api = axios.create({ baseURL: `${backendUrl}/api` });
@@ -170,8 +171,7 @@ const AILawLearning = ({ user, logout }) => {
       <nav className="ns-nav">
         <div className="ns-nav-inner">
           <Link href="/" className="flex items-center gap-2">
-            <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
-            <span className="text-2xl font-bold serif text-[#0F172A]">NyayaSetu</span>
+            <AnimatedLogo size={32} />
           </Link>
           <div className="ns-nav-links">
             <Link href="/advocates" className="text-slate-700 hover:text-[#0F172A] font-medium">

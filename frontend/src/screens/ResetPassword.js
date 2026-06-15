@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import AnimatedLogo from '@/components/AnimatedLogo';
 import { useRouter } from 'next/navigation';
 import { updatePassword } from '@/services/authService';
 import { getPasswordValidationMessage } from '@/lib/passwordPolicy';
@@ -46,8 +47,7 @@ const ResetPassword = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-6">
       <div className="w-full max-w-md rounded-sm bg-white p-8 shadow-[0_2px_8px_rgba(15,23,42,0.08)] md:p-12">
         <Link href="/" className="mb-8 flex items-center justify-center gap-2">
-          <Scale className="h-8 w-8 text-[#0F172A]" strokeWidth={1.5} />
-          <span className="serif text-2xl font-bold text-[#0F172A]">NyayaSetu</span>
+          <AnimatedLogo size={32} />
         </Link>
         <h1 className="serif mb-2 text-center text-3xl font-semibold text-[#0F172A]">Set New Password</h1>
         <p className="mb-8 text-center text-sm text-slate-600">Choose a strong password to secure your account.</p>

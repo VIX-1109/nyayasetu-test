@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Scale, ArrowRight, Search, BookOpen } from 'lucide-react';
+import AnimatedLogo from '@/components/AnimatedLogo';
 import { Button } from '@/components/ui/button';
 
 export default function NotFound() {
@@ -12,8 +13,7 @@ export default function NotFound() {
 
         {/* Logo */}
         <div className="flex items-center justify-center gap-2">
-          <Scale className="h-7 w-7 text-white" strokeWidth={1.5} />
-          <span className="text-xl font-bold serif text-white">NyayaSetu</span>
+          <AnimatedLogo size={28} navy="#ffffff" />
         </div>
 
         {/* 404 number */}
