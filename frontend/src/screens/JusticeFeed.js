@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useJusticeFeed } from '@/hooks/useJusticeFeed';
+import { getLegalNews } from '@/services/newsService';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -15,13 +16,6 @@ import { toast } from 'sonner';
 import AccountMenu from '@/components/AccountMenu';
 import MobileNav from '@/components/MobileNav';
 import NotificationBell from '@/components/NotificationBell';
-
-const newsItems = [
-  { id: 1, title: 'SC expands definition of "Vulnerability" in domestic violence cases', time: '2h ago', tag: 'Supreme Court' },
-  { id: 2, title: 'New Consumer Protection rules take effect from June 2026', time: '5h ago', tag: 'Consumer Law' },
-  { id: 3, title: 'Digital Personal Data Protection Act: Key updates for citizens', time: '8h ago', tag: 'Data Rights' },
-  { id: 4, title: 'Advocates Act: New ethics guidelines issued by Bar Council of India', time: '1d ago', tag: 'Legal Ethics' },
-];
 
 const trendingTopics = [
   { icon: ShieldAlert, label: 'Consumer Fraud', count: '240 active', color: 'text-emerald-600 bg-emerald-50' },
@@ -373,6 +367,17 @@ const JusticeFeed = ({ user, logout }) => {
   } = useJusticeFeed(user);
 
   const [activeCategory, setActiveCategory] = useState('All');
+  const [news, setNews] = useState([]);
+  const [newsLoading, setNewsLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    getLegalNews(5)
+      .then((items) => { if (active) setNews(items); })
+      .catch(() => { if (active) setNews([]); })
+      .finally(() => { if (active) setNewsLoading(false); });
+    return () => { active = false; };
+  }, []);
 
   const filteredPosts = activeCategory === 'All'
     ? posts
@@ -536,15 +541,42 @@ const JusticeFeed = ({ user, logout }) => {
                 </span>
               </div>
               <div className="divide-y divide-slate-100">
-                {newsItems.map((news) => (
-                  <div key={news.id} className="px-5 py-4 hover:bg-slate-50 transition-colors cursor-pointer group">
-                    <span className="text-[9px] font-black text-[#B45309] uppercase tracking-widest">{news.tag}</span>
-                    <h4 className="text-sm font-semibold text-slate-800 leading-snug mt-1 group-hover:text-[#B45309] transition-colors line-clamp-2">
-                      {news.title}
-                    </h4>
-                    <p className="text-[10px] text-slate-400 mt-1 font-medium">{news.time}</p>
+                {newsLoading ? (
+                  [...Array(4)].map((_, i) => (
+                    <div key={i} className="px-5 py-4 animate-pulse space-y-2">
+                      <div className="h-2 w-20 bg-slate-100 rounded" />
+                      <div className="h-3.5 w-full bg-slate-100 rounded" />
+                      <div className="h-3.5 w-4/5 bg-slate-100 rounded" />
+                    </div>
+                  ))
+                ) : news.length === 0 ? (
+                  <div className="px-5 py-8 text-center">
+                    <p className="text-xs text-slate-400">No legal news yet.</p>
+                    <p className="text-[10px] text-slate-300 mt-1">Check back shortly.</p>
                   </div>
-                ))}
+                ) : (
+                  news.map((item, i) => {
+                    const Wrapper = item.url ? 'a' : 'div';
+                    const wrapperProps = item.url
+                      ? { href: item.url, target: '_blank', rel: 'noopener noreferrer' }
+                      : {};
+                    return (
+                      <Wrapper
+                        key={i}
+                        {...wrapperProps}
+                        className="block px-5 py-4 hover:bg-slate-50 transition-colors cursor-pointer group"
+                      >
+                        <span className="text-[9px] font-black text-[#B45309] uppercase tracking-widest">{item.tag}</span>
+                        <h4 className="text-sm font-semibold text-slate-800 leading-snug mt-1 group-hover:text-[#B45309] transition-colors line-clamp-2">
+                          {item.title}
+                        </h4>
+                        <p className="text-[10px] text-slate-400 mt-1 font-medium">
+                          {item.source ? `${item.source} · ` : ''}{item.time_label}
+                        </p>
+                      </Wrapper>
+                    );
+                  })
+                )}
               </div>
               <div className="px-5 py-3 border-t border-slate-100">
                 <button className="w-full text-xs font-bold text-[#B45309] hover:underline flex items-center justify-center gap-1">
