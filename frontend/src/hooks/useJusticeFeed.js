@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getPosts, createPost, createComment, toggleReaction, reportPost } from '@/services/postService';
 import { getRankedPostIds, enrichPost, logInteraction } from '@/services/lexfeedService';
 import { supabase } from '@/lib/supabaseClient';
+import { formatRelativeTime } from '@/lib/utils';
 import { toast } from 'sonner';
 
 // Reorder Supabase posts by LexFeed's ranked id list. Posts not in the
@@ -271,13 +272,4 @@ export const useJusticeFeed = (user) => {
     isModalOpen, setIsModalOpen,
     handlePost, handleLike, handleComment, handleReport, handleRetweet
   };
-};
-
-const formatRelativeTime = (iso) => {
-  const diff = Date.now() - new Date(iso).getTime();
-  const minutes = Math.max(1, Math.floor(diff / 60000));
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return new Date(iso).toLocaleDateString();
 };

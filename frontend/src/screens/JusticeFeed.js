@@ -18,6 +18,7 @@ import { toast } from 'sonner';
 import AccountMenu from '@/components/AccountMenu';
 import MobileNav from '@/components/MobileNav';
 import NotificationBell from '@/components/NotificationBell';
+import { formatRelativeTime as formatTime } from '@/lib/utils';
 
 const trendingTopics = [
   { icon: ShieldAlert, label: 'Consumer Fraud', count: '240 active', color: 'text-emerald-600 bg-emerald-50' },
@@ -28,15 +29,6 @@ const trendingTopics = [
 
 const ALL_CATEGORIES = ['All', 'Legal News', 'Help Request', 'Article', 'Short Update', 'Consumer Rights', 'Property Law', 'Family Law', 'Criminal Law', 'Tenant Rights', 'RTI', 'Employment'];
 const POST_CATEGORIES = ['Consumer Rights', 'Property Law', 'Family Law', 'Employment', 'Criminal Law', 'Women Safety', 'RTI', 'Tenant Rights'];
-
-const formatTime = (iso) => {
-  const diff = Date.now() - new Date(iso).getTime();
-  const minutes = Math.max(1, Math.floor(diff / 60000));
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return new Date(iso).toLocaleDateString('en-IN');
-};
 
 const SkeletonPost = () => (
   <div className="bg-white border border-slate-200 rounded-sm p-6 animate-pulse space-y-4">
