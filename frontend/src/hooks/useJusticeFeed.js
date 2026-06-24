@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getPosts, createPost, createComment, toggleReaction, reportPost } from '@/services/postService';
+import { getPosts, createPost, createComment, toggleReaction, reportPost, uploadPostMedia } from '@/services/postService';
 import { getRankedPostIds, enrichPost, logInteraction } from '@/services/lexfeedService';
 import { supabase } from '@/lib/supabaseClient';
 import { formatRelativeTime } from '@/lib/utils';
@@ -97,9 +97,22 @@ export const useJusticeFeed = (user) => {
     }
   };
 
-  const handlePost = async (e) => {
+  const handlePost = async (e, mediaFile = null) => {
     e.preventDefault();
     if (!content.trim() || !user) return;
+
+    let mediaUrl = null;
+    let mediaType = null;
+    if (mediaFile) {
+      try {
+        mediaUrl = await uploadPostMedia(mediaFile, user.id);
+        mediaType = mediaFile.type.startsWith('image/') ? 'image'
+          : mediaFile.type.startsWith('video/') ? 'video'
+          : 'document';
+      } catch {
+        toast.error('Media upload failed — post will be text-only.');
+      }
+    }
 
     const newPost = {
       id: `local-${Date.now()}`,
@@ -109,6 +122,8 @@ export const useJusticeFeed = (user) => {
       verified: !isAnonymous && (user.role === 'admin' || user.role === 'advocate'),
       type, category,
       content: content.trim(),
+      media_url: mediaUrl,
+      media_type: mediaType,
       created_at: new Date().toISOString(),
       reactions: 0, comments_count: 0, has_liked: false, comments: []
     };
@@ -118,14 +133,16 @@ export const useJusticeFeed = (user) => {
         authorId: user.id, type, category,
         content: newPost.content,
         isVerified: newPost.verified,
-        isAnonymous
+        isAnonymous,
+        mediaUrl,
+        mediaType,
       });
       setPosts(prev => [{
         ...newPost,
         id: savedPost.id,
         created_at: savedPost.created_at
       }, ...prev]);
-      enrichPost(savedPost.id, newPost.content); // classify + embed for ranking
+      enrichPost(savedPost.id, newPost.content);
       setContent('');
       setIsAnonymous(false);
       setIsModalOpen(false);

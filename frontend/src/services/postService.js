@@ -1,5 +1,14 @@
 import { supabase } from '@/lib/supabaseClient';
 
+export const uploadPostMedia = async (file, userId) => {
+  const ext = file.name.split('.').pop();
+  const path = `${userId}/${Date.now()}.${ext}`;
+  const { error } = await supabase.storage.from('post-media').upload(path, file);
+  if (error) throw error;
+  const { data } = supabase.storage.from('post-media').getPublicUrl(path);
+  return data.publicUrl;
+};
+
 export const getPosts = async () => {
   const { data, error } = await supabase
     .from('posts')
@@ -20,7 +29,7 @@ export const getPosts = async () => {
   return data;
 };
 
-export const createPost = async ({ authorId, type, category, content, isAnonymous, isVerified }) => {
+export const createPost = async ({ authorId, type, category, content, isAnonymous, isVerified, mediaUrl = null, mediaType = null }) => {
   const { data, error } = await supabase
     .from('posts')
     .insert({
@@ -30,7 +39,8 @@ export const createPost = async ({ authorId, type, category, content, isAnonymou
       content,
       status: 'published',
       author_verified: isVerified,
-      is_anonymous: isAnonymous
+      is_anonymous: isAnonymous,
+      ...(mediaUrl && { media_url: mediaUrl, media_type: mediaType }),
     })
     .select('*, profiles(name, role)')
     .single();

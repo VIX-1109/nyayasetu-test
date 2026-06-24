@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import AnimatedLogo from '@/components/AnimatedLogo';
 import { useJusticeFeed } from '@/hooks/useJusticeFeed';
@@ -54,6 +54,18 @@ const SkeletonPost = () => (
 const PostCard = ({ post, user, onLike, onComment, onReport }) => {
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
+
+  const handleShare = () => {
+    const text = post.content.length > 120 ? post.content.slice(0, 120) + '…' : post.content;
+    const url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: 'NyayaSetu Post', text, url }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(`${text}\n\n${url}`)
+        .then(() => toast.success('Link copied to clipboard!'))
+        .catch(() => toast.error('Could not copy link.'));
+    }
+  };
 
   const handleSubmitComment = (e) => {
     e.preventDefault();
@@ -141,6 +153,21 @@ const PostCard = ({ post, user, onLike, onComment, onReport }) => {
           {post.content}
         </p>
 
+        {/* Attached media */}
+        {post.media_url && post.media_type === 'image' && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={post.media_url} alt="" className="w-full max-h-80 object-cover rounded-sm mb-4 border border-slate-100" />
+        )}
+        {post.media_url && post.media_type === 'video' && (
+          <video src={post.media_url} controls className="w-full max-h-80 rounded-sm mb-4 border border-slate-100" />
+        )}
+        {post.media_url && post.media_type === 'document' && (
+          <a href={post.media_url} target="_blank" rel="noreferrer"
+            className="flex items-center gap-2 text-xs text-[#B45309] font-bold mb-4 hover:underline">
+            <FileText className="h-4 w-4" /> View attached document
+          </a>
+        )}
+
         {/* Help request warning */}
         {post.type === 'Help Request' && (
           <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-sm flex items-start gap-3">
@@ -176,7 +203,8 @@ const PostCard = ({ post, user, onLike, onComment, onReport }) => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => toast.info('Share coming soon!')}
+            onClick={handleShare}
+            title="Share post"
             className="h-9 w-9 text-slate-400 hover:text-[#0F172A] hover:bg-slate-50 rounded-sm"
           >
             <Share2 className="h-4 w-4" />
@@ -228,8 +256,41 @@ const PostCard = ({ post, user, onLike, onComment, onReport }) => {
   );
 };
 
-const PostComposerDialog = ({ user, isModalOpen, setIsModalOpen, content, setContent, type, setType, category, setCategory, isAnonymous, setIsAnonymous, handlePost }) => (
-  <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+const PostComposerDialog = ({ user, isModalOpen, setIsModalOpen, content, setContent, type, setType, category, setCategory, isAnonymous, setIsAnonymous, handlePost }) => {
+  const [mediaFile, setMediaFile] = useState(null);
+  const [mediaPreview, setMediaPreview] = useState(null);
+  const imageRef = useRef(null);
+  const videoRef = useRef(null);
+  const docRef = useRef(null);
+
+  const onFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setMediaFile(file);
+    if (file.type.startsWith('image/')) {
+      setMediaPreview({ type: 'image', url: URL.createObjectURL(file), name: file.name });
+    } else if (file.type.startsWith('video/')) {
+      setMediaPreview({ type: 'video', url: URL.createObjectURL(file), name: file.name });
+    } else {
+      setMediaPreview({ type: 'document', name: file.name });
+    }
+  };
+
+  const clearMedia = () => {
+    setMediaFile(null);
+    setMediaPreview(null);
+    if (imageRef.current) imageRef.current.value = '';
+    if (videoRef.current) videoRef.current.value = '';
+    if (docRef.current) docRef.current.value = '';
+  };
+
+  const handleSubmit = (e) => {
+    handlePost(e, mediaFile);
+    clearMedia();
+  };
+
+  return (
+  <Dialog open={isModalOpen} onOpenChange={(open) => { setIsModalOpen(open); if (!open) clearMedia(); }}>
     <DialogTrigger asChild>
       <div className="bg-white border border-slate-200 rounded-sm p-4 shadow-sm flex items-center gap-3 cursor-pointer hover:shadow-md transition-shadow">
         <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0">
@@ -256,7 +317,7 @@ const PostComposerDialog = ({ user, isModalOpen, setIsModalOpen, content, setCon
         </DialogTitle>
       </DialogHeader>
 
-      <form onSubmit={handlePost} className="p-6 space-y-5">
+      <form onSubmit={handleSubmit} className="p-6 space-y-5">
         {/* Author row */}
         <div className="flex items-center gap-3">
           <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
@@ -324,15 +385,52 @@ const PostComposerDialog = ({ user, isModalOpen, setIsModalOpen, content, setCon
           </div>
         )}
 
+        {/* Media preview */}
+        {mediaPreview && (
+          <div className="relative rounded-sm border border-slate-200 overflow-hidden bg-slate-50">
+            {mediaPreview.type === 'image' && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={mediaPreview.url} alt="" className="w-full max-h-52 object-cover" />
+            )}
+            {mediaPreview.type === 'video' && (
+              <video src={mediaPreview.url} controls className="w-full max-h-52" />
+            )}
+            {mediaPreview.type === 'document' && (
+              <div className="flex items-center gap-2 p-3 text-sm text-slate-600">
+                <FileText className="h-5 w-5 text-[#B45309] shrink-0" />
+                <span className="truncate">{mediaPreview.name}</span>
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={clearMedia}
+              className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full hover:bg-black/80"
+            >
+              Remove
+            </button>
+          </div>
+        )}
+
+        {/* Hidden file inputs */}
+        <input ref={imageRef} type="file" accept="image/*" className="hidden" onChange={onFileChange} />
+        <input ref={videoRef} type="file" accept="video/*" className="hidden" onChange={onFileChange} />
+        <input ref={docRef} type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={onFileChange} />
+
         <div className="flex justify-between items-center pt-2 border-t border-slate-100">
           <div className="flex gap-1">
-            <Button type="button" variant="ghost" size="icon" className="h-9 w-9 text-slate-400 hover:text-[#B45309] rounded-sm">
+            <Button type="button" variant="ghost" size="icon" title="Add photo"
+              onClick={() => imageRef.current?.click()}
+              className="h-9 w-9 text-slate-400 hover:text-[#B45309] rounded-sm">
               <ImageIcon className="h-4 w-4" />
             </Button>
-            <Button type="button" variant="ghost" size="icon" className="h-9 w-9 text-slate-400 hover:text-[#B45309] rounded-sm">
+            <Button type="button" variant="ghost" size="icon" title="Add video"
+              onClick={() => videoRef.current?.click()}
+              className="h-9 w-9 text-slate-400 hover:text-[#B45309] rounded-sm">
               <Video className="h-4 w-4" />
             </Button>
-            <Button type="button" variant="ghost" size="icon" className="h-9 w-9 text-slate-400 hover:text-[#B45309] rounded-sm">
+            <Button type="button" variant="ghost" size="icon" title="Add document"
+              onClick={() => docRef.current?.click()}
+              className="h-9 w-9 text-slate-400 hover:text-[#B45309] rounded-sm">
               <FileText className="h-4 w-4" />
             </Button>
           </div>
@@ -347,7 +445,8 @@ const PostComposerDialog = ({ user, isModalOpen, setIsModalOpen, content, setCon
       </form>
     </DialogContent>
   </Dialog>
-);
+  );
+};
 
 const NewsCard = ({ article, user, onRetweet }) => (
   <div className="bg-white border border-slate-200 rounded-sm shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
